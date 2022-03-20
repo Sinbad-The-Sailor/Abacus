@@ -1,5 +1,6 @@
-# An equity model can be thought of BEING a stock itself.
+# An equity model can be thought of BEING a model of a STOCK itself.
 # The stock will have some price history, ticker, bid-ask spreads, etc, currency, ISIN
+# This data will primarily exist in the StockData class, which will be fed into the StockModel for further usage
 
 # When creating an equity model you will feed it data from a stock_data object.
 
