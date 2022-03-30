@@ -5,6 +5,7 @@
 # When creating an equity model you will feed it data from a stock_data object.
 import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
 
 from scipy.optimize import minimize
 
@@ -22,17 +23,18 @@ class StockData:
 
 
 class EquityModel:
+    _stock_data = None
     _model_solution = None
     _model_fitted = False
 
     def __init__(self, stock_data):
-        self.stock_data = stock_data
+        self._stock_data = stock_data
 
     def run_simulation(self):
         pass
 
     def fit_model(self, model='normal'):
-        data = self.stock_data.get_log_returns()
+        data = self._stock_data.get_log_returns()
         data = data.to_list()
 
         if model == 'normal':
@@ -106,3 +108,34 @@ class EquityModel:
 
     def _likelihood_constraints_generalized_hyperbolic(self):
         pass
+
+    def plot_volatility(self):
+        # Plotting GJR-GARCH fitted volatility.
+        params = self._model_solution.x
+        omg = params[0]
+        alp = params[1]
+        bet = params[2]
+        gam = params[3]
+
+        data = self._stock_data.get_log_returns()
+        time = data.index[1:]
+        data = data.to_list()
+        vol = []
+
+        curr_vol = (omg
+                    + alp * (data[0] ** 2)
+                    + gam * (data[0] ** 2) * np.where(data[0], 1, 0)
+                    + bet * (data[0] ** 2))
+        vol.append(curr_vol)
+
+        for i in range(2, len(data)):
+            curr_vol = (omg
+                        + alp * (data[i - 1] ** 2)
+                        + gam * (data[i - 1] ** 2) * np.where(data[i - 1] < 0, 1, 0)
+                        + bet * (vol[i - 2]))
+            vol.append(curr_vol)
+
+        vol = np.sqrt(vol)
+        plt.title(self._stock_data.ric)
+        plt.plot(time[20:], vol[20:])
+        plt.show()
