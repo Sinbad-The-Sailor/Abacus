@@ -58,6 +58,9 @@ class EquityModel:
 
             return garch_model_solution
 
+        elif model == 'normal poisson mixture':
+            pass
+
         elif model == 'generalized hyperbolic':
             cons = self._likelihood_constraints_generalized_hyperbolic()
             func = self._likelihood_constraints_generalized_hyperbolic
@@ -102,6 +105,17 @@ class EquityModel:
                       {'type': 'ineq', 'fun': lambda x:  x[1] + x[3]},
                       {'type': 'ineq', 'fun': lambda x:  x[2]}]
         return cons_garch
+
+    def _likelihood_function_normal_poisson_mixture(self, params, data):
+        # param[0] is omega
+        # param[1] is alpha
+        # param[2] is beta0
+        # param[3] is beta1 (asymmetry modifier)
+        # param[4] is mu
+        n_observations = len(data)
+        likelihood = 0
+
+        # Add sum of log likelihood by PDF through normal_poisson_mixture PDF here.
 
     def _likelihood_function_generalized_hyperbolic(self, params, data):
         pass

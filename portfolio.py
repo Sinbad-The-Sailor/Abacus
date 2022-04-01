@@ -4,6 +4,9 @@
 
 class Portfolio:
     assets = []
+    weights = []
+    portfolio_value = []
 
-    def __int__(self, asset_ric: list):
-        pass
+    def __int__(self, asset_ric=[], weights=[], portfolio_value=0):
+        self.portfolio_value = portfolio_value
+        self.weights = weights
