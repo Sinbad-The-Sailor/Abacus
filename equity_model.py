@@ -21,6 +21,10 @@ class StockData:
         self.ric = ric
 
     def get_log_returns(self):
+        """
+
+        :return:
+        """
         return np.log(self.adj_close / self.adj_close.shift(1))[1:]
 
 
@@ -36,6 +40,11 @@ class EquityModel:
         pass
 
     def fit_model(self, model='normal'):
+        """
+
+        :param model:
+        :return:
+        """
         data = self._stock_data.get_log_returns()
         data = data.to_list()
 
@@ -86,13 +95,20 @@ class EquityModel:
 
     # noinspection PyMethodMayBeStatic
     def _likelihood_function_normal(self, params, data) -> float:
-        # param[0] is omega
-        # param[1] is alpha
-        # param[2] is beta0
-        # param[3] is beta1 (asymmetry modifier)
-        # param[4] is mu
-        # Note: vol_estimate is squared in this function.
-        # Note: The negative log likelihood value is returned to be minimized instead of maximized.
+        """
+        Conditional GJR-GARCH likelihood function with normal innovations, derived as in John C. Hull Risk Management.
+        Note, the vol_estimate is squared to simplify calculations. Note, the negative log likelihood is return to be
+        minimized.
+
+        :param params: list of parameters involved. By standard notation it follows:
+                       param[0] is omega |
+                       param[1] is alpha |
+                       param[2] is beta0 |
+                       param[3] is beta1 (asymmetry modifier) |
+                       param[4] is mu
+        :param data: list of observations, e.g. log-returns over time.
+        :return: Negative log-likelihood value.
+        """
         n_observations = len(data)
         log_likelihood = 0
         initial_squared_vol_estimate = (params[0]
@@ -114,6 +130,10 @@ class EquityModel:
 
     # noinspection PyMethodMayBeStatic
     def _likelihood_constraints_normal(self) -> dict:
+        """
+
+        :return:
+        """
         # x[0] is omega
         # x[1] is alpha
         # x[2] is beta0
@@ -127,6 +147,12 @@ class EquityModel:
 
     # noinspection PyMethodMayBeStatic
     def _likelihood_function_normal_poisson_mixture(self, params, data):
+        """
+
+        :param params:
+        :param data:
+        :return:
+        """
         # param[0] is omega
         # param[1] is alpha
         # param[2] is beta0
@@ -154,6 +180,10 @@ class EquityModel:
 
     # noinspection PyMethodMayBeStatic
     def _likelihood_constraints_normal_poisson_mix(self) -> dict:
+        """
+
+        :return:
+        """
         # param[0] is omega
         # param[1] is alpha
         # param[2] is beta0
@@ -169,7 +199,6 @@ class EquityModel:
                               {'type': 'ineq', 'fun': lambda x: x[6]}
                               ]
         return cons_garch_poisson
-
 
     def _likelihood_function_generalized_hyperbolic(self, params, data):
         pass
