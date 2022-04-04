@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 
 from scipy.optimize import minimize
 
-from distributions.normal_poisson_mixture import norm_poisson_mix_pdf
+from distributions.normal_poisson_mixture import norm_poisson_mix_pdf, student_poisson_mix_pdf
 
 
 class StockData:
@@ -82,6 +82,27 @@ class EquityModel:
             kappa = 0.05
             lamb = 0.5
             x0 = [omega0, alpha0, beta0, beta1, mu0, kappa, lamb]
+            garch_poisson_model_solution = minimize(func, x0, constraints=cons, args=data)
+
+            self._model_solution = garch_poisson_model_solution
+            self._model_fitted = True
+
+            return garch_poisson_model_solution
+
+        elif model == 'student poisson mixture':
+            cons = self._likelihood_constraints_student_poisson_mix()
+            func = self._likelihood_function_student_poisson_mixture
+
+            # Initial conditions for GJR-GARCH(1,1) model with Poisson normal jumps.
+            omega0 = 0.001
+            alpha0 = 0.05
+            beta0 = 0.80
+            beta1 = 0.02
+            mu0 = np.mean(data)
+            kappa = 0.05
+            lamb = 0.5
+            nu = 5
+            x0 = [omega0, alpha0, beta0, beta1, mu0, kappa, lamb, nu]
             garch_poisson_model_solution = minimize(func, x0, constraints=cons, args=data)
 
             self._model_solution = garch_poisson_model_solution
@@ -199,6 +220,68 @@ class EquityModel:
                               {'type': 'ineq', 'fun': lambda x: x[6]}
                               ]
         return cons_garch_poisson
+
+    # noinspection PyMethodMayBeStatic
+    def _likelihood_function_student_poisson_mixture(self, params, data):
+        """
+
+        :param params:
+        :param data:
+        :return:
+        """
+        # param[0] is omega
+        # param[1] is alpha
+        # param[2] is beta0
+        # param[3] is beta1 (asymmetry modifier)
+        # param[4] is mu
+        # param[5] is kappa
+        # param[6] is lambda
+        # param[7] is nu
+        n_observations = len(data)
+        log_likelihood = 0
+        initial_squared_vol_estimate = (params[0]
+                                        + params[1] * (data[0] ** 2)
+                                        + params[3] * (data[0] ** 2) * np.where(data[0] < 0, 1, 0)
+                                        + params[2] * (data[0] ** 2))
+        current_squared_vol_estimate = initial_squared_vol_estimate
+
+        for i in range(0, n_observations):
+            log_likelihood = log_likelihood + np.log(student_poisson_mix_pdf(data[i], params[4],
+                                                                             np.sqrt(current_squared_vol_estimate),
+                                                                             params[5], params[6], params[7]
+                                                                             ))
+
+            current_squared_vol_estimate = (params[0] + params[1] * (data[i - 1] ** 2)
+                                            + params[3] * (data[i - 1] ** 2) * np.where(data[i - 1] < 0, 1, 0)
+                                            + params[2] * current_squared_vol_estimate)
+
+        return -log_likelihood
+
+    # noinspection PyMethodMayBeStatic
+    def _likelihood_constraints_student_poisson_mix(self) -> dict:
+        """
+
+        :return:
+        """
+        # param[0] is omega
+        # param[1] is alpha
+        # param[2] is beta0
+        # param[3] is beta1 (asymmetry modifier)
+        # param[4] is mu
+        # param[5] is kappa
+        # param[6] is lambda
+        # param[7] is nu
+        cons_garch_poisson = [{'type': 'ineq', 'fun': lambda x: -x[1] - x[2] - (0.5 * x[3]) + 1},
+                              {'type': 'ineq', 'fun': lambda x: x[0]},
+                              {'type': 'ineq', 'fun': lambda x: x[1] + x[3]},
+                              {'type': 'ineq', 'fun': lambda x: x[2]},
+                              {'type': 'ineq', 'fun': lambda x: x[5]},
+                              {'type': 'ineq', 'fun': lambda x: x[6]},
+                              {'type': 'ineq', 'fun': lambda x: x[7]}]
+        return cons_garch_poisson
+
+
+
 
     def _likelihood_function_generalized_hyperbolic(self, params, data):
         pass

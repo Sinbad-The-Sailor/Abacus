@@ -27,13 +27,12 @@ class Portfolio:
         for asset in tqdm(self.assets, desc="Downloading Data.".ljust(25)):
             parse_yahoo_data(asset)
 
-        for asset in tqdm(self.assets, desc="Creating Asset Models.".ljust(25)):
+        for asset in tqdm(self.assets, desc="Creating Asset Models.".ljust(25), text_pane="cyan"):
             self.asset_models.append(EquityModel(asset))
 
     def fit_asset_models(self):
         for eq_model in tqdm(self.asset_models, desc="MLE fitting models.".ljust(25)):
-            eq_model.fit_model("normal")
-            # eq_model.fit_model("normal poisson mixture")
+            eq_model.fit_model("normal poisson mixture")
 
     def plot_volatilities(self):
         for eq_model in self.asset_models:
