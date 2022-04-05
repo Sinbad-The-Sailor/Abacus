@@ -271,13 +271,14 @@ class EquityModel:
         # param[5] is kappa
         # param[6] is lambda
         # param[7] is nu
+        abstol = 1e-6
         cons_garch_poisson = [{'type': 'ineq', 'fun': lambda x: -x[1] - x[2] - (0.5 * x[3]) + 1},
-                              {'type': 'ineq', 'fun': lambda x: x[0]},
-                              {'type': 'ineq', 'fun': lambda x: x[1] + x[3]},
-                              {'type': 'ineq', 'fun': lambda x: x[2]},
-                              {'type': 'ineq', 'fun': lambda x: x[5]},
-                              {'type': 'ineq', 'fun': lambda x: x[6]},
-                              {'type': 'ineq', 'fun': lambda x: x[7]}]
+                              {'type': 'ineq', 'fun': lambda x: x[0]-abstol},
+                              {'type': 'ineq', 'fun': lambda x: x[1] + x[3]-abstol},
+                              {'type': 'ineq', 'fun': lambda x: x[2]-abstol},
+                              {'type': 'ineq', 'fun': lambda x: x[5]-abstol},
+                              {'type': 'ineq', 'fun': lambda x: x[6]-abstol},
+                              {'type': 'ineq', 'fun': lambda x: x[7]}-2-abstol]
         return cons_garch_poisson
 
 
