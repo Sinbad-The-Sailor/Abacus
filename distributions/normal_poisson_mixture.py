@@ -75,6 +75,6 @@ def _hyperbolic_integral(s: float, x: float, k: int,  mu: float, sigma: float, k
 #plt.plot(x, y(x, 0, 1, 0.1, 0.5, 10))
 #plt.plot(x, norm.pdf(x, 0, 1))
 #plt.show()
-
-print(quad(student_poisson_mix_pdf, -50, 50, args=(0, 1, 0.5, 0.5, 5)))
+#print('hello')
+#print(quad(student_poisson_mix_pdf, -50, 50, args=(0, 1, 0.5, 0.5, 5)))
 #print(quad(generalized_hyperbolic_poisson_mix_pdf, -10, 10, args=(0, 1, 0.5, 0.5, 0.1, 2, 1, 1, 0)))

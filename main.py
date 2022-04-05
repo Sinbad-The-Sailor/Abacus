@@ -2,7 +2,6 @@
 from portfolio import Portfolio
 
 if __name__ == '__main__':
-    print('running')
     # Testing sensibility of GJR-GARCH modelling by assets in different asset classes.
     # Note: Testing assets include non-equity class assets.
     assets_ric = ['^GSPC', '^IXIC', '^RUT', '^N225',

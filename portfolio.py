@@ -27,7 +27,7 @@ class Portfolio:
         for asset in tqdm(self.assets, desc="Downloading Data.".ljust(25)):
             parse_yahoo_data(asset)
 
-        for asset in tqdm(self.assets, desc="Creating Asset Models.".ljust(25), text_pane="cyan"):
+        for asset in tqdm(self.assets, desc="Creating Asset Models.".ljust(25)):
             self.asset_models.append(EquityModel(asset))
 
     def fit_asset_models(self):
