@@ -278,7 +278,7 @@ class EquityModel:
                               {'type': 'ineq', 'fun': lambda x: x[2]-abstol},
                               {'type': 'ineq', 'fun': lambda x: x[5]-abstol},
                               {'type': 'ineq', 'fun': lambda x: x[6]-abstol},
-                              {'type': 'ineq', 'fun': lambda x: x[7]}-2-abstol]
+                              {'type': 'ineq', 'fun': lambda x: x[7]-3-abstol}]
         return cons_garch_poisson
 
 
