@@ -320,3 +320,6 @@ class EquityModel:
         plt.title(self._stock_data.ric)
         plt.plot(time[20:], vol[20:])
         plt.show()
+
+        def plot_qq(self):
+            pass

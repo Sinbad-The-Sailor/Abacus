@@ -39,3 +39,8 @@ class Portfolio:
         for eq_model in self.asset_models:
             eq_model.plot_volatility()
             break
+
+    def plot_qqs(self):
+        for eq_model in self.asset_models:
+            eq_model.plot_qq()
+            break
