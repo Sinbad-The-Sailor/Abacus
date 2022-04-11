@@ -5,11 +5,15 @@
 # When creating an equity model you will feed it data from a stock_data object.
 import numpy as np
 import pandas as pd
+
 from matplotlib import pyplot as plt
+from statsmodels.graphics.gofplots import qqplot
+from scipy.stats import norm, uniform
 
 from scipy.optimize import minimize
 
-from distributions.normal_poisson_mixture import norm_poisson_mix_pdf, student_poisson_mix_pdf
+from distributions.normal_poisson_mixture import norm_poisson_mix_pdf, student_poisson_mix_pdf, student_poisson_mix_cdf, \
+    norm_poisson_mix_cdf
 
 
 class StockData:
@@ -32,6 +36,7 @@ class EquityModel:
     _stock_data = None
     _model_solution = None
     _model_fitted = False
+    _uniform_transformed_returns = []
 
     def __init__(self, stock_data):
         self._stock_data = stock_data
@@ -99,14 +104,17 @@ class EquityModel:
             beta0 = 0.80
             beta1 = 0.02
             mu0 = np.mean(data)
-            kappa = 0.05
-            lamb = 0.5
+            kappa = 0.15
+            lamb = 0.05
             nu = 5
             x0 = [omega0, alpha0, beta0, beta1, mu0, kappa, lamb, nu]
             garch_poisson_model_solution = minimize(func, x0, constraints=cons, args=data)
 
             self._model_solution = garch_poisson_model_solution
             self._model_fitted = True
+
+            ##REMOVE
+            print(self._model_solution)
 
             return garch_poisson_model_solution
 
@@ -281,15 +289,6 @@ class EquityModel:
                               {'type': 'ineq', 'fun': lambda x: x[7]-3-abstol}]
         return cons_garch_poisson
 
-
-
-
-    def _likelihood_function_generalized_hyperbolic(self, params, data):
-        pass
-
-    def _likelihood_constraints_generalized_hyperbolic(self):
-        pass
-
     def plot_volatility(self):
         # Plotting GJR-GARCH fitted volatility.
         params = self._model_solution.x
@@ -321,5 +320,47 @@ class EquityModel:
         plt.plot(time[20:], vol[20:])
         plt.show()
 
-        def plot_qq(self):
-            pass
+    def _generate_uniform_return_observations(self):
+        # param[0] is omega
+        # param[1] is alpha
+        # param[2] is beta0
+        # param[3] is beta1 (asymmetry modifier)
+        # param[4] is mu
+        # param[5] is kappa
+        # param[6] is lambda
+        # param[7] is nu
+
+        uniforms = []
+        data = self._stock_data.get_log_returns()
+        params = self._model_solution.x
+        curr_vol = (params[0]
+                    + params[1] * (data[0] ** 2)
+                    + params[3] * (data[0] ** 2) * np.where(data[0], 1, 0)
+                    + params[2] * (data[0] ** 2))
+        for i in range(1, len(data)):
+            u = student_poisson_mix_cdf(data[i], params[4], np.sqrt(curr_vol), params[5], params[6], params[7])
+            u = norm.ppf(u, 0, 1)
+
+            # When using normal, apply this to find quantile-quantile plot.
+            # u = (data[i] - params[4]) / np.sqrt(curr_vol)
+            # u = norm.cdf(u, 0, 1)
+            uniforms.append(u)
+            curr_vol = (params[0]
+                        + params[1] * (data[i] ** 2)
+                        + params[3] * (data[i] ** 2) * np.where(data[i], 1, 0)
+                        + params[2] * (curr_vol ** 2))
+        return np.array(uniforms)
+
+    def plot_qq(self):
+        uniforms = self._generate_uniform_return_observations()
+        # print(uniforms)
+        # uniforms = np.array([0.2355308106743407, 1.0123330201868257, 0.39007099401279804, 0.8018236669397528
+        # , 0.7197739224659218,
+        #  0.3089332968440605, 0.9467258073257198, 0.6691295789643134, 0.14409443323794693, 0.3395247481945062,
+        #  0.6477521646516081, 0.09830541061569531, 0.7251616289032655, 0.9963219669549799, 0.9357035053919509,
+        #  0.8797167372693029, 1.0088739527878925, 0.4059636809638224, 0.5766043484666629, 0.09714799142760418,
+        #  0.25127672065851625, 1.172366772963457, 0.23164595293810397, 1.022380253386123, 0.8489397458938767])
+        # qqplot(uniforms, norm)
+
+        qqplot(uniforms, norm, fit=False, line='q')
+        plt.show()

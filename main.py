@@ -14,3 +14,5 @@ if __name__ == '__main__':
     portfolio.load_yahoo_data()
     portfolio.fit_asset_models()
     portfolio.plot_volatilities()
+    print('Running QQ.')
+    portfolio.plot_qqs()
