@@ -26,7 +26,7 @@ def norm_poisson_mix_cdf(x: float, mu: float, sigma: float, kappa: float, lamb: 
 
 
 def student_poisson_mix_pdf(x: float, mu: float, sigma: float, kappa: float, lamb: float, nu: float,
-                            number_of_terms: int = 50) -> float:
+                            number_of_terms: int = 10) -> float:
 
     normalizing_constant = (gamma((nu + 1) / 2)) / (sigma * np.sqrt(np.pi * (nu - 2)) * gamma(nu / 2))
 
@@ -48,7 +48,7 @@ def _student_integral(s: float, x: float, k: int, mu: float, sigma: float, kappa
 
 
 def student_poisson_mix_cdf(x: float, mu: float, sigma: float, kappa: float, lamb: float, nu: float,
-                            number_of_terms: int = 50, lower_limit: float = 4.) -> float:
+                            number_of_terms: int = 10, lower_limit: float = 7.) -> float:
     return quad(student_poisson_mix_pdf, -lower_limit, x, args=(mu, sigma, kappa, lamb, nu, number_of_terms))[0]
 
 
@@ -147,11 +147,11 @@ def _hyperbolic_integral(s: float, x: float, k: int,  mu: float, sigma: float, k
 # print(elapsed)
 # plt.show()
 
-# params = {1: (0, 1, 0.09, 0.05, 9),
+# params = {1: (0, 1, 0.09, 0.05, 4),
 #           2: (0.1, 0.50, 0.35, 0.15, 5),
 #           3: (-0.3, 0.75, 0.55, 0.55, 10),
 #           4: (0.05, 1.1, 0.75, 0.75, 16),
-#           5: (0, 0.50, 0.01, 0.05, 5)}
+#           5: (0, 0.10, 0.11, 0.15, 5)}
 # lower_limit = [1, 2, 3, 4, 5]
 #
 # for i in params.keys():

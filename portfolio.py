@@ -21,19 +21,19 @@ class Portfolio:
         self.assets_ric = assets_ric
 
     def load_yahoo_data(self):
-        for ric in tqdm(self.assets_ric, desc="Creating Data Objects.".ljust(25)):
+        for ric in tqdm(self.assets_ric, desc="Creating Data Objects.".ljust(25), colour='CYAN'):
             self.assets.append(StockData(ric))
 
-        for asset in tqdm(self.assets, desc="Downloading Data.".ljust(25)):
+        for asset in tqdm(self.assets, desc="Downloading Data.".ljust(25), colour='CYAN'):
             parse_yahoo_data(asset)
             break
 
-        for asset in tqdm(self.assets, desc="Creating Asset Models.".ljust(25)):
+        for asset in tqdm(self.assets, desc="Creating Asset Models.".ljust(25), colour='CYAN'):
             self.asset_models.append(EquityModel(asset))
             break
 
     def fit_asset_models(self):
-        for eq_model in tqdm(self.asset_models, desc="MLE fitting models.".ljust(25)):
+        for eq_model in tqdm(self.asset_models, desc="MLE fitting models.".ljust(25), colour='CYAN'):
             eq_model.fit_model("student poisson mixture")
             break
 

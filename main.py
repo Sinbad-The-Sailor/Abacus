@@ -1,10 +1,8 @@
-
 from portfolio import Portfolio
 
 if __name__ == '__main__':
-    # Testing sensibility of GJR-GARCH modelling by assets in different asset classes.
-    # Note: Testing assets include non-equity class assets.
-    assets_ric = ['^GSPC', '^IXIC', '^RUT', '^N225',
+    # Assets to test
+    assets_ric = ['^N225', '^IXIC', '^RUT', '^GSPC',
                   'GS', 'XOM', 'WFC', 'MS', 'KO', 'T', 'VZ',
                   'AUDUSD=X', 'EURUSD=X', 'JPYUSD=X', 'NOKUSD=X', 'GBPUSD=X',
                   'CL=F', 'GC=F', 'SI=F',
@@ -13,6 +11,6 @@ if __name__ == '__main__':
     portfolio = Portfolio(assets_ric=assets_ric)
     portfolio.load_yahoo_data()
     portfolio.fit_asset_models()
-    portfolio.plot_volatilities()
     print('Running QQ.')
     portfolio.plot_qqs()
+    portfolio.plot_volatilities()
