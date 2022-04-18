@@ -1,13 +1,7 @@
-import math
-import time
-
 import numpy as np
-from matplotlib import pyplot as plt
 
-from scipy.stats import poisson
-from scipy.stats import norm
-from scipy.special import gamma
-from scipy.special import kv
+from scipy.stats import norm, poisson
+from scipy.special import gamma, kv
 from scipy.integrate import quad
 from scipy.optimize import root_scalar
 
@@ -165,11 +159,3 @@ def _hyperbolic_integral(s: float, x: float, k: int,  mu: float, sigma: float, k
 #         elapsed = time.time() - t
 #         err = abs(val-corr)
 #         print(f'Lower limit: {limit} yields value: {val} with error: {err} with time elapsed {elapsed}')
-
-# print(quad(student_poisson_mix_pdf, -700, 700, args=(0, 0.50, 0.25, 0.05, 9)))
-# print(quad(generalized_hyperbolic_poisson_mix_pdf, -10, 10, args=(0, 1, 0.5, 0.5, 0.1, 1, 4, 1, 0)))
-
-
-
-
-
