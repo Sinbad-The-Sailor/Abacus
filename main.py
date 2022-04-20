@@ -1,6 +1,9 @@
+import config as cfg
+
 from portfolio import Portfolio
 
 if __name__ == '__main__':
+    cfg.run_configuration()
     # Testing assets.
     assets_ric = ['^N225', '^IXIC', '^RUT', '^GSPC',
                   'GS', 'XOM', 'WFC', 'MS', 'KO', 'T', 'VZ',

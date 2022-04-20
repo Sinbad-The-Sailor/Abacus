@@ -1,4 +1,3 @@
-from data_paser import parse_yahoo_data
 from models.equity_model import EquityModel
 from stock_data import StockData
 from tqdm import tqdm
@@ -17,7 +16,7 @@ class Portfolio:
             self.assets.append(StockData(ric))
 
         for asset in tqdm(self.assets, desc="Downloading Data.".ljust(25), colour='CYAN'):
-            parse_yahoo_data(asset)
+            asset.parse_yahoo_data()
             break
 
         for asset in tqdm(self.assets, desc="Creating Asset Models.".ljust(25), colour='CYAN'):
