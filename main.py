@@ -1,7 +1,7 @@
 from portfolio import Portfolio
 
 if __name__ == '__main__':
-    # Assets to test
+    # Testing assets.
     assets_ric = ['^N225', '^IXIC', '^RUT', '^GSPC',
                   'GS', 'XOM', 'WFC', 'MS', 'KO', 'T', 'VZ',
                   'AUDUSD=X', 'EURUSD=X', 'JPYUSD=X', 'NOKUSD=X', 'GBPUSD=X',
