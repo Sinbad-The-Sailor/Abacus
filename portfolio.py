@@ -1,24 +1,16 @@
-# A portfolio should be created in main and fed a list of RICs to fetch data and "have" 1..n assets. This portfolio
-# should only have few functions such as, VAR monte carlo EVT, which starts running the VaR calculations with simulation
-# techniques.
 from data_paser import parse_yahoo_data
-from equity_model import StockData, EquityModel
+from models.equity_model import EquityModel
+from stock_data import StockData
 from tqdm import tqdm
 
 
 class Portfolio:
-    assets_ric = []
-    assets = []
-    asset_models = []
-    # weights = []
-    # portfolio_value = []
 
-    def __init__(self, assets_ric=[], weights=[], portfolio_value=0):
+    def __init__(self, assets_ric=[], assets=[], assets_models=[]):
         if assets_ric:
             self.assets_ric = assets_ric
-
-    def set_assets_ric(self, assets_ric: list):
-        self.assets_ric = assets_ric
+        self.assets = assets
+        self.asset_models = assets_models
 
     def load_yahoo_data(self):
         for ric in tqdm(self.assets_ric, desc="Creating Data Objects.".ljust(25), colour='CYAN'):
