@@ -2,7 +2,8 @@
 
 Modelling future prices of assets including:
 
-* Equities
+* **Equities**
+
 Stocks and other equities are model using a modified version of a discretized Merton-Jump-Diffusion SDE. Volatility is updated using a GJR-GARCH(1,1) model, and innovations within the model have a generalized Student's t distribution.
 
 <p align="center">
