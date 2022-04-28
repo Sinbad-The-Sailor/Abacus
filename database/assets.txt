@@ -1,3 +1,5 @@
+DATES: 2012-03-01-2022-03-01
+
 Largest EFT:s according to Reuters in their respective region.
 Around 8 assets excluding FX
 3 FX rates needing to be estimated
@@ -12,7 +14,7 @@ Around 8 assets excluding FX
     iShares Core € Corp Bond UCITS ETF EUR D, IEAC.L, EUR
 
 # Asia Pacific
-    Nomura NF Nikkei 225 ETF, 1321.T, JPY
+    Nomura NF Nikkei 225 ETF, 1321.T, JPY: OK
 
 # Oceania
     Vanguard Australian Shares Index ETF, VAX.AX, AUD
