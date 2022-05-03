@@ -25,7 +25,7 @@ class Portfolio:
 
     def fit_asset_models(self):
         for eq_model in tqdm(self.asset_models, desc="MLE fitting models.".ljust(25), colour='CYAN'):
-            eq_model.fit_model("student poisson mixture")
+            eq_model.fit_model("normal poisson mixture")
             break
 
     def plot_volatilities(self):

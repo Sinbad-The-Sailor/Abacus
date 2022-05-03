@@ -10,12 +10,11 @@ from distributions.student_poisson_mixture import spm
 
 
 class EquityModel:
-    _model_solution = None
-    _model_fitted = False
-    _uniform_transformed_returns = []
-
     def __init__(self, stock_data):
         self._stock_data = stock_data
+        self._model_solution = None
+        self._model_fitted = False
+        self._uniform_transformed_returns = []
 
     def run_simulation(self):
         pass

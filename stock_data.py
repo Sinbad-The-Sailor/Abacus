@@ -1,13 +1,15 @@
 import pandas as pd
 import numpy as np
 
+from config import ABACUS_DATABASE_CONNECTION
 from pandas_datareader import data as pdr
+from database.database_parser import select_price_data
 
 
 class StockData:
 
     def __init__(self, ric):
-        self.adj_close = pd.DataFrame()
+        self.adj_close = select_price_data(ABACUS_DATABASE_CONNECTION, ric)
         self.ric = ric
 
     def get_log_returns(self):
