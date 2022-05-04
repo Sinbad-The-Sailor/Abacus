@@ -2,6 +2,7 @@
 TODO: Implement data parser from Refinitiv Eikon to abacus_database.db automatically.
 """
 import sqlite3
+import pandas as pd
 
 from sqlite3 import Error
 
@@ -32,7 +33,7 @@ def select_init_solution(connection: object, asset: str) -> list:
 def write_final_solution(connection: object, params):
     cur = connection.cursor()
     sql = '''INSERT INTO asset_model_student_solutions(asset, mu, omega, beta0, beta1, beta2, kappa, lambda, nu) 
-             VALUES(?, ?, ?, ?,  ?, ?, ?, ?, ? )
+             VALUES(?, ?, ?, ?, ?, ?, ?, ?, ? )
           '''
     cur.execute(sql, params)
     connection.commit()
@@ -40,8 +41,15 @@ def write_final_solution(connection: object, params):
 
 
 def select_price_data(connection: object, asset: str) -> list:
-    # TODO: Return a dataframe with adj.close and the date.
     cur = connection.cursor()
-    cur.execute("SELECT close FROM asset_prices WHERE ASSET = '%s'" % asset)
-    close_data = [price_tuple[0] for price_tuple in cur.fetchall()]
-    return close_data
+    cur.execute("SELECT date, close FROM asset_prices WHERE ASSET = '%s'" % asset)
+    close_data = [price_tuple[:] for price_tuple in cur.fetchall()]
+
+    # Correcting the order for StockData log-return calculation.
+    close_data.reverse()
+
+    # Formatting data as a proper Pandas dataframe.
+    df = pd.DataFrame(close_data, columns=['date', 'close'])
+    df.set_index('date', inplace=True, drop=True)
+    df.index = pd.to_datetime(df.index)
+    return df

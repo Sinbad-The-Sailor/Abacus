@@ -4,20 +4,20 @@ from tqdm import tqdm
 
 
 class Portfolio:
-
     def __init__(self, assets_ric=[], assets=[], assets_models=[]):
         if assets_ric:
             self.assets_ric = assets_ric
         self.assets = assets
         self.asset_models = assets_models
 
-    def load_yahoo_data(self):
+    def load_asset_data(self):
         for ric in tqdm(self.assets_ric, desc="Creating Data Objects.".ljust(25), colour='CYAN'):
             self.assets.append(StockData(ric))
-
-        for asset in tqdm(self.assets, desc="Downloading Data.".ljust(25), colour='CYAN'):
-            asset.parse_yahoo_data()
             break
+
+        # for asset in tqdm(self.assets, desc="Downloading Data.".ljust(25), colour='CYAN'):
+        #     asset.parse_yahoo_data()
+        #     break
 
         for asset in tqdm(self.assets, desc="Creating Asset Models.".ljust(25), colour='CYAN'):
             self.asset_models.append(EquityModel(asset))

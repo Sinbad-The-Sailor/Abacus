@@ -7,5 +7,6 @@ ABACUS_DATABASE_CONNECTION = database_parser.create_connection('database/abacus_
 
 def run_configuration():
     plt.rcParams['text.usetex'] = True
-    plt.rcParams["figure.figsize"] = (10, 8)
+    plt.rcParams["figure.figsize"] = (18, 15)
     plt.style.use(PLOT_STYLE)
+

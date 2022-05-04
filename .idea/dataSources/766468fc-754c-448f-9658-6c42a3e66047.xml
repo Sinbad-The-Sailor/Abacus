@@ -1321,7 +1321,7 @@
       <Position>6</Position>
     </column>
     <column id="485" parent="473" name="beta2">
-      <DataType>integer|0s</DataType>
+      <DataType>real|0s</DataType>
       <Position>7</Position>
     </column>
     <column id="486" parent="473" name="kappa">

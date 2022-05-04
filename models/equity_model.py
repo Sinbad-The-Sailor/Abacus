@@ -8,10 +8,14 @@ from scipy.optimize import minimize
 from distributions.norm_poisson_mixture import npm
 from distributions.student_poisson_mixture import spm
 
+from config import ABACUS_DATABASE_CONNECTION
+from database import database_parser
+
 
 class EquityModel:
     def __init__(self, stock_data):
         self._stock_data = stock_data
+        self._init = database_parser.select_init_solution(ABACUS_DATABASE_CONNECTION, stock_data.ric)
         self._model_solution = None
         self._model_fitted = False
         self._uniform_transformed_returns = []
@@ -21,7 +25,7 @@ class EquityModel:
 
     def fit_model(self, model='normal'):
         data = self._stock_data.get_log_returns()
-        data = data.to_list()
+        data = data['close']
 
         if model == 'normal':
             cons = self._likelihood_constraints_normal()
@@ -47,41 +51,37 @@ class EquityModel:
         elif model == 'normal poisson mixture':
             cons = self._likelihood_constraints_normal_poisson_mix()
             func = self._likelihood_function_normal_poisson_mixture
-
-            # Initial conditions for GJR-GARCH(1,1) model with Poisson normal jumps.
-            omega0 = 0.001
-            alpha0 = 0.05
-            beta0 = 0.80
-            beta1 = 0.02
-            mu0 = np.mean(data)
-            kappa = 2.9
-            lamb = 0.1587
-            x0 = np.array([omega0, alpha0, beta0, beta1, mu0, kappa, lamb])
+            init = self._init
+            x0 = np.array(init)
+            x0 = x0[0:-1]
             garch_poisson_model_solution = minimize(func, x0, constraints=cons, args=data)
 
             self._model_solution = garch_poisson_model_solution
             self._model_fitted = True
+            print(garch_poisson_model_solution.x)
 
             return garch_poisson_model_solution
 
         elif model == 'student poisson mixture':
-            cons = self._likelihood_constraints_student_poisson_mix()
+            # param[0] is omega
+            # param[1] is alpha
+            # param[2] is beta0
+            # param[3] is beta1 (asymmetry modifier)
+            # param[4] is mu
+            # param[5] is kappa
+            # param[6] is lambda
+            # param[7] is nu
+            # TODO: Change the order in database such that it matches with init, and the output solution.
             func = self._likelihood_function_student_poisson_mixture
+            cons = self._likelihood_constraints_student_poisson_mix()
+            init = self._init
+            x0 = np.array(init)
 
-            # Initial conditions for GJR-GARCH(1,1) model with Poisson normal jumps.
-            omega0 = 0.001
-            alpha0 = 0.05
-            beta0 = 0.80
-            beta1 = 0.02
-            mu0 = np.mean(data)
-            kappa = 2.9
-            lamb = 0.1587
-            nu = 7
-            x0 = np.array([omega0, alpha0, beta0, beta1, mu0, kappa, lamb, nu])
             garch_poisson_model_solution = minimize(func, x0, constraints=cons, args=data)
 
             self._model_solution = garch_poisson_model_solution
             self._model_fitted = True
+
 
             return garch_poisson_model_solution
 
@@ -262,7 +262,7 @@ class EquityModel:
 
         data = self._stock_data.get_log_returns()
         time = data.index[1:]
-        data = data.to_list()
+        data = data['close']
         vol = []
 
         curr_vol = (omg
@@ -280,7 +280,7 @@ class EquityModel:
 
         vol = np.sqrt(vol)
         plt.title(self._stock_data.ric)
-        plt.plot(time[20:], vol[20:])
+        plt.plot(data.index[21:], vol[20:])
         plt.show()
 
     def _generate_uniform_return_observations(self):
@@ -295,6 +295,7 @@ class EquityModel:
 
         uniforms = []
         data = self._stock_data.get_log_returns()
+        data = data['close']
         params = self._model_solution.x
         curr_vol = (params[0]
                     + params[1] * (data[0] ** 2)
@@ -302,7 +303,10 @@ class EquityModel:
                     + params[2] * (data[0] ** 2))
 
         for i in range(1, len(data)):
-            u = spm.cdf(data[i], params[4], np.sqrt(curr_vol), params[5], params[6], params[7])
+            # Student T Mixture
+            # u = spm.cdf(data[i], params[4], np.sqrt(curr_vol), params[5], params[6], params[7])
+            # Normal Mixture
+            u = npm.cdf(data[i], params[4], np.sqrt(curr_vol), params[5], params[6])
             print(u)
             u = norm.ppf(u, 0, 1)
 
