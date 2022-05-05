@@ -1284,225 +1284,355 @@
     <argument id="472" parent="162">
       <Position>1</Position>
     </argument>
-    <table id="473" parent="163" name="asset_model_student_init_solutions"/>
-    <table id="474" parent="163" name="asset_model_student_solutions"/>
-    <table id="475" parent="163" name="asset_prices"/>
-    <table id="476" parent="163" name="assets"/>
-    <table id="477" parent="163" name="sqlite_master">
+    <table id="473" parent="163" name="A"/>
+    <table id="474" parent="163" name="B"/>
+    <table id="475" parent="163" name="asset_model_student_init_solutions"/>
+    <table id="476" parent="163" name="asset_model_student_solutions"/>
+    <table id="477" parent="163" name="asset_prices"/>
+    <table id="478" parent="163" name="assets"/>
+    <table id="479" parent="163" name="sqlite_master">
       <System>1</System>
     </table>
-    <table id="478" parent="163" name="sqlite_sequence">
+    <table id="480" parent="163" name="sqlite_sequence">
       <System>1</System>
     </table>
-    <column id="479" parent="473" name="ID">
+    <column id="481" parent="473" name="ID">
       <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
     </column>
-    <column id="480" parent="473" name="asset">
+    <column id="482" parent="473" name="asset">
       <DataType>text|0s</DataType>
       <Position>2</Position>
     </column>
-    <column id="481" parent="473" name="mu">
+    <column id="483" parent="473" name="omega">
       <DataType>real|0s</DataType>
+      <DefaultExpression>0</DefaultExpression>
       <Position>3</Position>
     </column>
-    <column id="482" parent="473" name="omega">
+    <column id="484" parent="473" name="beta0">
       <DataType>real|0s</DataType>
+      <DefaultExpression>0</DefaultExpression>
       <Position>4</Position>
     </column>
-    <column id="483" parent="473" name="beta0">
+    <column id="485" parent="473" name="beta1">
       <DataType>real|0s</DataType>
+      <DefaultExpression>0</DefaultExpression>
       <Position>5</Position>
     </column>
-    <column id="484" parent="473" name="beta1">
+    <column id="486" parent="473" name="beta2">
       <DataType>real|0s</DataType>
+      <DefaultExpression>0</DefaultExpression>
       <Position>6</Position>
     </column>
-    <column id="485" parent="473" name="beta2">
+    <column id="487" parent="473" name="mu">
       <DataType>real|0s</DataType>
+      <DefaultExpression>0</DefaultExpression>
       <Position>7</Position>
     </column>
-    <column id="486" parent="473" name="kappa">
+    <column id="488" parent="473" name="kappa">
       <DataType>real|0s</DataType>
+      <DefaultExpression>0</DefaultExpression>
       <Position>8</Position>
     </column>
-    <column id="487" parent="473" name="lambda">
+    <column id="489" parent="473" name="lamb">
       <DataType>real|0s</DataType>
+      <DefaultExpression>0</DefaultExpression>
       <Position>9</Position>
     </column>
-    <column id="488" parent="473" name="nu">
+    <column id="490" parent="473" name="nu">
       <DataType>real|0s</DataType>
+      <DefaultExpression>5</DefaultExpression>
       <Position>10</Position>
     </column>
-    <foreign-key id="489" parent="473" name="asset_model_student_init_solutions_assets_NAME_fk">
+    <foreign-key id="491" parent="473" name="A_assets_NAME_fk">
       <ColNames>asset</ColNames>
       <RefColNames>NAME</RefColNames>
       <RefTableName>assets</RefTableName>
     </foreign-key>
-    <index id="490" parent="473" name="asset_model_student_init_solutions_ID_uindex">
+    <index id="492" parent="473" name="A_ID_uindex">
       <ColNames>ID</ColNames>
       <Unique>1</Unique>
     </index>
-    <key id="491" parent="473" name="asset_model_student_init_solutions_pk">
+    <key id="493" parent="473" name="A_pk">
+      <ColNames>ID</ColNames>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>A_ID_uindex</UnderlyingIndexName>
+    </key>
+    <column id="494" parent="474" name="ID">
+      <AutoIncrement>1</AutoIncrement>
+      <DataType>integer|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+    </column>
+    <column id="495" parent="474" name="asset">
+      <DataType>text|0s</DataType>
+      <Position>2</Position>
+    </column>
+    <column id="496" parent="474" name="omega">
+      <DataType>real|0s</DataType>
+      <DefaultExpression>0</DefaultExpression>
+      <Position>3</Position>
+    </column>
+    <column id="497" parent="474" name="beta0">
+      <DataType>real|0s</DataType>
+      <DefaultExpression>0</DefaultExpression>
+      <Position>4</Position>
+    </column>
+    <column id="498" parent="474" name="beta1">
+      <DataType>real|0s</DataType>
+      <DefaultExpression>0</DefaultExpression>
+      <Position>5</Position>
+    </column>
+    <column id="499" parent="474" name="beta2">
+      <DataType>real|0s</DataType>
+      <DefaultExpression>0</DefaultExpression>
+      <Position>6</Position>
+    </column>
+    <column id="500" parent="474" name="mu">
+      <DataType>real|0s</DataType>
+      <DefaultExpression>0</DefaultExpression>
+      <Position>7</Position>
+    </column>
+    <column id="501" parent="474" name="kappa">
+      <DataType>real|0s</DataType>
+      <DefaultExpression>0</DefaultExpression>
+      <Position>8</Position>
+    </column>
+    <column id="502" parent="474" name="lamb">
+      <DataType>real|0s</DataType>
+      <DefaultExpression>0</DefaultExpression>
+      <Position>9</Position>
+    </column>
+    <column id="503" parent="474" name="nu">
+      <DataType>real|0s</DataType>
+      <DefaultExpression>5</DefaultExpression>
+      <Position>10</Position>
+    </column>
+    <foreign-key id="504" parent="474" name="B_assets_NAME_fk">
+      <ColNames>asset</ColNames>
+      <RefColNames>NAME</RefColNames>
+      <RefTableName>assets</RefTableName>
+    </foreign-key>
+    <index id="505" parent="474" name="B_ID_uindex">
+      <ColNames>ID</ColNames>
+      <Unique>1</Unique>
+    </index>
+    <key id="506" parent="474" name="B_pk">
+      <ColNames>ID</ColNames>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>B_ID_uindex</UnderlyingIndexName>
+    </key>
+    <column id="507" parent="475" name="ID">
+      <AutoIncrement>1</AutoIncrement>
+      <DataType>integer|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+    </column>
+    <column id="508" parent="475" name="asset">
+      <DataType>text|0s</DataType>
+      <Position>2</Position>
+    </column>
+    <column id="509" parent="475" name="mu">
+      <DataType>real|0s</DataType>
+      <Position>3</Position>
+    </column>
+    <column id="510" parent="475" name="omega">
+      <DataType>real|0s</DataType>
+      <Position>4</Position>
+    </column>
+    <column id="511" parent="475" name="beta0">
+      <DataType>real|0s</DataType>
+      <Position>5</Position>
+    </column>
+    <column id="512" parent="475" name="beta1">
+      <DataType>real|0s</DataType>
+      <Position>6</Position>
+    </column>
+    <column id="513" parent="475" name="beta2">
+      <DataType>real|0s</DataType>
+      <Position>7</Position>
+    </column>
+    <column id="514" parent="475" name="kappa">
+      <DataType>real|0s</DataType>
+      <Position>8</Position>
+    </column>
+    <column id="515" parent="475" name="lambda">
+      <DataType>real|0s</DataType>
+      <Position>9</Position>
+    </column>
+    <column id="516" parent="475" name="nu">
+      <DataType>real|0s</DataType>
+      <Position>10</Position>
+    </column>
+    <foreign-key id="517" parent="475" name="asset_model_student_init_solutions_assets_NAME_fk">
+      <ColNames>asset</ColNames>
+      <RefColNames>NAME</RefColNames>
+      <RefTableName>assets</RefTableName>
+    </foreign-key>
+    <index id="518" parent="475" name="asset_model_student_init_solutions_ID_uindex">
+      <ColNames>ID</ColNames>
+      <Unique>1</Unique>
+    </index>
+    <key id="519" parent="475" name="asset_model_student_init_solutions_pk">
       <ColNames>ID</ColNames>
       <Primary>1</Primary>
       <UnderlyingIndexName>asset_model_student_init_solutions_ID_uindex</UnderlyingIndexName>
     </key>
-    <column id="492" parent="474" name="id">
+    <column id="520" parent="476" name="id">
       <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
     </column>
-    <column id="493" parent="474" name="asset">
+    <column id="521" parent="476" name="asset">
       <DataType>text|0s</DataType>
       <Position>2</Position>
     </column>
-    <column id="494" parent="474" name="mu">
+    <column id="522" parent="476" name="mu">
       <DataType>real|0s</DataType>
       <Position>3</Position>
     </column>
-    <column id="495" parent="474" name="omega">
+    <column id="523" parent="476" name="omega">
       <DataType>real|0s</DataType>
       <Position>4</Position>
     </column>
-    <column id="496" parent="474" name="beta0">
+    <column id="524" parent="476" name="beta0">
       <DataType>real|0s</DataType>
       <Position>5</Position>
     </column>
-    <column id="497" parent="474" name="beta1">
+    <column id="525" parent="476" name="beta1">
       <DataType>real|0s</DataType>
       <Position>6</Position>
     </column>
-    <column id="498" parent="474" name="beta2">
+    <column id="526" parent="476" name="beta2">
       <DataType>real|0s</DataType>
       <Position>7</Position>
     </column>
-    <column id="499" parent="474" name="kappa">
+    <column id="527" parent="476" name="kappa">
       <DataType>real|0s</DataType>
       <Position>8</Position>
     </column>
-    <column id="500" parent="474" name="lambda">
+    <column id="528" parent="476" name="lambda">
       <DataType>real|0s</DataType>
       <Position>9</Position>
     </column>
-    <column id="501" parent="474" name="nu">
+    <column id="529" parent="476" name="nu">
       <DataType>real|0s</DataType>
       <Position>10</Position>
     </column>
-    <foreign-key id="502" parent="474" name="asset_model_student_solutions_assets_NAME_fk">
+    <foreign-key id="530" parent="476" name="asset_model_student_solutions_assets_NAME_fk">
       <ColNames>asset</ColNames>
       <RefColNames>NAME</RefColNames>
       <RefTableName>assets</RefTableName>
     </foreign-key>
-    <index id="503" parent="474" name="asset_model_student_solutions_id_uindex">
+    <index id="531" parent="476" name="asset_model_student_solutions_id_uindex">
       <ColNames>id</ColNames>
       <Unique>1</Unique>
     </index>
-    <key id="504" parent="474" name="asset_model_student_solutions_pk">
+    <key id="532" parent="476" name="asset_model_student_solutions_pk">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
       <UnderlyingIndexName>asset_model_student_solutions_id_uindex</UnderlyingIndexName>
     </key>
-    <column id="505" parent="475" name="ID">
+    <column id="533" parent="477" name="ID">
       <AutoIncrement>1</AutoIncrement>
       <DataType>integer|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
     </column>
-    <column id="506" parent="475" name="date">
+    <column id="534" parent="477" name="date">
       <DataType>TEXT|0s</DataType>
       <Position>2</Position>
     </column>
-    <column id="507" parent="475" name="close">
+    <column id="535" parent="477" name="close">
       <DataType>real|0s</DataType>
       <Position>3</Position>
     </column>
-    <column id="508" parent="475" name="bid">
+    <column id="536" parent="477" name="bid">
       <DataType>real|0s</DataType>
       <Position>4</Position>
     </column>
-    <column id="509" parent="475" name="ask">
+    <column id="537" parent="477" name="ask">
       <DataType>real|0s</DataType>
       <Position>5</Position>
     </column>
-    <column id="510" parent="475" name="asset">
+    <column id="538" parent="477" name="asset">
       <DataType>TEXT|0s</DataType>
       <Position>6</Position>
     </column>
-    <foreign-key id="511" parent="475" name="asset_prices_assets_NAME_fk">
+    <foreign-key id="539" parent="477" name="asset_prices_assets_NAME_fk">
       <ColNames>asset</ColNames>
       <RefColNames>NAME</RefColNames>
       <RefTableName>assets</RefTableName>
     </foreign-key>
-    <key id="512" parent="475" name="asset_prices_pk">
+    <key id="540" parent="477" name="asset_prices_pk">
       <ColNames>ID</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="513" parent="476" name="ID">
+    <column id="541" parent="478" name="ID">
       <AutoIncrement>1</AutoIncrement>
       <DataType>INTEGER|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
     </column>
-    <column id="514" parent="476" name="TICKER">
+    <column id="542" parent="478" name="TICKER">
       <DataType>TEXT|0s</DataType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="515" parent="476" name="ISIN">
+    <column id="543" parent="478" name="ISIN">
       <DataType>TEXT|0s</DataType>
       <Position>3</Position>
     </column>
-    <column id="516" parent="476" name="CURRENCY">
+    <column id="544" parent="478" name="CURRENCY">
       <DataType>TEXT|0s</DataType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="517" parent="476" name="IS_CURRENCY">
+    <column id="545" parent="478" name="IS_CURRENCY">
       <DataType>INTEGER|0s</DataType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <column id="518" parent="476" name="NAME">
+    <column id="546" parent="478" name="NAME">
       <DataType>TEXT|0s</DataType>
       <Position>6</Position>
     </column>
-    <column id="519" parent="476" name="RIC">
+    <column id="547" parent="478" name="RIC">
       <DataType>TEXT|0s</DataType>
       <DefaultExpression>&apos;NA&apos;</DefaultExpression>
       <Position>7</Position>
     </column>
-    <key id="520" parent="476">
+    <key id="548" parent="478">
       <ColNames>ID</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="521" parent="477" name="type">
+    <column id="549" parent="479" name="type">
       <DataType>text|0s</DataType>
       <Position>1</Position>
     </column>
-    <column id="522" parent="477" name="name">
+    <column id="550" parent="479" name="name">
       <DataType>text|0s</DataType>
       <Position>2</Position>
     </column>
-    <column id="523" parent="477" name="tbl_name">
+    <column id="551" parent="479" name="tbl_name">
       <DataType>text|0s</DataType>
       <Position>3</Position>
     </column>
-    <column id="524" parent="477" name="rootpage">
+    <column id="552" parent="479" name="rootpage">
       <DataType>int|0s</DataType>
       <Position>4</Position>
     </column>
-    <column id="525" parent="477" name="sql">
+    <column id="553" parent="479" name="sql">
       <DataType>text|0s</DataType>
       <Position>5</Position>
     </column>
-    <column id="526" parent="478" name="name">
+    <column id="554" parent="480" name="name">
       <Position>1</Position>
     </column>
-    <column id="527" parent="478" name="seq">
+    <column id="555" parent="480" name="seq">
       <Position>2</Position>
     </column>
   </database-model>

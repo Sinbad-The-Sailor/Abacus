@@ -1,3 +1,6 @@
+"""
+TODO: Create makefile for initial configuration.
+"""
 from matplotlib import pyplot as plt
 from database import database_parser
 
