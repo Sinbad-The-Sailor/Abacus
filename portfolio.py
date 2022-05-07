@@ -15,10 +15,6 @@ class Portfolio:
             self.assets.append(StockData(ric))
             break
 
-        # for asset in tqdm(self.assets, desc="Downloading Data.".ljust(25), colour='CYAN'):
-        #     asset.parse_yahoo_data()
-        #     break
-
         for asset in tqdm(self.assets, desc="Creating Asset Models.".ljust(25), colour='CYAN'):
             self.asset_models.append(EquityModel(asset))
             break

@@ -7,11 +7,12 @@ from scipy.optimize import root_scalar
 
 
 class StudentPoissonMixture:
+    """
+    Representing all functionalities tied to a Student's t Poisson mixture model. The object is instantiated in the
+    file, used by importing the file and using the instance of 'spm' ('Student Poisson mixture').
+    """
     NUMBER_OF_POISSON_TERMS = 25
     LOWER_INTEGRATION_LIMIT = 7.
-
-    def __init__(self):
-        pass
 
     def pdf(self, x: float, mu: float, sigma: float, kappa: float, lamb: float, nu: float,
             number_of_terms: int = 10) -> float:

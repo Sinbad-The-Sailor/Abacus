@@ -5,11 +5,12 @@ from scipy.integrate import quad
 
 
 class NormalPoissonMixture:
+    """
+    Representing all functionalities tied to a normal Poisson mixture model. The object is instantiated in the file,
+    used by importing the file and using the instance of 'npm' ('normal Poisson mixture').
+    """
     NUMBER_OF_POISSON_TERMS = 25
     LOWER_INTEGRATION_LIMIT = 6.
-
-    def __init__(self):
-        pass
 
     @staticmethod
     def pdf(x: float, mu: float, sigma: float, kappa: float, lamb: float,

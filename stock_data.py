@@ -6,13 +6,18 @@ from database.database_parser import select_price_data
 
 
 class StockData:
+    """
+    Represents an equity object. Contains the necessary information for equity modelling fitting. Note, this object is
+    currently used as an asset object, meaning the use is not restricted to equities.
+    """
+
     def __init__(self, ric):
         self.ric = ric
         self.adj_close = select_price_data(ABACUS_DATABASE_CONNECTION, ric)
 
     def get_log_returns(self):
         """
-        Calculated logarithmic returns of adjusted close prices.
+        Calculates logarithmic returns of adjusted close prices.
 
         Returns: List of adjusted close logarithmic returns.
         """
