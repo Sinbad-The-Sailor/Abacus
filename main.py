@@ -5,7 +5,7 @@ from portfolio import Portfolio
 if __name__ == '__main__':
     cfg.run_configuration()
     # Testing assets.
-    assets_ric = ['1321', '^IXIC', '^RUT', '^GSPC',
+    assets_ric = ['IVV', '^IXIC', '^RUT', '^GSPC',
                   'GS', 'XOM', 'WFC', 'MS', 'KO', 'T', 'VZ',
                   'AUDUSD=X', 'EURUSD=X', 'JPYUSD=X', 'NOKUSD=X', 'GBPUSD=X',
                   'CL=F', 'GC=F', 'SI=F',

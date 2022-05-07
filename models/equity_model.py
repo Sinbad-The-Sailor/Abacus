@@ -78,6 +78,7 @@ class EquityModel:
             func = self._likelihood_function_student_poisson_mixture
             cons = self._likelihood_constraints_student_poisson_mix()
             init = self._init
+
             x0 = np.array(init)
 
             garch_poisson_model_solution = minimize(func, x0, constraints=cons, args=data)

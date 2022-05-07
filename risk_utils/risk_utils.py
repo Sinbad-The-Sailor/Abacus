@@ -1,5 +1,7 @@
 import numpy as np
 
+from scipy.optimize import minimize
+from scipy.stats import pareto
 
 class RiskAssessor:
     """
@@ -44,7 +46,9 @@ class RiskAssessor:
         pass
 
     def _evt_parameter_generator(self) -> list:
-        pass
+        losses = self._portfolio_losses
+        threshold = np.quantile(losses, 0.95)
+        excess_losses = [loss - threshold for loss in losses if loss > threshold]
 
     def _evt_ml_objective_function(self) -> float:
         pass
