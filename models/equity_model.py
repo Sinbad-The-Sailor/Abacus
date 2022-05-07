@@ -56,9 +56,12 @@ class EquityModel:
             x0 = x0[0:-1]
             garch_poisson_model_solution = minimize(func, x0, constraints=cons, args=data)
 
-            self._model_solution = garch_poisson_model_solution
+            self._model_solution = garch_poisson_model_solution.x
             self._model_fitted = True
-            print(garch_poisson_model_solution.x)
+
+            # sol = list(self._model_solution)
+            # sol.append(5)
+            # database_parser.write_final_solution(ABACUS_DATABASE_CONNECTION, sol, self._stock_data.ric)
 
             return garch_poisson_model_solution
 
@@ -82,6 +85,8 @@ class EquityModel:
             self._model_solution = garch_poisson_model_solution
             self._model_fitted = True
 
+            database_parser.write_final_solution(ABACUS_DATABASE_CONNECTION, list(self._model_solution.x),
+                                                 self._stock_data.ric)
 
             return garch_poisson_model_solution
 
@@ -304,9 +309,9 @@ class EquityModel:
 
         for i in range(1, len(data)):
             # Student T Mixture
-            # u = spm.cdf(data[i], params[4], np.sqrt(curr_vol), params[5], params[6], params[7])
+            u = spm.cdf(data[i], params[4], np.sqrt(curr_vol), params[5], params[6], params[7])
             # Normal Mixture
-            u = npm.cdf(data[i], params[4], np.sqrt(curr_vol), params[5], params[6])
+            # u = npm.cdf(data[i], params[4], np.sqrt(curr_vol), params[5], params[6])
             print(u)
             u = norm.ppf(u, 0, 1)
 

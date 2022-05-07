@@ -30,11 +30,19 @@ def select_init_solution(connection: object, asset: str) -> list:
     return row[0][2:]
 
 
-def write_final_solution(connection: object, params):
+def write_final_solution(connection: object, params, asset):
     cur = connection.cursor()
-    sql = '''INSERT INTO asset_model_student_solutions(asset, mu, omega, beta0, beta1, beta2, kappa, lambda, nu) 
-             VALUES(?, ?, ?, ?, ?, ?, ?, ?, ? )
-          '''
+    sql = '''UPDATE asset_model_student_solutions SET
+             omega = ?,
+             beta0 = ?,
+             beta1 = ?,
+             beta2 = ?,
+             mu = ?,
+             kappa = ?,
+             lamb = ?,
+             nu = ?
+             WHERE asset = '%s'
+          ''' % asset
     cur.execute(sql, params)
     connection.commit()
     return cur.lastrowid

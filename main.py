@@ -15,5 +15,5 @@ if __name__ == '__main__':
     portfolio.load_asset_data()
     portfolio.fit_asset_models()
     # print('Running QQ.')
-    # portfolio.plot_qqs()
-    # portfolio.plot_volatilities()
+    portfolio.plot_qqs()
+    portfolio.plot_volatilities()
