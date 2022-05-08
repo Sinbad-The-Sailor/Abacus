@@ -1,8 +1,10 @@
 import numpy as np
 
-from config import ABACUS_DATABASE_CONNECTION
 from pandas_datareader import data as pdr
+
+from config import ABACUS_DATABASE_CONNECTION
 from database.database_parser import select_price_data
+from sqlite3 import Error
 
 
 class StockData:
@@ -13,7 +15,10 @@ class StockData:
 
     def __init__(self, ric):
         self.ric = ric
-        self.adj_close = select_price_data(ABACUS_DATABASE_CONNECTION, ric)
+        try:
+            self.adj_close = select_price_data(ABACUS_DATABASE_CONNECTION, ric)
+        except Error as e:
+            print(e)
 
     def get_log_returns(self):
         """

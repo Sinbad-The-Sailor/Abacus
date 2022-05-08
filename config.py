@@ -2,10 +2,10 @@
 TODO: Create makefile for initial configuration.
 """
 from matplotlib import pyplot as plt
-from database import database_parser
+from database.database_parser import create_connection
 
 PLOT_STYLE = ['science', 'notebook', 'grid']
-ABACUS_DATABASE_CONNECTION = database_parser.create_connection('database/abacus_database.db')
+ABACUS_DATABASE_CONNECTION = create_connection('database/abacus_database.db')
 
 
 def run_configuration():

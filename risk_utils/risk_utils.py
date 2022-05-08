@@ -18,11 +18,7 @@ class RiskAssessor:
         self._evt_threshold = np.quantile(self._portfolio_losses, 0.95)
         self._excess_losses = [loss - self._evt_threshold for loss in self._portfolio_losses
                                if loss > self._evt_threshold]
-        self._evt_params = []
-
-        self.parametric_result = np.zeros(2)
-        self.non_parametric_result = np.zeros(2)
-        self.evt_result = np.zeros(2)
+        self._evt_params = np.zeros(2)
 
     def value_at_risk_non_parametric(self, quantile: float) -> float:
         """
@@ -59,7 +55,7 @@ class RiskAssessor:
 
         Returns: EVT based Value at Risk for a given confidence level.
         """
-        if not self._evt_params:
+        if not self._evt_params.any():
             self._evt_params = self._evt_parameter_generator()
 
         total_n_observations = len(self._portfolio_losses)
@@ -79,7 +75,7 @@ class RiskAssessor:
 
         Returns: EVT based Expected Shortfall for a given confidence level.
         """
-        if not self._evt_params:
+        if not self._evt_params.any():
             self._evt_params = self._evt_parameter_generator()
 
         var = self.value_at_risk_evt(quantile)
@@ -87,6 +83,20 @@ class RiskAssessor:
         xi, beta = self._evt_params[0], self._evt_params[1]
 
         return var / (1 - xi) + (beta - threshold * xi) / (1 - xi)
+
+    def risk_summary(self):
+        # Risk measurements.
+        var_np_95 = self.value_at_risk_non_parametric(0.95)
+        var_np_99 = self.value_at_risk_non_parametric(0.99)
+        es_np_95 = self.expected_shortfall_non_parametric(0.95)
+        es_np_99 = self.expected_shortfall_non_parametric(0.99)
+        var_evt_99 = self.value_at_risk_evt(0.99)
+        es_evt_99 = self.expected_shortfall_evt(0.99)
+
+        print('======== RISK ASSESSMENT ========')
+        print(f'VaR95 {var_np_95},    ES95 {es_np_95}')
+        print(f'VaR99 {var_np_99},     ES99 {es_np_99}')
+        print(f'EVT VaR99 {var_evt_99}, EVT ES99 {es_evt_99}')
 
     def _evt_parameter_generator(self) -> list:
         """
