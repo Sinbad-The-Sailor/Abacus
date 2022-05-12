@@ -26,6 +26,7 @@ class EquityModel:
     def fit_model(self, model='normal'):
         data = self._stock_data.get_log_returns()
         data = data['close']
+        print(np.mean(data))
 
         if model == 'normal':
             cons = self._likelihood_constraints_normal()
@@ -330,4 +331,5 @@ class EquityModel:
     def plot_qq(self):
         uniforms = self._generate_uniform_return_observations()
         qqplot(uniforms, norm, fit=False, line='q')
+        plt.title(self._stock_data.ric)
         plt.show()

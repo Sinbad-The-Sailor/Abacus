@@ -54,6 +54,23 @@ def select_init_solution(connection: object, asset: str) -> list:
     return row[0][2:]
 
 
+def select_curr_solution(connection: object, asset: str) -> list:
+    """
+    Selects a current solution for a Student's t Poisson mixture model. Note, this model is currently used for all
+    ETF:s in the database, regardless of the type of asset.
+
+    Args:
+        connection: a connection to the database.
+        asset: a ric/ticker identifying the asset.
+
+    Returns: list of initial parameters for the model.
+    """
+    cur = connection.cursor()
+    cur.execute("SELECT * FROM asset_model_student_solutions WHERE ASSET = '%s'" % asset)
+    row = cur.fetchall()
+    return row[0][2:]
+
+
 def write_final_solution(connection: object, params, asset):
     """
     Writes a found solution of model parameters for a Student's t Poisson mixture model to the database. Note, this
