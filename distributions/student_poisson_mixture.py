@@ -4,6 +4,7 @@ from scipy.stats import poisson
 from scipy.special import gamma
 from scipy.integrate import quad
 from scipy.optimize import root_scalar
+from numba import jit
 
 
 class StudentPoissonMixture:
