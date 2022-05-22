@@ -23,4 +23,7 @@ The conditional return distribution follow a so-called Student-Poisson-Mixture w
 
 ### **Vine Copula Dependency Strucutre**
 
+<p align="center">
+<img width="403" alt="image" src="https://user-images.githubusercontent.com/62723280/169716182-d73f6456-3f21-4074-b24c-bc94de7272f0.png">
+</p>
 
