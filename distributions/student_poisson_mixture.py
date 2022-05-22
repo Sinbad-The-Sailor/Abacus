@@ -4,7 +4,6 @@ from scipy.stats import poisson
 from scipy.special import gamma
 from scipy.integrate import quad
 from scipy.optimize import root_scalar
-from numba import jit
 
 
 class StudentPoissonMixture:
@@ -17,12 +16,15 @@ class StudentPoissonMixture:
 
     def pdf(self, x: float, mu: float, sigma: float, kappa: float, lamb: float, nu: float,
             number_of_terms: int = 10) -> float:
-        normalizing_constant = (gamma((nu + 1) / 2)) / (sigma * np.sqrt(np.pi * (nu - 2)) * gamma(nu / 2))
-        total_mix_density = np.exp(-lamb) * (1 + (x - mu) ** 2 / ((nu - 2) * sigma ** 2)) ** ((-nu - 1) / 2)
+        normalizing_constant = (gamma((nu + 1) / 2)) / \
+            (sigma * np.sqrt(np.pi * (nu - 2)) * gamma(nu / 2))
+        total_mix_density = np.exp(-lamb) * (1 + (x - mu)
+                                             ** 2 / ((nu - 2) * sigma ** 2)) ** ((-nu - 1) / 2)
 
         for k in range(1, number_of_terms):
             total_mix_density = (total_mix_density
-                                 + poisson.pmf(k, lamb) * 1 / (kappa * sigma * np.sqrt(2 * np.pi * k))
+                                 + poisson.pmf(k, lamb) * 1 / (kappa *
+                                                               sigma * np.sqrt(2 * np.pi * k))
                                  * quad(self._student_integral, -10, 10, args=(x, k, mu, sigma, kappa, nu))[0]
                                  )
         return normalizing_constant * total_mix_density
@@ -34,11 +36,14 @@ class StudentPoissonMixture:
     def ppf(self, prob: float, mu: float, sigma: float, kappa: float, lamb: float, nu: float,
             number_of_terms: int = 100, lower_limit: float = 50.):
         target = prob
-        sol = root_scalar(lambda x, *args: self.cdf(x, *args) - target,
-                          bracket=(-5 * sigma + mu, 5 * sigma + mu),
-                          args=(0, 1, 1, 0.5, 5)
-                          )
+        sol = root_scalar(lambda x, *args:
+                          self.cdf(x, *args) - target,
+                          bracket=(-10 * sigma, 10 * sigma),
+                          args=(mu, sigma, kappa, lamb, nu))
         return sol
+
+    def ppf_new(self):
+        pass
 
     @staticmethod
     def _student_integral(s: float, x: float, k: int, mu: float, sigma: float, kappa: float, nu: float) -> float:
