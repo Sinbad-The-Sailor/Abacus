@@ -22,8 +22,11 @@ The conditional return distribution follow a so-called Student-Poisson-Mixture w
 </p>
 
 ### **Vine Copula Dependency Strucutre**
+Vine copulas are derived from the so-called pair-copula-construction (PCC). This is done by decomposing a multivariate distribution (pdf), and repetedly applying Sklar's theorem. One can describe the pair construction using the graph theoreical concept of Vines.
 
+Example of 5-dimensional vine coupla (PCC).
 <p align="center">
 <img width="403" alt="image" src="https://user-images.githubusercontent.com/62723280/169716182-d73f6456-3f21-4074-b24c-bc94de7272f0.png">
 </p>
 
+### **References**
