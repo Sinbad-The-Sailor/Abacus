@@ -1,10 +1,8 @@
 # Abacus Asset Modelling
 
-Modelling future prices of assets including:
+Modelling future returns of assets using a modified Jump-Diffusion GJR-GARCH(1,1) model, where dependency is handled with so-called Vine Copulas.
 
-### **Equities**
-
----
+### **Equities and Foreign Exchange Model**
 Stocks and other equities are model using a modified version of a discretized Merton-Jump-Diffusion SDE. Volatility is updated using a GJR-GARCH(1,1) model, and innovations within the model have a generalized Student's t distribution.
 
 <p align="center">
@@ -23,12 +21,6 @@ The conditional return distribution follow a so-called Student-Poisson-Mixture w
 <img width="559" alt="image" src="https://user-images.githubusercontent.com/62723280/164237856-57a466a2-0a65-4e48-bfb3-5c6181605706.png">
 </p>
 
-### **Fixed Income**
+### **Vine Copula Dependency Strucutre**
 
----
-### **Commodities**
 
----
-### **Foreign Exchange**
-
----
