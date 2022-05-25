@@ -39,7 +39,7 @@ class StudentPoissonMixture:
         sol = root_scalar(lambda x, *args:
                           self.cdf(x, *args) - target,
                           # test 25 for IVV
-                          bracket=(-10 * sigma, 10 * sigma),
+                          bracket=(-30 * sigma, 30 * sigma),
                           args=(mu, sigma, kappa, lamb, nu))
         return sol
 
