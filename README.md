@@ -29,4 +29,10 @@ Example of 5-dimensional vine coupla (PCC).
 <img width="403" alt="image" src="https://user-images.githubusercontent.com/62723280/169716182-d73f6456-3f21-4074-b24c-bc94de7272f0.png">
 </p>
 
+### **TODO**
+
+* Implement strategy design pattern
+* Change init. parameters to avoid too large (in size) jumps.
+
+
 ### **References**
