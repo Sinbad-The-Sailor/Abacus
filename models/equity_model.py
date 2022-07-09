@@ -15,7 +15,8 @@ from database import database_parser
 class EquityModel:
     def __init__(self, stock_data):
         self._stock_data = stock_data
-        self._init = database_parser.select_init_solution(ABACUS_DATABASE_CONNECTION, stock_data.ric)
+        self._init = database_parser.select_init_solution(
+            ABACUS_DATABASE_CONNECTION, stock_data.ric)
         self._model_solution = None
         self._model_fitted = False
         self._uniform_transformed_returns = []
@@ -40,7 +41,8 @@ class EquityModel:
             mu0 = np.mean(data)
             x0 = np.array([omega0, alpha0, beta0, beta1, mu0])
 
-            garch_model_solution = minimize(func, x0, constraints=cons, args=data)
+            garch_model_solution = minimize(
+                func, x0, constraints=cons, args=data)
 
             # Added to keep method non-static. Might be useful to keep in Equity Model object instead of re-running
             # the optimization.
@@ -55,7 +57,8 @@ class EquityModel:
             init = self._init
             x0 = np.array(init)
             x0 = x0[0:-1]
-            garch_poisson_model_solution = minimize(func, x0, constraints=cons, args=data)
+            garch_poisson_model_solution = minimize(
+                func, x0, constraints=cons, args=data)
 
             self._model_solution = garch_poisson_model_solution.x
             self._model_fitted = True
@@ -82,7 +85,8 @@ class EquityModel:
 
             x0 = np.array(init)
 
-            garch_poisson_model_solution = minimize(func, x0, constraints=cons, args=data)
+            garch_poisson_model_solution = minimize(
+                func, x0, constraints=cons, args=data)
 
             self._model_solution = garch_poisson_model_solution
             self._model_fitted = True
@@ -112,13 +116,15 @@ class EquityModel:
         log_likelihood = 0
         initial_squared_vol_estimate = (params[0]
                                         + params[1] * (data[0] ** 2)
-                                        + params[3] * (data[0] ** 2) * np.where(data[0] < 0, 1, 0)
+                                        + params[3] * (data[0] ** 2) *
+                                        np.where(data[0] < 0, 1, 0)
                                         + params[2] * (data[0] ** 2))
         current_squared_vol_estimate = initial_squared_vol_estimate
 
         for i in range(1, n_observations):
             log_likelihood = (log_likelihood
-                              + ((data[i-1] - params[4]) ** 2) / current_squared_vol_estimate
+                              + ((data[i-1] - params[4]) ** 2) /
+                              current_squared_vol_estimate
                               + 2 * np.log(np.sqrt(current_squared_vol_estimate)))
 
             current_squared_vol_estimate = (params[0] + params[1] * (data[i-1] ** 2)
@@ -163,7 +169,8 @@ class EquityModel:
         log_likelihood = 0
         initial_squared_vol_estimate = (params[0]
                                         + params[1] * (data[0] ** 2)
-                                        + params[3] * (data[0] ** 2) * np.where(data[0] < 0, 1, 0)
+                                        + params[3] * (data[0] ** 2) *
+                                        np.where(data[0] < 0, 1, 0)
                                         + params[2] * (data[0] ** 2))
         current_squared_vol_estimate = initial_squared_vol_estimate
 
@@ -219,13 +226,15 @@ class EquityModel:
         log_likelihood = 0
         initial_squared_vol_estimate = (params[0]
                                         + params[1] * (data[0] ** 2)
-                                        + params[3] * (data[0] ** 2) * np.where(data[0] < 0, 1, 0)
+                                        + params[3] * (data[0] ** 2) *
+                                        np.where(data[0] < 0, 1, 0)
                                         + params[2] * (data[0] ** 2))
         current_squared_vol_estimate = initial_squared_vol_estimate
 
         for i in range(0, n_observations):
             log_likelihood = log_likelihood + np.log(spm.pdf(data[i], params[4],
-                                                     np.sqrt(current_squared_vol_estimate),
+                                                     np.sqrt(
+                                                         current_squared_vol_estimate),
                                                      params[5], params[6], params[7]
                                                      ))
 
@@ -252,7 +261,8 @@ class EquityModel:
         abstol = 1e-6
         cons_garch_poisson = [{'type': 'ineq', 'fun': lambda x: -x[1] - x[2] - (0.5 * x[3]) + 1},
                               {'type': 'ineq', 'fun': lambda x: x[0]-abstol},
-                              {'type': 'ineq', 'fun': lambda x: x[1] + x[3]-abstol},
+                              {'type': 'ineq',
+                                  'fun': lambda x: x[1] + x[3]-abstol},
                               {'type': 'ineq', 'fun': lambda x: x[2]-abstol},
                               {'type': 'ineq', 'fun': lambda x: x[5]-abstol},
                               {'type': 'ineq', 'fun': lambda x: x[6]-abstol},
@@ -281,7 +291,8 @@ class EquityModel:
         for i in range(2, len(data)):
             curr_vol = (omg
                         + alp * (data[i - 1] ** 2)
-                        + gam * (data[i - 1] ** 2) * np.where(data[i - 1] < 0, 1, 0)
+                        + gam * (data[i - 1] ** 2) *
+                        np.where(data[i - 1] < 0, 1, 0)
                         + bet * (vol[i - 2]))
             vol.append(curr_vol)
 
@@ -311,7 +322,8 @@ class EquityModel:
 
         for i in range(1, len(data)):
             # Student T Mixture
-            u = spm.cdf(data[i], params[4], np.sqrt(curr_vol), params[5], params[6], params[7])
+            u = spm.cdf(data[i], params[4], np.sqrt(curr_vol),
+                        params[5], params[6], params[7])
             # Normal Mixture
             # u = npm.cdf(data[i], params[4], np.sqrt(curr_vol), params[5], params[6])
             print(u)
