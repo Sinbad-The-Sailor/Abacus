@@ -63,7 +63,7 @@ class RiskAssessor:
         threshold = self._evt_threshold
         xi, beta = self._evt_params[0], self._evt_params[1]
 
-        return threshold + beta / xi * ( (total_n_observations / excess_n_observations * (1 - quantile)) ** (-xi) - 1)
+        return threshold + beta / xi * ((total_n_observations / excess_n_observations * (1 - quantile)) ** (-xi) - 1)
 
     def expected_shortfall_evt(self, quantile: float) -> float:
         """
@@ -85,7 +85,9 @@ class RiskAssessor:
         return var / (1 - xi) + (beta - threshold * xi) / (1 - xi)
 
     def risk_summary(self):
-        # Risk measurements.
+        """
+        Prints a summary of risk measurements.
+        """
         var_np_95 = self.value_at_risk_non_parametric(0.95)
         var_np_99 = self.value_at_risk_non_parametric(0.99)
         es_np_95 = self.expected_shortfall_non_parametric(0.95)
@@ -106,10 +108,12 @@ class RiskAssessor:
         """
         cons = []
         for obs in self._excess_losses:
-            cons.append({'type': 'ineq', 'fun': lambda x: 1 + x[0] / x[1] * obs})
+            cons.append(
+                {'type': 'ineq', 'fun': lambda x: 1 + x[0] / x[1] * obs})
 
         x0 = [0.15, 0.01]
-        sol = minimize(self._evt_ml_objective_function, x0, constraints=cons, args=self._excess_losses)
+        sol = minimize(self._evt_ml_objective_function, x0,
+                       constraints=cons, args=self._excess_losses)
         return sol.x
 
     @staticmethod
@@ -128,6 +132,7 @@ class RiskAssessor:
         log_likelihood = 0
 
         for obs in data:
-            log_likelihood = log_likelihood + np.log(1 + params[0] / params[1] * obs)
+            log_likelihood = log_likelihood + \
+                np.log(1 + params[0] / params[1] * obs)
 
         return n_observations * np.log(params[1]) + (1 + 1 / params[0]) * log_likelihood

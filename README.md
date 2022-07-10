@@ -1,8 +1,10 @@
-# Abacus Asset Modelling
+# Abacus 
 
-Modelling future returns of assets using a modified Jump-Diffusion GJR-GARCH(1,1) model, where dependency is handled with so-called Vine Copulas.
+Sequential investment decisions. 
 
-### **Equities and Foreign Exchange Model**
+Currently only working as risk utilites for portfolios and scenario generation.
+
+### **Equitie Model**
 Stocks and other equities are model using a modified version of a discretized Merton-Jump-Diffusion SDE. Volatility is updated using a GJR-GARCH(1,1) model, and innovations within the model have a generalized Student's t distribution.
 
 <p align="center">
@@ -28,11 +30,5 @@ Example of 5-dimensional vine coupla (PCC).
 <p align="center">
 <img width="403" alt="image" src="https://user-images.githubusercontent.com/62723280/169716182-d73f6456-3f21-4074-b24c-bc94de7272f0.png">
 </p>
-
-### **TODO**
-
-* Implement strategy design pattern
-* Change init. parameters to avoid too large (in size) jumps.
-
 
 ### **References**
