@@ -82,6 +82,7 @@ def main():
 
     portfolio.fit_models()
     portfolio.run_simulation()
+    print(stock1.model.generate_uniform_samples())
 
 
 if __name__ == "__main__":

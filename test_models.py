@@ -9,16 +9,15 @@ EPSILON = 1e-16
 
 
 class Model(ABC):
-    initial_parameters: np.array
-    optimal_parameters: np.array
-    uniform_transformed_samples: np.array
-    data: np.array
-    number_of_observations: int
 
     def __init__(self, initial_parameters, data):
         self.initial_parameters = initial_parameters
+        self.optimal_parameters = None
         self.data = data
         self.number_of_observations = len(data)
+        self.normalized_sample = None
+        self.uniform_sample = None
+        self.verbose = True
 
     @abstractmethod
     def fit_model(self, data: np.array) -> np.array:
@@ -30,6 +29,10 @@ class Model(ABC):
 
     @abstractmethod
     def generate_uniform_samples(self):
+        pass
+
+    @abstractmethod
+    def generate_correct_samples(self):
         pass
 
     @abstractmethod
@@ -51,7 +54,10 @@ class EquityModel(Model):
 
 class GARCHEquityModel(EquityModel):
 
-    last_volatility_estimate: float = 0
+    def __init__(self, initial_parameters, data):
+        super().__init__(initial_parameters, data)
+        self.last_volatility_estimate = 0
+        self.volatility_sample = None
 
     def run_simulation(self, number_of_iterations: int) -> np.array:
 
@@ -83,13 +89,36 @@ class GARCHEquityModel(EquityModel):
 
             result[i] = return_estimate
 
-        plt.plot(result)
-        plt.show()
+        if self.verbose:
+            plt.plot(result)
+            plt.show()
 
         return result
 
     def generate_uniform_samples(self) -> np.array:
-        print("Running equity uniforms.")
+
+        result = np.zeros(self.number_of_observations-1)
+
+        # Check if a solution exists.
+        if not self._has_solution():
+            raise ValueError("Has no valid solution")
+
+        # Check if a volatility estimate exists.
+        if self.volatility_sample is None:
+            self.volatility_sample = self._generate_volatility(
+                self.optimal_parameters)
+
+        # Create normalized sample and transform it in one go.
+        for i in range(1, self.number_of_observations):
+            # TODO: REMOVE -1. Make all arrays have correct lenght.
+            normalized_sample = self.data[i] / self.volatility_sample[i]
+            uniform_sample = norm.cdf(normalized_sample, loc=0, scale=1)
+            result[i-1] = uniform_sample
+
+        return result
+
+    def generate_correct_samples(self) -> np.array:
+        print("Resamping again.")
 
     def fit_model(self) -> bool:
         # TODO: Add number of iterations and while loop.
@@ -99,8 +128,9 @@ class GARCHEquityModel(EquityModel):
         self.optimal_parameters = solution.x
         self.last_volatility_estimate = self._generate_volatility(
             solution.x)[-1]
-        # TODO: REMOVE PRINT.
-        print(f" {solution.x} {solution.success}")
+
+        if self.verbose:
+            print(f" {solution.x} {solution.success}")
 
         return solution.success
 
@@ -158,7 +188,10 @@ class FXModel(Model):
 
 class GARCHFXModel(EquityModel):
 
-    last_volatility_estimate: float = 0
+    def __init__(self, initial_parameters, data):
+        super().__init__(initial_parameters, data)
+        self.last_volatility_estimate = 0
+        self.volatility_sample = None
 
     def run_simulation(self, number_of_iterations: int) -> np.array:
 
@@ -190,13 +223,36 @@ class GARCHFXModel(EquityModel):
 
             result[i] = return_estimate
 
-        plt.plot(result)
-        plt.show()
+        if self.verbose:
+            plt.plot(result)
+            plt.show()
 
         return result
 
     def generate_uniform_samples(self) -> np.array:
-        print("Running equity uniforms.")
+
+        result = np.zeros(self.number_of_observations-1)
+
+        # Check if a solution exists.
+        if not self._has_solution():
+            raise ValueError("Has no valid solution")
+
+        # Check if a volatility estimate exists.
+        if self.volatility_sample is None:
+            self.volatility_sample = self._generate_volatility(
+                self.optimal_parameters)
+
+        # Create normalized sample and transform it in one go.
+        for i in range(1, self.number_of_observations):
+            # TODO: REMOVE -1. Make all arrays have correct lenght.
+            normalized_sample = self.data[i] / self.volatility_sample[i]
+            uniform_sample = norm.cdf(normalized_sample, loc=0, scale=1)
+            result[i-1] = uniform_sample
+
+        return result
+
+    def generate_correct_samples(self) -> np.array:
+        print("Resampling again.")
 
     def fit_model(self) -> bool:
         # TODO: Add number of iterations and while loop.
@@ -206,8 +262,9 @@ class GARCHFXModel(EquityModel):
         self.optimal_parameters = solution.x
         self.last_volatility_estimate = self._generate_volatility(
             solution.x)[-1]
-        # TODO: REMOVE PRINT.
-        print(f" {solution.x} {solution.success}")
+
+        if self.verbose:
+            print(f" {solution.x} {solution.success}")
 
         return solution.success
 
@@ -223,9 +280,9 @@ class GARCHFXModel(EquityModel):
 
     def _constraints(self) -> list[dict]:
         constraints = [{'type': 'ineq', 'fun': lambda x: -x[1] - x[2] + (1-EPSILON)},
-                       {'type': 'ineq', 'fun': lambda x:  x[0]},
-                       {'type': 'ineq', 'fun': lambda x:  x[1]},
-                       {'type': 'ineq', 'fun': lambda x:  x[2]}]
+                       {'type': 'ineq', 'fun': lambda x:  x[0] - EPSILON},
+                       {'type': 'ineq', 'fun': lambda x:  x[1] - EPSILON},
+                       {'type': 'ineq', 'fun': lambda x:  x[2] - EPSILON}]
         return constraints
 
     def plot(self):
@@ -239,6 +296,7 @@ class GARCHFXModel(EquityModel):
     def _generate_volatility(self, params: np.array) -> np.array:
         # Number of volatility observations is one less than returns.
         # Ignore first index. One observation is automatically removed.
+        # TODO: MAKE THE ARRAYS SAME LENGHT! MISGUIDING OTHERWISE.
         result = np.zeros(self.number_of_observations)
 
         vol_est = (params[0] + params[1] *
@@ -252,4 +310,5 @@ class GARCHFXModel(EquityModel):
             result[i] = np.sqrt(vol_est)
 
         return result
+
 # endregion
