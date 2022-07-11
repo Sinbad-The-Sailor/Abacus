@@ -52,10 +52,11 @@ def main():
     fx1 = FX(ric="USDEUR=X", currency="USD", start_date=start,
              end_date=end, interval=interval)
     fx2 = FX(ric="USDGBP=X", currency="USD", start_date=start,
+
              end_date=end, interval=interval)
 
     # CREATE MODELS FOR EACH ASSET.
-    initial_parametes = [0.00001, 0.2, 0.70]
+    initial_parametes = [0.0001, 0.01, 0.5]
 
     model_XOM = GARCHEquityModel(
         initial_parameters=initial_parametes, data=stock1.return_history)
@@ -78,9 +79,9 @@ def main():
     instruments = [stock1, stock2, fx1, fx2]
 
     portfolio = Portfolio(instruments=instruments)
-    print("MODEL")
-    stock1.model.fit_model()
-    stock1.model.plot()
+
+    portfolio.fit_models()
+    portfolio.run_simulation()
 
 
 if __name__ == "__main__":

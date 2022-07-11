@@ -42,13 +42,8 @@ class Model(ABC):
         return True
 
 
+# region Equity Models
 class EquityModel(Model):
-
-    def __init__(self, initial_parameters, data):
-        super().__init__(initial_parameters, data)
-
-
-class FXModel(Model):
 
     def __init__(self, initial_parameters, data):
         super().__init__(initial_parameters, data)
@@ -57,7 +52,6 @@ class FXModel(Model):
 class GARCHEquityModel(EquityModel):
 
     last_volatility_estimate: float = 0
-    historical_volatility_estimates = np.array
 
     def run_simulation(self, number_of_iterations: int) -> np.array:
 
@@ -89,17 +83,25 @@ class GARCHEquityModel(EquityModel):
 
             result[i] = return_estimate
 
+        plt.plot(result)
+        plt.show()
+
         return result
 
-    def generate_uniform_samples(self):
+    def generate_uniform_samples(self) -> np.array:
         print("Running equity uniforms.")
 
     def fit_model(self) -> bool:
+        # TODO: Add number of iterations and while loop.
+
         solution = minimize(
             self._cost_function, self.initial_parameters, constraints=self._constraints(), args=self.data, method="SLSQP")
         self.optimal_parameters = solution.x
+        self.last_volatility_estimate = self._generate_volatility(
+            solution.x)[-1]
         # TODO: REMOVE PRINT.
         print(f" {solution.x} {solution.success}")
+
         return solution.success
 
     def _cost_function(self, params: np.array, data: np.array) -> float:
@@ -143,11 +145,20 @@ class GARCHEquityModel(EquityModel):
             result[i] = np.sqrt(vol_est)
 
         return result
+# endregion
+
+# region FX Models
 
 
-class GARCHFXModel(FXModel):
+class FXModel(Model):
 
-    last_volatility_estimate = 0
+    def __init__(self, initial_parameters, data):
+        super().__init__(initial_parameters, data)
+
+
+class GARCHFXModel(EquityModel):
+
+    last_volatility_estimate: float = 0
 
     def run_simulation(self, number_of_iterations: int) -> np.array:
 
@@ -179,35 +190,66 @@ class GARCHFXModel(FXModel):
 
             result[i] = return_estimate
 
+        plt.plot(result)
+        plt.show()
+
         return result
 
-    def generate_uniform_samples(self):
+    def generate_uniform_samples(self) -> np.array:
         print("Running equity uniforms.")
 
     def fit_model(self) -> bool:
+        # TODO: Add number of iterations and while loop.
+
         solution = minimize(
-            self._cost_function, self.initial_parameters, constraints=self._constraints(), args=self.data)
+            self._cost_function, self.initial_parameters, constraints=self._constraints(), args=self.data, method="SLSQP")
         self.optimal_parameters = solution.x
+        self.last_volatility_estimate = self._generate_volatility(
+            solution.x)[-1]
+        # TODO: REMOVE PRINT.
+        print(f" {solution.x} {solution.success}")
+
         return solution.success
 
     def _cost_function(self, params: np.array, data: np.array) -> float:
-        n_observations = len(data)
         log_loss = 0
-        vol_est = params[0] + params[1] * \
-            (data[1] ** 2) + params[2] * (data[1] ** 2)
-        for i in range(2, n_observations):
-            log_loss = log_loss - \
-                (np.log(vol_est + EPSILON) + (data[i] ** 2) / vol_est)
-            vol_est = params[0] + params[1] * \
-                (data[i] ** 2) + params[2] * vol_est
+        vol_est = self._generate_volatility(params)
 
-        self.last_volatility_estimate = np.sqrt(vol_est)
-        print(vol_est)
+        for i in range(1, self.number_of_observations):
+            log_loss += (np.log(vol_est[i] ** 2 + EPSILON) +
+                         (data[i] ** 2)/(vol_est[i] ** 2))
+
         return log_loss
 
-    def _constraints(self) -> dict:
-        constraints = [{'type': 'ineq', 'fun': lambda x: -x[1] - x[2] + 1},
+    def _constraints(self) -> list[dict]:
+        constraints = [{'type': 'ineq', 'fun': lambda x: -x[1] - x[2] + (1-EPSILON)},
                        {'type': 'ineq', 'fun': lambda x:  x[0]},
                        {'type': 'ineq', 'fun': lambda x:  x[1]},
                        {'type': 'ineq', 'fun': lambda x:  x[2]}]
         return constraints
+
+    def plot(self):
+        if not self._has_solution():
+            raise ValueError("Model solution not available.")
+        params = self.optimal_parameters
+        vol_result = self._generate_volatility(params=params)
+        plt.plot(vol_result)
+        plt.show()
+
+    def _generate_volatility(self, params: np.array) -> np.array:
+        # Number of volatility observations is one less than returns.
+        # Ignore first index. One observation is automatically removed.
+        result = np.zeros(self.number_of_observations)
+
+        vol_est = (params[0] + params[1] *
+                   (self.data[1] ** 2) + params[2] * (self.data[1] ** 2))
+
+        result[1] = np.sqrt(vol_est)
+
+        for i in range(2, self.number_of_observations):
+            vol_est = (params[0] + params[1] *
+                       (self.data[i] ** 2) + params[2] * vol_est)
+            result[i] = np.sqrt(vol_est)
+
+        return result
+# endregion
