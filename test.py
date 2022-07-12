@@ -56,7 +56,7 @@ def main():
              end_date=end, interval=interval)
 
     # CREATE MODELS FOR EACH ASSET.
-    initial_parametes = [0.0001, 0.01, 0.5]
+    initial_parametes = [0.01, 0.01, 0.7]
 
     model_XOM = GARCHEquityModel(
         initial_parameters=initial_parametes, data=stock1.return_history)
@@ -82,7 +82,6 @@ def main():
 
     portfolio.fit_models()
     portfolio.run_simulation()
-    print(stock1.model.generate_uniform_samples())
 
 
 if __name__ == "__main__":
