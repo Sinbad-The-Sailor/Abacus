@@ -1,40 +1,66 @@
 import numpy as np
 
 from test_models import GARCHEquityModel, GARCHFXModel
-from test_instruments import Equity, FX
+from test_instruments import Equity, FX, Instrument
+
+SIMULATIONS = 1e3
 
 
 class Portfolio():
 
-    instruments: list
+    instruments: list[Instrument]
 
     def __init__(self, instruments):
         self.instruments = instruments
+        try:
+            self.number_of_instruments = len(instruments)
+        except ValueError:
+            self.number_of_instruments = 0
 
     def fit_models(self):
 
         # Check if all instruments has a model.
-        self._has_models()
+        if not self._has_models():
+            raise ValueError(f"One instrument has no model.")
 
         # Call all fit models.
         for instrument in self.instruments:
             instrument.model.fit_model()
 
-    def run_simulation(self) -> np.array:
+    def run_simulation(self, number_of_iterations: int = SIMULATIONS, dependency: bool = True) -> np.array:
+
+        # Check if portfolio has instruments.
+        if not self._has_instruments():
+            raise ValueError("Portfolio has no instruments.")
 
         # Check if all instruments has a model.
-        self._has_models()
+        if not self._has_models():
+            raise ValueError("One instrument has no model.")
 
-        # TODO: Apply appropriate vine copula to all assets.
-
-        # Run simulations.
-        for instrument in self.instruments:
-            instrument.model.run_simulation(1000)
+        if dependency:
+            return self._generate_multivariate_simulation(number_of_iterations=number_of_iterations)
+        else:
+            return self._generate_univariate_simulation(number_of_iterations=number_of_iterations)
 
     def _has_models(self):
         for instrument in self.instruments:
             if instrument.has_model == False:
-                raise ValueError(f"Instrument {instrument} has no model.")
+                return False
+        return True
+
+    def _has_instruments(self):
+        if self.number_of_instruments == 0:
+            return False
+        return True
+
+    def _generate_univariate_simulation(self, number_of_iterations: int):
+        number_of_assets = len(self)
+
+    def _generate_multivariate_simulation(self, number_of_iterations: int):
+        number_of_assets = len(self)
+
+    def __len__(self):
+        return self.number_of_instruments
 
 
 def main():
