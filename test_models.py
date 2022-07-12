@@ -6,7 +6,7 @@ from scipy.stats import norm
 from matplotlib import pyplot as plt
 
 EPSILON = 1e-16
-SIMULATIONS = 1e3
+SIMULATIONS = 1000
 
 
 class Model(ABC):

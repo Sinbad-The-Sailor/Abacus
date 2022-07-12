@@ -1,9 +1,12 @@
 import numpy as np
+import copulae
+import pyvinecopulib
+
 
 from test_models import GARCHEquityModel, GARCHFXModel
 from test_instruments import Equity, FX, Instrument
 
-SIMULATIONS = 1e3
+SIMULATIONS = 1000
 
 
 class Portfolio():
@@ -37,27 +40,78 @@ class Portfolio():
         if not self._has_models():
             raise ValueError("One instrument has no model.")
 
+        # Check if all models are fitted.
+        if not self._has_solution():
+            raise ValueError("One model has no solution.")
+
         if dependency:
             return self._generate_multivariate_simulation(number_of_iterations=number_of_iterations)
         else:
             return self._generate_univariate_simulation(number_of_iterations=number_of_iterations)
 
-    def _has_models(self):
+    def _generate_univariate_simulation(self, number_of_iterations: int) -> np.array:
+        # TODO: Remove list to make this faster!
+        result = []
+
+        for instrument in self.instruments:
+            result.append(instrument.model.run_simulation(
+                number_of_iterations=number_of_iterations))
+
+        return np.vstack(result)
+
+    def _generate_multivariate_simulation(self, number_of_iterations: int) -> np.array:
+
+        # Check if more than 1 asset exists.
+        if self.number_of_instruments == 1:
+            raise ValueError("To few instruments to run dependency.")
+
+        # Creating uniform data.
+        # TODO: Remove list to make this faster!
+        uniforms = []
+
+        if self.number_of_instruments == 2:
+            # TODO: Function which picks optimal vanilla copula from a family of copulae.
+            copula = copulae.StudentCopula()
+
+            pass
+
+        if self.number_of_instruments > 2:
+            # Function which picks optimal vine copula.
+
+            pass
+
+        counter = 0
+        for instrument in self.instruments:
+            if counter < 2:
+                uniforms.append(instrument.model.generate_uniform_samples())
+                print(len(instrument.model.generate_uniform_samples()))
+            counter = counter + 1
+        uniform_matrix = np.vstack(uniforms)
+        for row in uniform_matrix.T:
+            print(row)
+
+        student_copula = copulae.StudentCopula()
+        student_copula.fit(uniform_matrix.T)
+        print(student_copula.params[1][0])
+
+        result = []
+
+    def _has_models(self) -> bool:
         for instrument in self.instruments:
             if instrument.has_model == False:
                 return False
         return True
 
-    def _has_instruments(self):
+    def _has_instruments(self) -> bool:
         if self.number_of_instruments == 0:
             return False
         return True
 
-    def _generate_univariate_simulation(self, number_of_iterations: int):
-        number_of_assets = len(self)
-
-    def _generate_multivariate_simulation(self, number_of_iterations: int):
-        number_of_assets = len(self)
+    def _has_solution(self) -> bool:
+        for instrument in self.instruments:
+            if instrument.model._has_solution == False:
+                return False
+        return True
 
     def __len__(self):
         return self.number_of_instruments
@@ -105,9 +159,14 @@ def main():
     instruments = [stock1, stock2, fx1, fx2]
 
     portfolio = Portfolio(instruments=instruments)
-
+    from matplotlib import pyplot as plt
     portfolio.fit_models()
-    portfolio.run_simulation()
+
+    simultion_matrix = portfolio.run_simulation(dependency=True)
+
+    # for row in simultion_matrix:
+    # plt.plot(row)
+    #   plt.show()
 
 
 if __name__ == "__main__":
