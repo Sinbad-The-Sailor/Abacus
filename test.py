@@ -1,6 +1,7 @@
 import numpy as np
-import copulae
-import pyvinecopulib
+
+import copulae as cop
+import pyvinecopulib as pv
 
 
 from test_models import GARCHEquityModel, GARCHFXModel
@@ -67,34 +68,42 @@ class Portfolio():
 
         # Creating uniform data.
         # TODO: Remove list to make this faster!
+        # TODO: Assert lenght -> pick smallest if error.
+        # TODO: Create dict for insturments in portfolio in order to never mix up returns!
         uniforms = []
+        for instrument in self.instruments:
+            uniforms.append(instrument.model.generate_uniform_samples())
+        uniforms = np.stack(uniforms).T
 
         if self.number_of_instruments == 2:
             # TODO: Function which picks optimal vanilla copula from a family of copulae.
-            copula = copulae.StudentCopula()
-
-            pass
+            copula = cop.StudentCopula()
+            copula.fit(uniforms)
+            simulated_uniforms = copula.random(number_of_iterations)
 
         if self.number_of_instruments > 2:
             # Function which picks optimal vine copula.
-
-            pass
-
-        counter = 0
-        for instrument in self.instruments:
-            if counter < 2:
-                uniforms.append(instrument.model.generate_uniform_samples())
-                print(len(instrument.model.generate_uniform_samples()))
-            counter = counter + 1
-        uniform_matrix = np.vstack(uniforms)
-        for row in uniform_matrix.T:
-            print(row)
-
-        student_copula = copulae.StudentCopula()
-        student_copula.fit(uniform_matrix.T)
-        print(student_copula.params[1][0])
+            controls = pv.FitControlsVinecop(family_set=[pv.BicopFamily.gaussian,
+                                             pv.BicopFamily.clayton,
+                                             pv.BicopFamily.frank,
+                                             pv.BicopFamily.gumbel,
+                                             pv.BicopFamily.student,
+                                             pv.BicopFamily.bb1,
+                                             pv.BicopFamily.bb6,
+                                             pv.BicopFamily.bb7,
+                                             pv.BicopFamily.bb8])
+            copula = pv.Vinecop(uniforms, controls=controls)
+            simulated_uniforms = copula.simulate(number_of_iterations)
+            print(copula)
 
         result = []
+        for i in range(0, self.number_of_instruments):
+            current_instrument = self.instruments[i]
+            current_uniform_sample = simulated_uniforms[:, i]
+            result.append(
+                current_instrument.model.generate_correct_samples(current_uniform_sample))
+
+        return result
 
     def _has_models(self) -> bool:
         for instrument in self.instruments:
@@ -163,10 +172,9 @@ def main():
     portfolio.fit_models()
 
     simultion_matrix = portfolio.run_simulation(dependency=True)
-
-    # for row in simultion_matrix:
-    # plt.plot(row)
-    #   plt.show()
+    for row in simultion_matrix:
+        plt.plot(row)
+        plt.show()
 
 
 if __name__ == "__main__":
