@@ -11,13 +11,11 @@ from pandas_datareader import data as pdr
 class Instrument(ABC):
     ric: str
     local_currency: Currency
-
     start_date: datetime
     end_date: datetime
     interval: str
     price_history: pd.DataFrame
     return_history: pd.DataFrame
-
     model: Model
     has_model: bool = False
 
@@ -26,16 +24,15 @@ class Instrument(ABC):
         self.start_date = start_date
         self.end_date = end_date
         self.interval = interval
+        self.local_currency = currency
 
         try:
-            price_history = pdr.get_data_yahoo(
+            self.price_history = pdr.get_data_yahoo(
                 ric, start=start_date, end=end_date, interval=interval)['Adj Close']
-            return_history = self._log_return_history(
-                price_history=price_history)
-
-            self.price_history = price_history
-            self.return_history = return_history
-
+            self.art_return_history = self._art_return_history(
+                price_history=self.price_history)
+            self.log_return_history = self._log_return_history(
+                price_history=self.price_history)
         except:
             # TODO: Add backup fetching and custom error.
             print("Cannot fetch yahoo data.")
@@ -43,6 +40,24 @@ class Instrument(ABC):
     def set_model(self, model: Model) -> None:
         self.model = model
         self.has_model = True
+
+    def art_return_history():
+        pass
+
+    def log_return_history():
+        pass
+
+    def _establish_connection(self):
+        pass
+
+    def _has_prices(self):
+        if self.price_hisotry is None:
+            return False
+        return True
+
+    @staticmethod
+    def _art_return_history(price_history: pd.DataFrame) -> pd.DataFrame:
+        return price_history / price_history.shift(1)[1:]
 
     @staticmethod
     def _log_return_history(price_history: pd.DataFrame) -> pd.DataFrame:

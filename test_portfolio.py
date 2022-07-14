@@ -1,18 +1,22 @@
 import numpy as np
+import pandas as pd
 
 import copulae as cop
 import pyvinecopulib as pv
+
 from test_instruments import Instrument
+from test_config import VINE_COPULA_FAMILIES
 
 SIMULATIONS = 1000
 
 
 class Portfolio():
 
-    instruments: list[Instrument]
-
-    def __init__(self, instruments):
+    def __init__(self, instruments: list[Instrument], init_value: float, init_positions: list[int]):
         self.instruments = instruments
+        self.init_value = init_value
+        self.init_positions = init_positions
+        self.return_distribution = None
         try:
             self.number_of_instruments = len(instruments)
         except ValueError:
@@ -80,15 +84,7 @@ class Portfolio():
 
         if self.number_of_instruments > 2:
             # Function which picks optimal vine copula.
-            controls = pv.FitControlsVinecop(family_set=[pv.BicopFamily.gaussian,
-                                             pv.BicopFamily.clayton,
-                                             pv.BicopFamily.frank,
-                                             pv.BicopFamily.gumbel,
-                                             pv.BicopFamily.student,
-                                             pv.BicopFamily.bb1,
-                                             pv.BicopFamily.bb6,
-                                             pv.BicopFamily.bb7,
-                                             pv.BicopFamily.bb8])
+            controls = pv.FitControlsVinecop(family_set=VINE_COPULA_FAMILIES)
             copula = pv.Vinecop(uniforms, controls=controls)
             simulated_uniforms = copula.simulate(number_of_iterations)
             print(copula)
