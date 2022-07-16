@@ -1,15 +1,19 @@
+import numpy as np
+
 from test_models import GARCHEquityModel, GARCHFXModel
 from test_instruments import Equity, FX
 from test_portfolio import Portfolio
 
 from matplotlib import pyplot as plt
 
+from test_risk_assessor import RiskAssessor
+
 
 def main():
 
     # CREATE ASSETS.
     start = "2011-12-28"
-    end = "2022-07-14"
+    end = "2022-07-11"
     interval = "wk"
 
     stock1 = Equity(ric="XOM", currency="USD", start_date=start,
@@ -21,6 +25,8 @@ def main():
              end_date=end, interval=interval)
     fx2 = FX(ric="USDGBP=X", currency="USD", start_date=start,
              end_date=end, interval=interval)
+
+    print(stock2.price_history[-1])
 
     # CREATE MODELS FOR EACH ASSET.
     initial_parametes = [0.01, 0.01, 0.7]
@@ -44,15 +50,18 @@ def main():
 
     # CREATE PORTFOLIO AND RUN.
     instruments = [stock1, stock2, fx1, fx2]
+    holdings = np.array([150, 50, 1000, 1000])
 
-    portfolio = Portfolio(instruments=instruments)
+    portfolio = Portfolio(instruments=instruments,
+                          init_value=1e7, holdings=holdings)
 
-    # portfolio.fit_models()
+    portfolio.fit_models()
+    portfolio.run_simulation_return_distribution(10, 10, dependency=True)
 
-    #simultion_matrix = portfolio.run_simulation(dependency=True)
+    # simultion_matrix = portfolio.run_simulation(dependency=True)
     # for row in simultion_matrix:
-    #    plt.plot(row)
-    #    plt.show()
+    #     plt.plot(row)
+    #     plt.show()
 
 
 if __name__ == "__main__":

@@ -1,22 +1,20 @@
 import numpy as np
 import pandas as pd
-
 import copulae as cop
 import pyvinecopulib as pv
 
 from test_instruments import Instrument
-from test_config import VINE_COPULA_FAMILIES
-
-SIMULATIONS = 1000
+from test_config import VINE_COPULA_FAMILIES, DEFALUT_SIMULATIONS
 
 
 class Portfolio():
 
-    def __init__(self, instruments: list[Instrument], init_value: float, init_positions: list[int]):
+    def __init__(self, instruments: list[Instrument], init_value: float, holdings: np.array):
         self.instruments = instruments
         self.init_value = init_value
-        self.init_positions = init_positions
+        self.holdings = holdings
         self.return_distribution = None
+
         try:
             self.number_of_instruments = len(instruments)
         except ValueError:
@@ -32,7 +30,7 @@ class Portfolio():
         for instrument in self.instruments:
             instrument.model.fit_model()
 
-    def run_simulation(self, number_of_iterations: int = SIMULATIONS, dependency: bool = True) -> np.array:
+    def run_simulation(self, number_of_iterations: int = 10, dependency: bool = True) -> np.array:
 
         # Check if portfolio has instruments.
         if not self._has_instruments():
@@ -50,6 +48,24 @@ class Portfolio():
             return self._generate_multivariate_simulation(number_of_iterations=number_of_iterations)
         else:
             return self._generate_univariate_simulation(number_of_iterations=number_of_iterations)
+
+    def run_simulation_return_distribution(self, number_of_iterations: int = 10, number_of_simulations: int = DEFALUT_SIMULATIONS,
+                                           dependency: bool = True) -> np.array:
+
+        init_prices = self._last_prices()
+        terminal_portfolio_return = np.zeros(number_of_simulations)
+
+        for simulation in range(number_of_simulations):
+            # Do this 1000 times over.
+            simultion_matrix = self.run_simulation(
+                number_of_iterations=number_of_iterations, dependency=dependency)
+
+            temp_prices = np.zeros(self.number_of_instruments)
+            for i in range(self.number_of_instruments):
+                temp_prices[i] = 1
+            terminal_portfolio_return[simulation] = self.holdings.T @ temp_prices
+
+        return terminal_portfolio_return
 
     def _generate_univariate_simulation(self, number_of_iterations: int) -> np.array:
         # TODO: Remove list to make this faster!
@@ -73,7 +89,9 @@ class Portfolio():
         # TODO: Create dict for insturments in portfolio in order to never mix up returns!
         uniforms = []
         for instrument in self.instruments:
-            uniforms.append(instrument.model.generate_uniform_samples())
+            uniforms.append(instrument.model.generate_uniform_samples()[1:])
+            print(len(instrument.price_history))
+
         uniforms = np.stack(uniforms).T
 
         if self.number_of_instruments == 2:
@@ -97,6 +115,16 @@ class Portfolio():
                 current_instrument.model.generate_correct_samples(current_uniform_sample))
 
         return result
+
+    def _last_prices(self) -> np.array:
+        try:
+            # TODO: Assert that all dates are the same!
+            last_prices = np.zeros(self.number_of_instruments)
+            for i in range(self.number_of_instruments):
+                last_prices[i] = self.instruments[i].price_history[-1]
+            self._last_prices = last_prices
+        except ValueError:
+            self._last_prices = np.zeros(self.number_of_instruments)
 
     def _has_models(self) -> bool:
         for instrument in self.instruments:
