@@ -171,3 +171,9 @@ class Portfolio():
 
     def __len__(self):
         return self.number_of_instruments
+
+    def __str__(self):
+        pass
+
+    def __repr__(self):
+        pass
