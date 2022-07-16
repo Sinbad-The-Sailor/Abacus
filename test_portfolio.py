@@ -18,7 +18,13 @@ class Portfolio():
         try:
             self.number_of_instruments = len(instruments)
         except ValueError:
-            self.number_of_instruments = 0
+            self.number_of_instruments = -1
+
+        try:
+            last_prices = self._last_prices()
+            self.value = holdings.T @ last_prices
+        except ValueError:
+            self.value = -1
 
     def fit_models(self):
 
@@ -29,6 +35,38 @@ class Portfolio():
         # Call all fit models.
         for instrument in self.instruments:
             instrument.model.fit_model()
+
+    def fit_portfolio(self):
+
+        # Check if more than 1 asset exists.
+        if self.number_of_instruments == 1:
+            raise ValueError("To few instruments to run dependency.")
+
+        # Check if more than 1 asset exists.
+        if self.number_of_instruments == 1:
+            raise ValueError("To few instruments to run dependency.")
+
+            # Creating uniform data.
+        # TODO: Remove list to make this faster!
+        # TODO: Assert lenght -> pick smallest if error.
+        # TODO: Create dict for insturments in portfolio in order to never mix up returns!
+        uniforms = []
+        for instrument in self.instruments:
+            uniforms.append(instrument.model.generate_uniform_samples())
+
+        uniforms = np.stack(uniforms).T
+
+        if self.number_of_instruments == 2:
+            # TODO: Function which picks optimal vanilla copula from a family of copulae.
+            copula = cop.StudentCopula()
+            copula.fit(uniforms)
+
+        if self.number_of_instruments > 2:
+            # Function which picks optimal vine copula.
+            controls = pv.FitControlsVinecop(family_set=VINE_COPULA_FAMILIES)
+            copula = pv.Vinecop(uniforms, controls=controls)
+
+        self.copula = copula
 
     def run_simulation(self, number_of_iterations: int = 10, dependency: bool = True) -> np.array:
 
@@ -62,7 +100,8 @@ class Portfolio():
 
             temp_prices = np.zeros(self.number_of_instruments)
             for i in range(self.number_of_instruments):
-                temp_prices[i] = 1
+                temp_prices[i] = (
+                    init_prices[i] * np.prod(np.exp(simultion_matrix[i])))
             terminal_portfolio_return[simulation] = self.holdings.T @ temp_prices
 
         return terminal_portfolio_return
@@ -79,33 +118,15 @@ class Portfolio():
 
     def _generate_multivariate_simulation(self, number_of_iterations: int) -> np.array:
 
-        # Check if more than 1 asset exists.
-        if self.number_of_instruments == 1:
-            raise ValueError("To few instruments to run dependency.")
-
-        # Creating uniform data.
-        # TODO: Remove list to make this faster!
-        # TODO: Assert lenght -> pick smallest if error.
-        # TODO: Create dict for insturments in portfolio in order to never mix up returns!
-        uniforms = []
-        for instrument in self.instruments:
-            uniforms.append(instrument.model.generate_uniform_samples()[1:])
-            print(len(instrument.price_history))
-
-        uniforms = np.stack(uniforms).T
+        # Check if copula has been fitted.
+        if not self._has_copula():
+            raise ValueError("Portfolio has no multivarite model/copula.")
 
         if self.number_of_instruments == 2:
-            # TODO: Function which picks optimal vanilla copula from a family of copulae.
-            copula = cop.StudentCopula()
-            copula.fit(uniforms)
-            simulated_uniforms = copula.random(number_of_iterations)
+            simulated_uniforms = self.copula.random(number_of_iterations)
 
         if self.number_of_instruments > 2:
-            # Function which picks optimal vine copula.
-            controls = pv.FitControlsVinecop(family_set=VINE_COPULA_FAMILIES)
-            copula = pv.Vinecop(uniforms, controls=controls)
-            simulated_uniforms = copula.simulate(number_of_iterations)
-            print(copula)
+            simulated_uniforms = self.copula.simulate(number_of_iterations)
 
         result = []
         for i in range(0, self.number_of_instruments):
@@ -122,7 +143,7 @@ class Portfolio():
             last_prices = np.zeros(self.number_of_instruments)
             for i in range(self.number_of_instruments):
                 last_prices[i] = self.instruments[i].price_history[-1]
-            self._last_prices = last_prices
+            return last_prices
         except ValueError:
             self._last_prices = np.zeros(self.number_of_instruments)
 
@@ -134,6 +155,11 @@ class Portfolio():
 
     def _has_instruments(self) -> bool:
         if self.number_of_instruments == 0:
+            return False
+        return True
+
+    def _has_copula(self) -> bool:
+        if self.copula is None:
             return False
         return True
 

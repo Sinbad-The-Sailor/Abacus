@@ -100,7 +100,6 @@ class GARCHEquityModel(EquityModel):
 
         # Create volatility samples.
         number_of_observations = len(uniform_samples)
-        print(number_of_observations)
         volatility_samples = self.run_volatility_simulation(
             number_of_iterations=number_of_observations)
         print(volatility_samples)
