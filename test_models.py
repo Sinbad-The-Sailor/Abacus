@@ -5,8 +5,7 @@ from scipy.optimize import minimize
 from scipy.stats import norm
 from matplotlib import pyplot as plt
 
-EPSILON = 1e-16
-SIMULATIONS = 1000
+from test_config import DEFALUT_STEPS, EPSILON
 
 
 class Model(ABC):
@@ -25,7 +24,7 @@ class Model(ABC):
         pass
 
     @abstractmethod
-    def run_simulation(self, number_of_iterations: int) -> dict:
+    def run_simulation(self, number_of_steps: int) -> dict:
         pass
 
     @abstractmethod
@@ -60,17 +59,17 @@ class GARCHEquityModel(EquityModel):
         self.last_volatility_estimate = 0
         self.volatility_sample = None
 
-    def run_simulation(self, number_of_iterations: int = SIMULATIONS) -> np.array:
+    def run_simulation(self, number_of_steps: int = DEFALUT_STEPS) -> np.array:
 
         result = self._generate_simulation(
-            number_of_iterations=number_of_iterations, isVol=False)
+            number_of_steps=number_of_steps, isVol=False)
 
         return result
 
-    def run_volatility_simulation(self, number_of_iterations: int = SIMULATIONS) -> np.array:
+    def run_volatility_simulation(self, number_of_steps: int = DEFALUT_STEPS) -> np.array:
 
         result = self._generate_simulation(
-            number_of_iterations=number_of_iterations, isVol=True)
+            number_of_steps=number_of_steps, isVol=True)
 
         return result
 
@@ -101,8 +100,7 @@ class GARCHEquityModel(EquityModel):
         # Create volatility samples.
         number_of_observations = len(uniform_samples)
         volatility_samples = self.run_volatility_simulation(
-            number_of_iterations=number_of_observations)
-        print(volatility_samples)
+            number_of_steps=number_of_observations)
 
         # Initialize empty numpy array.
         result = np.zeros(number_of_observations)
@@ -173,7 +171,7 @@ class GARCHEquityModel(EquityModel):
 
         return result
 
-    def _generate_simulation(self, number_of_iterations: int, isVol: bool) -> tuple[np.array]:
+    def _generate_simulation(self, number_of_steps: int, isVol: bool) -> tuple[np.array]:
 
         # Check if optimal parameters exist.
         if not self._has_solution():
@@ -184,8 +182,8 @@ class GARCHEquityModel(EquityModel):
             raise ValueError("Model has no initial volatility estimate.")
 
         # Initialize empty numpy array.
-        return_result = np.zeros(number_of_iterations)
-        volatility_result = np.zeros(number_of_iterations)
+        return_result = np.zeros(number_of_steps)
+        volatility_result = np.zeros(number_of_steps)
 
         # Inital paramters for reursion start.
         return_estimate = self.data[-1]
@@ -196,7 +194,7 @@ class GARCHEquityModel(EquityModel):
         beta2 = self.optimal_parameters[2]
 
         # Generation of return estimates.
-        for i in range(number_of_iterations):
+        for i in range(number_of_steps):
             sample = norm.rvs(size=1, loc=0, scale=1)
             volatility_estimate = np.sqrt(
                 beta0 + beta1 * volatility_estimate ** 2 + beta2 * return_estimate ** 2)
@@ -228,17 +226,17 @@ class GARCHFXModel(EquityModel):
         self.last_volatility_estimate = 0
         self.volatility_sample = None
 
-    def run_simulation(self, number_of_iterations: int = SIMULATIONS) -> np.array:
+    def run_simulation(self, number_of_steps: int = DEFALUT_STEPS) -> np.array:
 
         result = self._generate_simulation(
-            number_of_iterations=number_of_iterations, isVol=False)
+            number_of_steps=number_of_steps, isVol=False)
 
         return result
 
-    def run_volatility_simulation(self, number_of_iterations: int = SIMULATIONS) -> np.array:
+    def run_volatility_simulation(self, number_of_steps: int = DEFALUT_STEPS) -> np.array:
 
         result = self._generate_simulation(
-            number_of_iterations=number_of_iterations, isVol=True)
+            number_of_steps=number_of_steps, isVol=True)
 
         return result
 
@@ -268,10 +266,8 @@ class GARCHFXModel(EquityModel):
 
         # Create volatility samples.
         number_of_observations = len(uniform_samples)
-        print(number_of_observations)
         volatility_samples = self.run_volatility_simulation(
-            number_of_iterations=number_of_observations)
-        print(volatility_samples)
+            number_of_steps=number_of_observations)
 
         # Initialize empty numpy array.
         result = np.zeros(number_of_observations)
@@ -342,7 +338,7 @@ class GARCHFXModel(EquityModel):
 
         return result
 
-    def _generate_simulation(self, number_of_iterations: int, isVol: bool) -> tuple[np.array]:
+    def _generate_simulation(self, number_of_steps: int, isVol: bool) -> tuple[np.array]:
 
         # Check if optimal parameters exist.
         if not self._has_solution():
@@ -353,8 +349,8 @@ class GARCHFXModel(EquityModel):
             raise ValueError("Model has no initial volatility estimate.")
 
         # Initialize empty numpy array.
-        return_result = np.zeros(number_of_iterations)
-        volatility_result = np.zeros(number_of_iterations)
+        return_result = np.zeros(number_of_steps)
+        volatility_result = np.zeros(number_of_steps)
 
         # Inital paramters for reursion start.
         return_estimate = self.data[-1]
@@ -365,7 +361,7 @@ class GARCHFXModel(EquityModel):
         beta2 = self.optimal_parameters[2]
 
         # Generation of return estimates.
-        for i in range(number_of_iterations):
+        for i in range(number_of_steps):
             sample = norm.rvs(size=1, loc=0, scale=1)
             volatility_estimate = np.sqrt(
                 beta0 + beta1 * volatility_estimate ** 2 + beta2 * return_estimate ** 2)

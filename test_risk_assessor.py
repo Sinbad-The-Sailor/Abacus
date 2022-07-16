@@ -1,6 +1,7 @@
 import numpy as np
 
 from scipy.optimize import minimize
+from test_config import EPSILON
 
 
 class RiskAssessor:
@@ -132,7 +133,7 @@ class RiskAssessor:
         log_likelihood = 0
 
         for obs in data:
-            log_likelihood = log_likelihood + \
-                np.log(1 + params[0] / params[1] * obs)
+            log_likelihood = (log_likelihood +
+                              np.log(1 + params[0] / params[1] * obs + EPSILON))
 
-        return n_observations * np.log(params[1]) + (1 + 1 / params[0]) * log_likelihood
+        return n_observations * np.log(params[1]) + (1 + 1 / params[0] + EPSILON) * log_likelihood

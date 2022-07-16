@@ -55,8 +55,7 @@ def main():
     instruments = [stock1, stock2, stock3]
     holdings = np.array([5, 5, 10000000])
 
-    portfolio = Portfolio(instruments=instruments,
-                          init_value=1e7, holdings=holdings)
+    portfolio = Portfolio(instruments=instruments, holdings=holdings)
 
     portfolio.fit_models()
     portfolio.fit_portfolio()
@@ -66,18 +65,13 @@ def main():
     #     plt.plot(row)
     #     plt.show()
 
-    temp = portfolio.run_simulation_return_distribution(
+    simulated_portfolio_returns = portfolio.run_simulation_portfolio(
         52, 10000, dependency=True)
 
-    ret = []
-    for scenario in temp:
-        # print(scenario/portfolio.value-1)
-        ret.append(scenario/portfolio.value-1)
-
-    plt.hist(ret, bins=25)
+    plt.hist(simulated_portfolio_returns, bins=50)
     plt.show()
 
-    risk_calc = RiskAssessor(np.array(ret))
+    risk_calc = RiskAssessor(simulated_portfolio_returns)
     risk_calc.risk_summary()
 
 

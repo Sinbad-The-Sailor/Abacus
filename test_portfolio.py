@@ -4,16 +4,14 @@ import copulae as cop
 import pyvinecopulib as pv
 
 from test_instruments import Instrument
-from test_config import VINE_COPULA_FAMILIES, DEFALUT_SIMULATIONS
+from test_config import DEFALUT_STEPS, VINE_COPULA_FAMILIES, DEFALUT_SIMULATIONS
 
 
 class Portfolio():
 
-    def __init__(self, instruments: list[Instrument], init_value: float, holdings: np.array):
+    def __init__(self, instruments: list[Instrument], holdings: np.array):
         self.instruments = instruments
-        self.init_value = init_value
         self.holdings = holdings
-        self.return_distribution = None
 
         try:
             self.number_of_instruments = len(instruments)
@@ -23,6 +21,7 @@ class Portfolio():
         try:
             last_prices = self._last_prices()
             self.value = holdings.T @ last_prices
+            print(f"value {self.value}")
         except ValueError:
             self.value = -1
 
@@ -68,7 +67,7 @@ class Portfolio():
 
         self.copula = copula
 
-    def run_simulation(self, number_of_iterations: int = 10, dependency: bool = True) -> np.array:
+    def run_simultion_assets(self, number_of_steps: int = DEFALUT_STEPS, dependency: bool = True) -> np.array:
 
         # Check if portfolio has instruments.
         if not self._has_instruments():
@@ -83,50 +82,53 @@ class Portfolio():
             raise ValueError("One model has no solution.")
 
         if dependency:
-            return self._generate_multivariate_simulation(number_of_iterations=number_of_iterations)
+            return self._generate_multivariate_simulation(number_of_steps=number_of_steps)
         else:
-            return self._generate_univariate_simulation(number_of_iterations=number_of_iterations)
+            return self._generate_univariate_simulation(number_of_steps=number_of_steps)
 
-    def run_simulation_return_distribution(self, number_of_iterations: int = 10, number_of_simulations: int = DEFALUT_SIMULATIONS,
-                                           dependency: bool = True) -> np.array:
+    def run_simulation_portfolio(self, number_of_steps: int = DEFALUT_STEPS, number_of_simulations: int = DEFALUT_SIMULATIONS,
+                                 dependency: bool = True) -> np.array:
 
         init_prices = self._last_prices()
-        terminal_portfolio_return = np.zeros(number_of_simulations)
+        terminal_art_portfolio_return = np.zeros(number_of_simulations)
 
         for simulation in range(number_of_simulations):
-            # Do this 1000 times over.
-            simultion_matrix = self.run_simulation(
-                number_of_iterations=number_of_iterations, dependency=dependency)
 
-            temp_prices = np.zeros(self.number_of_instruments)
-            for i in range(self.number_of_instruments):
-                temp_prices[i] = (
-                    init_prices[i] * np.prod(np.exp(simultion_matrix[i])))
-            terminal_portfolio_return[simulation] = self.holdings.T @ temp_prices
+            # Portfolio constituance simulation.
+            simultion_matrix = self.run_simultion_assets(
+                number_of_steps=number_of_steps, dependency=dependency)
 
-        return terminal_portfolio_return
+            # Portfolio prices.
+            temp_prices = (init_prices *
+                           np.prod(np.exp(simultion_matrix), axis=1))
 
-    def _generate_univariate_simulation(self, number_of_iterations: int) -> np.array:
+            # Portfolio returns.
+            terminal_art_portfolio_return[simulation] = (
+                self.holdings.T @ temp_prices / self.value - 1)
+
+        return terminal_art_portfolio_return
+
+    def _generate_univariate_simulation(self, number_of_steps: int) -> np.array:
         # TODO: Remove list to make this faster!
         result = []
 
         for instrument in self.instruments:
             result.append(instrument.model.run_simulation(
-                number_of_iterations=number_of_iterations))
+                number_of_steps=number_of_steps))
 
         return np.vstack(result)
 
-    def _generate_multivariate_simulation(self, number_of_iterations: int) -> np.array:
+    def _generate_multivariate_simulation(self, number_of_steps: int) -> np.array:
 
         # Check if copula has been fitted.
         if not self._has_copula():
             raise ValueError("Portfolio has no multivarite model/copula.")
 
         if self.number_of_instruments == 2:
-            simulated_uniforms = self.copula.random(number_of_iterations)
+            simulated_uniforms = self.copula.random(number_of_steps)
 
         if self.number_of_instruments > 2:
-            simulated_uniforms = self.copula.simulate(number_of_iterations)
+            simulated_uniforms = self.copula.simulate(number_of_steps)
 
         result = []
         for i in range(0, self.number_of_instruments):
