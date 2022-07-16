@@ -83,3 +83,31 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def test_main():
+    """Template for finial main/run method."""
+    # 1. Initialize config file.
+    running = True
+
+    # 2. Establish connection to db.
+
+    # 3. Establish connection to markets.
+
+    # 4. Load previous portfolio.
+
+    while running:
+        # 5. Update market information.
+
+        # 6. Commit to db.
+
+        # 7. Update portfolio.
+
+        # 8. Commit to db.
+
+        # 9. Update Dashboard.
+
+        # 10. Send report email.
+
+        # ... wait until next period (1 day, 2 day, 1 week)
+        pass
