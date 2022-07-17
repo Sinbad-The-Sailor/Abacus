@@ -43,9 +43,6 @@ class StudentPoissonMixture:
                           args=(mu, sigma, kappa, lamb, nu))
         return sol
 
-    def ppf_new(self):
-        pass
-
     @staticmethod
     def _student_integral(s: float, x: float, k: int, mu: float, sigma: float, kappa: float, nu: float) -> float:
         evaluation = ((1 + (s - mu) ** 2 / (sigma ** 2 * (nu - 2))) ** (-(nu + 1) / 2)

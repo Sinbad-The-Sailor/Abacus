@@ -1,13 +1,11 @@
 import numpy as np
 
-from test_models.test_equity_models import GARCHEquityModel
-from test_models.test_FX_models import GARCHFXModel
-
-from test_instruments import Equity, FX
-from test_portfolio import Portfolio
-
 from matplotlib import pyplot as plt
 
+from test_models.test_equity_models import GARCHEquityModel
+from test_models.test_FX_models import GARCHFXModel
+from test_instruments import Equity, FX
+from test_portfolio import Portfolio
 from test_risk_assessor import RiskAssessor
 
 
