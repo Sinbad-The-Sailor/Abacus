@@ -8,15 +8,15 @@ from test_config import DEFALUT_STEPS, EPSILON
 from test_models.test_models import Model
 
 
-class EquityModel(Model):
+class FXModel(Model):
 
     def __init__(self, initial_parameters, data):
         super().__init__(initial_parameters, data)
 
 
-# region Equity Models
+# region FX Models
 
-class GARCHEquityModel(EquityModel):
+class GARCHFXModel(FXModel):
 
     def __init__(self, initial_parameters, data):
         super().__init__(initial_parameters, data)
@@ -43,7 +43,7 @@ class GARCHEquityModel(EquityModel):
 
         # Check if a solution exists.
         if not self._has_solution():
-            raise ValueError("Has no valid solution")
+            raise ValueError("Has no valid solution.")
 
         # Check if a volatility estimate exists.
         if self.volatility_sample is None:
@@ -171,28 +171,5 @@ class GARCHEquityModel(EquityModel):
             return volatility_result
         else:
             return return_result
-
-
-class GJRGARCHNormalPoissonEquityModel(EquityModel):
-
-    def __init__(self, initial_parameters, data):
-        super().__init__(initial_parameters, data)
-        self.last_volatility_estimate = 0
-        self.volatility_sample = None
-
-    def fit_model(self, data: np.array) -> np.array:
-        return super().fit_model(data)
-
-    def run_simulation(self, number_of_steps: int) -> dict:
-        return super().run_simulation(number_of_steps)
-
-    def generate_uniform_samples(self):
-        return super().generate_uniform_samples()
-
-    def generate_correct_samples(self):
-        return super().generate_correct_samples()
-
-    def _cost_function(self):
-        pass
 
 # endregion
