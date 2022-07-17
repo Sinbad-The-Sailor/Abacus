@@ -9,6 +9,18 @@ from test_config import DEFALUT_STEPS, EPSILON
 
 
 class Model(ABC):
+    """
+    Abstract class representing a model for an instrument.
+
+    Attributes:
+        initial_parameters (np.array): Array of model inital paramters.            
+        optimal_parameters (np.array): Array of model optimal parameters.
+        data (np.array): Dataset used for parameter estimation.
+        number_of_observations (int): Number of observations in dataset.
+        normalized_sample (np.array): Dataset transformed to be normalized.
+        uniform_sample: (np.array: Dataset transformed into a uniform sample.
+        verbose (bool): Data print and plotting for debug.
+    """
 
     def __init__(self, initial_parameters, data):
         self.initial_parameters = initial_parameters
@@ -144,7 +156,7 @@ class GARCHEquityModel(EquityModel):
                        {'type': 'ineq', 'fun': lambda x:  x[2] - EPSILON}]
         return constraints
 
-    def plot(self):
+    def plot_volatility(self):
         if not self._has_solution():
             raise ValueError("Model solution not available.")
         params = self.optimal_parameters
@@ -208,9 +220,32 @@ class GARCHEquityModel(EquityModel):
         else:
             return return_result
 
-# endregion
 
-# region FX Models
+class GJRGARCHNormalPoissonEquityModel(EquityModel):
+
+    def __init__(self, initial_parameters, data):
+        super().__init__(initial_parameters, data)
+        self.last_volatility_estimate = 0
+        self.volatility_sample = None
+
+    def fit_model(self, data: np.array) -> np.array:
+        return super().fit_model(data)
+
+    def run_simulation(self, number_of_steps: int) -> dict:
+        return super().run_simulation(number_of_steps)
+
+    def generate_uniform_samples(self):
+        return super().generate_uniform_samples()
+
+    def generate_correct_samples(self):
+        return super().generate_correct_samples()
+
+    def _cost_function(self):
+        pass
+
+    # endregion
+
+    # region FX Models
 
 
 class FXModel(Model):
@@ -246,7 +281,7 @@ class GARCHFXModel(EquityModel):
 
         # Check if a solution exists.
         if not self._has_solution():
-            raise ValueError("Has no valid solution")
+            raise ValueError("Has no valid solution.")
 
         # Check if a volatility estimate exists.
         if self.volatility_sample is None:
@@ -311,7 +346,7 @@ class GARCHFXModel(EquityModel):
                        {'type': 'ineq', 'fun': lambda x:  x[2] - EPSILON}]
         return constraints
 
-    def plot(self):
+    def plot_volatility(self):
         if not self._has_solution():
             raise ValueError("Model solution not available.")
         params = self.optimal_parameters

@@ -1,6 +1,6 @@
 import numpy as np
 
-from test_models import GARCHEquityModel, GARCHFXModel
+from test_models.test_models import GARCHEquityModel, GARCHFXModel
 from test_instruments import Equity, FX
 from test_portfolio import Portfolio
 
@@ -59,11 +59,9 @@ def main():
 
     portfolio.fit_models()
     portfolio.fit_portfolio()
-    # for _ in range(5):
-    #     simultion_matrix = portfolio.run_simulation(dependency=True)
-    # for row in simultion_matrix:
-    #     plt.plot(row)
-    #     plt.show()
+
+    for instrument in portfolio.instruments:
+        instrument.model.plot_volatility()
 
     simulated_portfolio_returns = portfolio.run_simulation_portfolio(
         52, 10000, dependency=True)
@@ -91,17 +89,31 @@ def test_main():
     # 4. Load previous portfolio.
 
     while running:
+
         # 5. Update market information.
 
         # 6. Commit to db.
 
-        # 7. Update portfolio.
+        # 7. Refit all models.
 
         # 8. Commit to db.
 
-        # 9. Update Dashboard.
+        # 7. Recalibrate all valuation drivers.
 
-        # 10. Send report email.
+        # 8. Commit to db.
+
+        # 9. Update all valuation
+
+        # 10. Commit to db.
+
+        # 11. Update portfolio.
+
+        # 12. Commit to db.
+
+        # 13. Update Dashboard.
+
+        # 14. Send report email.
 
         # ... wait until next period (1 day, 2 day, 1 week)
+        # if any errors occur, send email with logs and stop the process.
         pass

@@ -3,7 +3,7 @@ import pandas as pd
 
 from datetime import datetime
 from abc import ABC
-from test_models import Model, EquityModel, FXModel
+from test_models.test_models import Model, EquityModel, FXModel
 from test_enums import Currency
 from pandas_datareader import data as pdr
 
