@@ -1,12 +1,13 @@
+# -*- coding: utf-8 -*-
 import numpy as np
 import pandas as pd
 
 from datetime import datetime
 from abc import ABC
-from test_models.test_models import Model
-from test_models.test_equity_models import EquityModel
-from test_models.test_FX_models import FXModel
-from test_enums import Currency
+from models.model import Model
+from models.equity_models import EquityModel
+from models.fx_models import FXModel
+from enums.currency_enum import Currency
 from pandas_datareader import data as pdr
 
 

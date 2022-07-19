@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import numpy as np
 
 from pandas_datareader import data as pdr
@@ -35,5 +36,6 @@ class StockData:
         weekly intervals.
         """
 
-        data = pdr.get_data_yahoo(self.ric, start="2011-12-28", end="2021-12-28", interval="wk")
+        data = pdr.get_data_yahoo(
+            self.ric, start="2011-12-28", end="2021-12-28", interval="wk")
         self.adj_close = data['Adj Close']

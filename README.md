@@ -1,10 +1,10 @@
-# Abacus 
+# Abacus
 
-Sequential investment decisions. 
+Sequential investment decisions.
 
-Currently only working as risk utilites for portfolios and scenario generation.
+Currently only working as a risk tool for ETF portfolios and scenario generation.
 
-### **Equitie Model**
+### **Equity Model**
 Stocks and other equities are model using a modified version of a discretized Merton-Jump-Diffusion SDE. Volatility is updated using a GJR-GARCH(1,1) model, and innovations within the model have a generalized Student's t distribution.
 
 <p align="center">

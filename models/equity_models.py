@@ -1,22 +1,24 @@
+# -*- coding: utf-8 -*-
 import numpy as np
 
 from scipy.optimize import minimize
 from scipy.stats import norm
 from matplotlib import pyplot as plt
 
-from test_config import DEFALUT_STEPS, EPSILON
-from test_models.test_models import Model
+from config import DEFALUT_STEPS, EPSILON
+from models.model import Model
+from distributions.norm_poisson_mixture import npm
 
 
-class FXModel(Model):
+class EquityModel(Model):
 
     def __init__(self, initial_parameters, data):
         super().__init__(initial_parameters, data)
 
 
-# region FX Models
+# region Equity Models
 
-class GARCHFXModel(FXModel):
+class GARCHEquityModel(EquityModel):
 
     def __init__(self, initial_parameters, data):
         super().__init__(initial_parameters, data)
@@ -43,7 +45,7 @@ class GARCHFXModel(FXModel):
 
         # Check if a solution exists.
         if not self._has_solution():
-            raise ValueError("Has no valid solution.")
+            raise ValueError("Has no valid solution")
 
         # Check if a volatility estimate exists.
         if self.volatility_sample is None:
@@ -171,5 +173,63 @@ class GARCHFXModel(FXModel):
             return volatility_result
         else:
             return return_result
+
+
+class GJRGARCHNormalPoissonEquityModel(EquityModel):
+    # param[0] is omega
+    # param[1] is alpha
+    # param[2] is beta0
+    # param[3] is beta1 (asymmetry modifier)
+    # param[4] is mu
+    # param[5] is kappa
+    # param[6] is lambda
+
+    def __init__(self, initial_parameters, data):
+        super().__init__(initial_parameters, data)
+        self.last_volatility_estimate = 0
+        self.volatility_sample = None
+
+    def fit_model(self, data: np.array) -> np.array:
+        return super().fit_model(data)
+
+    def run_simulation(self, number_of_steps: int) -> dict:
+        return super().run_simulation(number_of_steps)
+
+    def generate_uniform_samples(self):
+        return super().generate_uniform_samples()
+
+    def generate_correct_samples(self):
+        return super().generate_correct_samples()
+
+    def _cost_function(self, params: np.array, data: np.array) -> float:
+        n_observations = len(data)
+        log_likelihood = 0
+        initial_squared_vol_estimate = (params[0]
+                                        + params[1] * (data[0] ** 2)
+                                        + params[3] * (data[0] ** 2) *
+                                        np.where(data[0] < 0, 1, 0)
+                                        + params[2] * (data[0] ** 2))
+        current_squared_vol_estimate = initial_squared_vol_estimate
+
+        for i in range(0, n_observations):
+            log_likelihood = log_likelihood + np.log(npm.pdf(data[i], params[4],
+                                                             np.sqrt(current_squared_vol_estimate), params[5], params[6]))
+
+            current_squared_vol_estimate = (params[0] + params[1] * (data[i - 1] ** 2)
+                                            + params[3] * (data[i - 1] ** 2) *
+                                            np.where(data[i - 1] < 0, 1, 0)
+                                            + params[2] * current_squared_vol_estimate)
+
+        return -log_likelihood
+
+    def _constraints(self) -> list[dict]:
+        constraints = [{'type': 'ineq', 'fun': lambda x: -x[1] - x[2] - (0.5 * x[3]) + 1},
+                       {'type': 'ineq', 'fun': lambda x: x[0]},
+                       {'type': 'ineq', 'fun': lambda x: x[1] + x[3]},
+                       {'type': 'ineq', 'fun': lambda x: x[2]},
+                       {'type': 'ineq', 'fun': lambda x: x[5]},
+                       {'type': 'ineq', 'fun': lambda x: x[6]}
+                       ]
+        return constraints
 
 # endregion

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import numpy as np
 
 from scipy.stats import poisson
@@ -16,8 +17,8 @@ class StudentPoissonMixture:
 
     def pdf(self, x: float, mu: float, sigma: float, kappa: float, lamb: float, nu: float,
             number_of_terms: int = 10) -> float:
-        normalizing_constant = (gamma((nu + 1) / 2)) / \
-            (sigma * np.sqrt(np.pi * (nu - 2)) * gamma(nu / 2))
+        normalizing_constant = ((gamma((nu + 1) / 2)) /
+                                (sigma * np.sqrt(np.pi * (nu - 2)) * gamma(nu / 2)))
         total_mix_density = np.exp(-lamb) * (1 + (x - mu)
                                              ** 2 / ((nu - 2) * sigma ** 2)) ** ((-nu - 1) / 2)
 
@@ -38,7 +39,7 @@ class StudentPoissonMixture:
         target = prob
         sol = root_scalar(lambda x, *args:
                           self.cdf(x, *args) - target,
-                          # test 25 for IVV
+                          # TODO: change the lower and upper bounds depending on the problem.
                           bracket=(-40 * sigma, 40 * sigma),
                           args=(mu, sigma, kappa, lamb, nu))
         return sol

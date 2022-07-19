@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import numpy as np
 
 from abc import ABC, abstractmethod
@@ -8,7 +9,7 @@ class Model(ABC):
     Abstract class representing a model for an instrument.
 
     Attributes:
-        initial_parameters (np.array): Array of model inital paramters.            
+        initial_parameters (np.array): Array of model inital paramters.
         optimal_parameters (np.array): Array of model optimal parameters.
         data (np.array): Dataset used for parameter estimation.
         number_of_observations (int): Number of observations in dataset.

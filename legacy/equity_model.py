@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import numpy as np
 
 from matplotlib import pyplot as plt
@@ -186,17 +187,6 @@ class EquityModel:
 
     # noinspection PyMethodMayBeStatic
     def _likelihood_constraints_normal_poisson_mix(self) -> dict:
-        """
-
-        :return:
-        """
-        # param[0] is omega
-        # param[1] is alpha
-        # param[2] is beta0
-        # param[3] is beta1 (asymmetry modifier)
-        # param[4] is mu
-        # param[5] is kappa
-        # param[6] is lambda
         cons_garch_poisson = [{'type': 'ineq', 'fun': lambda x: -x[1] - x[2] - (0.5 * x[3]) + 1},
                               {'type': 'ineq', 'fun': lambda x: x[0]},
                               {'type': 'ineq', 'fun': lambda x: x[1] + x[3]},

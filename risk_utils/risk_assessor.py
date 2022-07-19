@@ -1,7 +1,8 @@
+# -*- coding: utf-8 -*-
 import numpy as np
 
 from scipy.optimize import minimize
-from test_config import EPSILON
+from config import EPSILON
 
 
 class RiskAssessor:

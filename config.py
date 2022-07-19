@@ -1,15 +1,15 @@
-"""
-TODO: Create makefile for initial configuration.
-"""
-from matplotlib import pyplot as plt
-from database.database_parser import create_connection
+# -*- coding: utf-8 -*-
+import pyvinecopulib as pv
 
-PLOT_STYLE = ['science', 'notebook', 'grid']
-ABACUS_DATABASE_CONNECTION = create_connection('database/abacus_database.db')
-
-
-def run_configuration():
-    plt.rcParams['text.usetex'] = True
-    plt.rcParams["figure.figsize"] = (18, 15)
-    plt.style.use(PLOT_STYLE)
-
+EPSILON = 1e-16
+DEFALUT_SIMULATIONS = 100
+DEFALUT_STEPS = 10
+VINE_COPULA_FAMILIES = [pv.BicopFamily.gaussian,
+                        pv.BicopFamily.clayton,
+                        pv.BicopFamily.frank,
+                        pv.BicopFamily.gumbel,
+                        pv.BicopFamily.student,
+                        pv.BicopFamily.bb1,
+                        pv.BicopFamily.bb6,
+                        pv.BicopFamily.bb7,
+                        pv.BicopFamily.bb8]
