@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from os import stat
+from sqlite3 import paramstyle
 from tkinter import E
 import numpy as np
 
@@ -23,10 +24,10 @@ class EquityModel(Model):
 class GARCHEquityModel(EquityModel):
 
     def __init__(self, initial_parameters, data):
-        super().__init__(initial_parameters, data)
+        super().__init__(initial_parameters, data[1:])
         self.last_volatility_estimate = 0
         self.volatility_sample = None
-        self.inital_volatility_esimate = np.std(self.data[:19])
+        self.inital_volatility_esimate = np.std(self.data[:20])
         self.long_run_volatility_estimate = np.std(self.data)
 
     def run_simulation(self, number_of_steps: int = DEFALUT_STEPS) -> np.array:
@@ -102,7 +103,7 @@ class GARCHEquityModel(EquityModel):
 
     def _cost_function(self, params: np.array, data: np.array) -> float:
         vol_est = self._generate_volatility_squared(params)
-        log_loss = np.sum(np.log(vol_est[1:]) + (data[1:]**2)/vol_est[1:])
+        log_loss = np.sum(np.log(vol_est) + (data**2)/vol_est)
         return log_loss
 
     def plot_volatility(self):
@@ -110,7 +111,7 @@ class GARCHEquityModel(EquityModel):
             raise ValueError("Model solution not available.")
         params = self.optimal_parameters
         vol_result = self._generate_volatility(params=params)
-        plt.plot(vol_result[1:])
+        plt.plot(vol_result)
         plt.show()
 
     def _generate_volatility(self, params: np.array) -> np.array:
@@ -119,8 +120,8 @@ class GARCHEquityModel(EquityModel):
 
     def _generate_volatility_squared(self, params: np.array) -> np.array:
         result = np.zeros(self.number_of_observations)
-        for i in range(1, self.number_of_observations):
-            if i == 1:
+        for i in range(0, self.number_of_observations):
+            if i == 0:
                 result[i] = self.inital_volatility_esimate ** 2
             else:
                 result[i] = (self.long_run_volatility_estimate**2
@@ -151,15 +152,16 @@ class GARCHEquityModel(EquityModel):
         return_estimate = self.data[-1]
         volatility_estimate = self.last_volatility_estimate
 
-        beta0 = self.optimal_parameters[0]
-        beta1 = self.optimal_parameters[1]
-        beta2 = self.optimal_parameters[2]
+        parameters = self._uncondition_parameters(self.optimal_parameters)
+        alpha = parameters[0]
+        beta = parameters[1]
+        omega = self.long_run_volatility_estimate**2 * (1 - alpha - beta)
 
         # Generation of return estimates.
         for i in range(number_of_steps):
             sample = norm.rvs(size=1, loc=0, scale=1)
             volatility_estimate = np.sqrt(
-                beta0 + beta1 * volatility_estimate ** 2 + beta2 * return_estimate ** 2)
+                omega + beta * volatility_estimate ** 2 + alpha * return_estimate ** 2)
             return_estimate = sample * volatility_estimate
 
             return_result[i] = return_estimate

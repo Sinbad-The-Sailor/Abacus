@@ -21,7 +21,7 @@ def main():
                     end_date=end, interval=interval)
     stock2 = Equity(ric="CVX", currency="USD", start_date=start,
                     end_date=end, interval=interval)
-    stock3 = Equity(ric="LQD", currency="USD",
+    stock3 = Equity(ric="^GSPC", currency="USD",
                     start_date=start, end_date=end, interval=interval)
 
     fx1 = FX(ric="USDEUR=X", currency="USD", start_date=start,
@@ -55,7 +55,7 @@ def main():
 
     # CREATE PORTFOLIO AND RUN.
     instruments = [stock1, stock2, stock3]
-    holdings = np.array([5, 5, 10000000])
+    holdings = np.array([0, 0, 100])
 
     portfolio = Portfolio(instruments=instruments, holdings=holdings)
 
@@ -66,7 +66,7 @@ def main():
         instrument.model.plot_volatility()
 
     simulated_portfolio_returns = portfolio.run_simulation_portfolio(
-        10, 10000, dependency=True)
+        2, 10000, dependency=True)
 
     plt.hist(simulated_portfolio_returns, bins=50)
     plt.show()
