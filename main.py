@@ -19,7 +19,7 @@ def main():
 
     stock1 = Equity(ric="XOM", currency="USD", start_date=start,
                     end_date=end, interval=interval)
-    stock2 = Equity(ric="GS", currency="USD", start_date=start,
+    stock2 = Equity(ric="CVX", currency="USD", start_date=start,
                     end_date=end, interval=interval)
     stock3 = Equity(ric="LQD", currency="USD",
                     start_date=start, end_date=end, interval=interval)
@@ -30,7 +30,8 @@ def main():
              end_date=end, interval=interval)
 
     # CREATE MODELS FOR EACH ASSET.
-    initial_parametes = [0.01, 0.01, 0.7]
+    initial_parametes = np.array(
+        [0.05, 0.80])
 
     model_XOM = GARCHEquityModel(
         initial_parameters=initial_parametes, data=stock1.log_return_history)
@@ -65,7 +66,7 @@ def main():
         instrument.model.plot_volatility()
 
     simulated_portfolio_returns = portfolio.run_simulation_portfolio(
-        52, 10000, dependency=True)
+        10, 10000, dependency=True)
 
     plt.hist(simulated_portfolio_returns, bins=50)
     plt.show()

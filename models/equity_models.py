@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from os import stat
+from tkinter import E
 import numpy as np
 
 from scipy.optimize import minimize
@@ -24,6 +26,8 @@ class GARCHEquityModel(EquityModel):
         super().__init__(initial_parameters, data)
         self.last_volatility_estimate = 0
         self.volatility_sample = None
+        self.inital_volatility_esimate = np.std(self.data[:19])
+        self.long_run_volatility_estimate = np.std(self.data)
 
     def run_simulation(self, number_of_steps: int = DEFALUT_STEPS) -> np.array:
 
@@ -82,59 +86,51 @@ class GARCHEquityModel(EquityModel):
     def fit_model(self) -> bool:
         # TODO: Add number of iterations and while loop.
 
+        initial_parameters = self._precondition_parameters(
+            self.initial_parameters)
+
         solution = minimize(
-            self._cost_function, self.initial_parameters, constraints=self._constraints(), args=self.data, method="SLSQP")
+            self._cost_function, initial_parameters, args=self.data)
         self.optimal_parameters = solution.x
         self.last_volatility_estimate = self._generate_volatility(
-            solution.x)[-1]
+            self.optimal_parameters)[-1]
 
-        if self.verbose:
-            print(f" {solution.x} {solution.success}")
+        print(
+            f" {self._uncondition_parameters(self.optimal_parameters)} {solution.success}")
 
         return solution.success
 
     def _cost_function(self, params: np.array, data: np.array) -> float:
-        log_loss = 0
-        vol_est = self._generate_volatility(params)
-
-        for i in range(1, self.number_of_observations):
-            log_loss += (np.log(vol_est[i] ** 2 + EPSILON) +
-                         (data[i] ** 2)/(vol_est[i] ** 2))
-
+        vol_est = self._generate_volatility_squared(params)
+        log_loss = np.sum(np.log(vol_est[1:]) + (data[1:]**2)/vol_est[1:])
         return log_loss
-
-    def _constraints(self) -> list[dict]:
-        constraints = [{'type': 'ineq', 'fun': lambda x: -x[1] - x[2] + (1-EPSILON)},
-                       {'type': 'ineq', 'fun': lambda x:  x[0] - EPSILON},
-                       {'type': 'ineq', 'fun': lambda x:  x[1] - EPSILON},
-                       {'type': 'ineq', 'fun': lambda x:  x[2] - EPSILON}]
-        return constraints
 
     def plot_volatility(self):
         if not self._has_solution():
             raise ValueError("Model solution not available.")
         params = self.optimal_parameters
         vol_result = self._generate_volatility(params=params)
-        plt.plot(vol_result)
+        plt.plot(vol_result[1:])
         plt.show()
 
     def _generate_volatility(self, params: np.array) -> np.array:
+        result = np.sqrt(self._generate_volatility_squared(params=params))
+        return result
 
-        # Number of volatility observations is one less than returns.
-        # Ignore first index. One observation is automatically removed.
-        # TODO: MAKE THE ARRAYS SAME LENGHT! MISGUIDING OTHERWISE.
+    def _generate_volatility_squared(self, params: np.array) -> np.array:
         result = np.zeros(self.number_of_observations)
-
-        vol_est = (params[0] + params[1] *
-                   (self.data[1] ** 2) + params[2] * (self.data[1] ** 2))
-
-        result[1] = np.sqrt(vol_est)
-
-        for i in range(2, self.number_of_observations):
-            vol_est = (params[0] + params[1] *
-                       (self.data[i] ** 2) + params[2] * vol_est)
-            result[i] = np.sqrt(vol_est)
-
+        for i in range(1, self.number_of_observations):
+            if i == 1:
+                result[i] = self.inital_volatility_esimate ** 2
+            else:
+                result[i] = (self.long_run_volatility_estimate**2
+                             + np.exp(-np.exp(-params[0]))
+                             * (np.exp(-np.exp(-params[1])) * result[i-1]
+                                 + (1-np.exp(-np.exp(-params[1])))
+                                 * self.data[i-1]**2
+                                 - self.long_run_volatility_estimate**2
+                                )
+                             )
         return result
 
     def _generate_simulation(self, number_of_steps: int, isVol: bool) -> tuple[np.array]:
@@ -173,6 +169,26 @@ class GARCHEquityModel(EquityModel):
             return volatility_result
         else:
             return return_result
+
+    @staticmethod
+    def _precondition_parameters(params: np.array) -> np.array:
+        mu_corr = params[0] + params[1]
+        mu_ewma = params[1] / (params[0] + params[1])
+
+        z_corr = np.log(-1/np.log(mu_corr))
+        z_ewma = np.log(-1/np.log(mu_ewma))
+
+        return np.array([z_corr, z_ewma])
+
+    @staticmethod
+    def _uncondition_parameters(params: np.array) -> np.array:
+        mu_corr = np.exp(-np.exp(-params[0]))
+        mu_ewma = np.exp(-np.exp(-params[1]))
+
+        alpha = mu_corr * (1 - mu_ewma)
+        beta = mu_corr * mu_ewma
+
+        return np.array([alpha, beta])
 
 
 class GJRGARCHNormalPoissonEquityModel(EquityModel):
