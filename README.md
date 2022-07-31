@@ -32,3 +32,11 @@ Example of 5-dimensional vine coupla (PCC).
 </p>
 
 ### **References**
+
+
+#### Variance stabalizing and Preconditioning GARCH/GJR-GARCH models.
+
+* Zumbach, Gilles. (2000). The Pitfalls in Fitting Garch(1,1) Processes. 10.1007/978-1-4615-4389-3_8. 
+* Sundström, D. (2017). Automatized GARCH parameter estimation (Dissertation). Retrieved from http://urn.kb.se/resolve?urn=urn:nbn:se:kth:diva-213725
+
+
