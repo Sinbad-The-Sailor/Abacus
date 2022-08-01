@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+from ast import Eq
 import numpy as np
 
 from matplotlib import pyplot as plt
 
-from models.equity_models import GARCHEquityModel
+from models.equity_models import GARCHEquityModel, GJRGARCHEquityModel
 from models.fx_models import GARCHFXModel
 from instruments.instruments import Equity, FX
 from portfolio import Portfolio
@@ -13,7 +14,7 @@ from risk_utils.risk_assessor import RiskAssessor
 def main():
 
     # CREATE ASSETS.
-    start = "2011-12-28"
+    start = "2005-12-28"
     end = "2022-07-11"
     interval = "wk"
 
@@ -29,6 +30,11 @@ def main():
     fx2 = FX(ric="USDGBP=X", currency="USD", start_date=start,
              end_date=end, interval=interval)
 
+    stock4 = Equity(ric="XOM", currency="USD", start_date=start,
+                    end_date=end, interval=interval)
+    initial_parametes_gjr = np.array(
+        [0.05, 0.80, 0.001])
+
     # CREATE MODELS FOR EACH ASSET.
     initial_parametes = np.array(
         [0.05, 0.80])
@@ -39,6 +45,9 @@ def main():
         initial_parameters=initial_parametes, data=stock2.log_return_history)
     model_SPX = GARCHEquityModel(
         initial_parameters=initial_parametes, data=stock3.log_return_history)
+    model_XOM_New = GJRGARCHEquityModel(
+        initial_parameters=initial_parametes_gjr, data=stock4.log_return_history
+    )
 
     model_EUR = GARCHFXModel(
         initial_parameters=initial_parametes, data=fx1.log_return_history)
@@ -49,13 +58,14 @@ def main():
     stock1.set_model(model_XOM)
     stock2.set_model(model_BOA)
     stock3.set_model(model_SPX)
+    stock4.set_model(model_XOM_New)
 
     fx1.set_model(model_EUR)
     fx2.set_model(model_GBP)
 
     # CREATE PORTFOLIO AND RUN.
-    instruments = [stock1, stock2, stock3]
-    holdings = np.array([0, 0, 100])
+    instruments = [stock1, stock2, stock3, stock4]
+    holdings = np.array([10, 10, 100, 10])
 
     portfolio = Portfolio(instruments=instruments, holdings=holdings)
 
@@ -66,7 +76,7 @@ def main():
         instrument.model.plot_volatility()
 
     simulated_portfolio_returns = portfolio.run_simulation_portfolio(
-        2, 10000, dependency=True)
+        1, 10000, dependency=True)
 
     plt.hist(simulated_portfolio_returns, bins=50)
     plt.show()

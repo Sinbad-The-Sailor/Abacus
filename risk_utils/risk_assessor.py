@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+from os import stat
 import numpy as np
 
+from rich import console
 from scipy.optimize import minimize
 from config import EPSILON
 
@@ -116,6 +118,8 @@ class RiskAssessor:
         x0 = [0.15, 0.01]
         sol = minimize(self._evt_ml_objective_function, x0,
                        constraints=cons, args=self._excess_losses)
+
+        print(f"{sol.x} {sol.success}")
         return sol.x
 
     @staticmethod

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import pyvinecopulib as pv
 
-EPSILON = 1e-16
+EPSILON = 1e-8
 DEFALUT_SIMULATIONS = 100
 DEFALUT_STEPS = 10
 VINE_COPULA_FAMILIES = [pv.BicopFamily.gaussian,
