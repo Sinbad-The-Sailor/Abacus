@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from ast import Eq
 import numpy as np
 
 from matplotlib import pyplot as plt
@@ -18,41 +17,58 @@ def main():
     end = "2022-07-11"
     interval = "wk"
 
-    stock1 = Equity(ric="XOM", currency="USD", start_date=start,
-                    end_date=end, interval=interval)
-    stock2 = Equity(ric="CVX", currency="USD", start_date=start,
-                    end_date=end, interval=interval)
-    stock3 = Equity(ric="^GSPC", currency="USD",
-                    start_date=start, end_date=end, interval=interval)
+    stock1 = Equity(
+        ric="XOM", currency="USD", start_date=start, end_date=end, interval=interval
+    )
+    stock2 = Equity(
+        ric="CVX", currency="USD", start_date=start, end_date=end, interval=interval
+    )
+    stock3 = Equity(
+        ric="^GSPC", currency="USD", start_date=start, end_date=end, interval=interval
+    )
 
-    fx1 = FX(ric="USDEUR=X", currency="USD", start_date=start,
-             end_date=end, interval=interval)
-    fx2 = FX(ric="USDGBP=X", currency="USD", start_date=start,
-             end_date=end, interval=interval)
+    fx1 = FX(
+        ric="USDEUR=X",
+        currency="USD",
+        start_date=start,
+        end_date=end,
+        interval=interval,
+    )
+    fx2 = FX(
+        ric="USDGBP=X",
+        currency="USD",
+        start_date=start,
+        end_date=end,
+        interval=interval,
+    )
 
-    stock4 = Equity(ric="XOM", currency="USD", start_date=start,
-                    end_date=end, interval=interval)
-    initial_parametes_gjr = np.array(
-        [0.05, 0.80, 0.001])
+    stock4 = Equity(
+        ric="XOM", currency="USD", start_date=start, end_date=end, interval=interval
+    )
+    initial_parametes_gjr = np.array([0.05, 0.80, 0.001])
 
     # CREATE MODELS FOR EACH ASSET.
-    initial_parametes = np.array(
-        [0.05, 0.80])
+    initial_parametes = np.array([0.05, 0.80])
 
     model_XOM = GARCHEquityModel(
-        initial_parameters=initial_parametes, data=stock1.log_return_history)
+        initial_parameters=initial_parametes, data=stock1.log_return_history
+    )
     model_BOA = GARCHEquityModel(
-        initial_parameters=initial_parametes, data=stock2.log_return_history)
+        initial_parameters=initial_parametes, data=stock2.log_return_history
+    )
     model_SPX = GARCHEquityModel(
-        initial_parameters=initial_parametes, data=stock3.log_return_history)
+        initial_parameters=initial_parametes, data=stock3.log_return_history
+    )
     model_XOM_New = GJRGARCHEquityModel(
         initial_parameters=initial_parametes_gjr, data=stock4.log_return_history
     )
 
     model_EUR = GARCHFXModel(
-        initial_parameters=initial_parametes, data=fx1.log_return_history)
+        initial_parameters=initial_parametes, data=fx1.log_return_history
+    )
     model_GBP = GARCHFXModel(
-        initial_parameters=initial_parametes, data=fx2.log_return_history)
+        initial_parameters=initial_parametes, data=fx2.log_return_history
+    )
 
     # SET MODEL FOR EACH ASSET.
     stock1.set_model(model_XOM)
@@ -76,7 +92,8 @@ def main():
         instrument.model.plot_volatility()
 
     simulated_portfolio_returns = portfolio.run_simulation_portfolio(
-        1, 10000, dependency=True)
+        1, 10000, dependency=True
+    )
 
     plt.hist(simulated_portfolio_returns, bins=50)
     plt.show()

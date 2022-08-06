@@ -115,7 +115,6 @@ class GARCHEquityModel(EquityModel):
         return result
 
     def _generate_volatility_squared(self, params: np.array) -> np.array:
-        # TODO: CHANGE TO CLEAR MUS ISNTEAD OF EXP EXP.
         result = np.zeros(self.number_of_observations)
         for i in range(0, self.number_of_observations):
             if i == 0:
@@ -194,6 +193,7 @@ class GARCHEquityModel(EquityModel):
 
 
 class GJRGARCHEquityModel(EquityModel):
+
     def __init__(self, initial_parameters, data):
         super().__init__(initial_parameters, data[1:])
         self.last_volatility_estimate = 0

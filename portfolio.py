@@ -7,8 +7,7 @@ from instruments.instruments import Instrument
 from config import DEFALUT_STEPS, VINE_COPULA_FAMILIES, DEFALUT_SIMULATIONS
 
 
-class Portfolio():
-
+class Portfolio:
     def __init__(self, instruments: list[Instrument], holdings: np.array):
         self.instruments = instruments
         self.holdings = holdings
@@ -67,7 +66,9 @@ class Portfolio():
 
         self.copula = copula
 
-    def run_simultion_assets(self, number_of_steps: int = DEFALUT_STEPS, dependency: bool = True) -> np.array:
+    def run_simultion_assets(
+        self, number_of_steps: int = DEFALUT_STEPS, dependency: bool = True
+    ) -> np.array:
 
         # Check if portfolio has instruments.
         if not self._has_instruments():
@@ -82,12 +83,18 @@ class Portfolio():
             raise ValueError("One model has no solution.")
 
         if dependency:
-            return self._generate_multivariate_simulation(number_of_steps=number_of_steps)
+            return self._generate_multivariate_simulation(
+                number_of_steps=number_of_steps
+            )
         else:
             return self._generate_univariate_simulation(number_of_steps=number_of_steps)
 
-    def run_simulation_portfolio(self, number_of_steps: int = DEFALUT_STEPS, number_of_simulations: int = DEFALUT_SIMULATIONS,
-                                 dependency: bool = True) -> np.array:
+    def run_simulation_portfolio(
+        self,
+        number_of_steps: int = DEFALUT_STEPS,
+        number_of_simulations: int = DEFALUT_SIMULATIONS,
+        dependency: bool = True,
+    ) -> np.array:
 
         init_prices = self._last_prices()
         terminal_art_portfolio_return = np.zeros(number_of_simulations)
@@ -96,15 +103,17 @@ class Portfolio():
 
             # Portfolio constituance simulation.
             simultion_matrix = self.run_simultion_assets(
-                number_of_steps=number_of_steps, dependency=dependency)
+                number_of_steps=number_of_steps, dependency=dependency
+            )
 
             # Portfolio prices.
-            temp_prices = (init_prices *
-                           np.prod(np.exp(simultion_matrix), axis=1))
+            temp_prices = init_prices * \
+                np.prod(np.exp(simultion_matrix), axis=1)
 
             # Portfolio returns.
             terminal_art_portfolio_return[simulation] = (
-                self.holdings.T @ temp_prices / self.value - 1)
+                self.holdings.T @ temp_prices / self.value - 1
+            )
 
         return terminal_art_portfolio_return
 
@@ -113,8 +122,10 @@ class Portfolio():
         result = []
 
         for instrument in self.instruments:
-            result.append(instrument.model.run_simulation(
-                number_of_steps=number_of_steps))
+            result.append(
+                instrument.model.run_simulation(
+                    number_of_steps=number_of_steps)
+            )
 
         return np.vstack(result)
 
@@ -135,7 +146,10 @@ class Portfolio():
             current_instrument = self.instruments[i]
             current_uniform_sample = simulated_uniforms[:, i]
             result.append(
-                current_instrument.model.generate_correct_samples(current_uniform_sample))
+                current_instrument.model.generate_correct_samples(
+                    current_uniform_sample
+                )
+            )
 
         return result
 

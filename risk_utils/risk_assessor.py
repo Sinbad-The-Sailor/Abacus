@@ -2,7 +2,6 @@
 from os import stat
 import numpy as np
 
-from rich import console
 from scipy.optimize import minimize
 from config import EPSILON
 
