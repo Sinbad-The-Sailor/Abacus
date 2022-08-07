@@ -16,7 +16,6 @@ class FXModel(Model):
 
 
 # region FX Models
-
 class GARCHFXModel(FXModel):
 
     def __init__(self, initial_parameters, data):
@@ -172,5 +171,4 @@ class GARCHFXModel(FXModel):
             return volatility_result
         else:
             return return_result
-
 # endregion

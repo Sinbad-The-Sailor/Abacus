@@ -51,3 +51,7 @@ class Model(ABC):
         if self.optimal_parameters is None:
             raise ValueError(f"Model {Model} has no solution.")
         return True
+
+
+class NoParamtersError(ValueError):
+    pass

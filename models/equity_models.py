@@ -6,7 +6,7 @@ from scipy.stats import norm
 from matplotlib import pyplot as plt
 
 from config import DEFALUT_STEPS
-from models.model import Model
+from models.model import Model, NoParamtersError
 from distributions.norm_poisson_mixture import npm
 
 
@@ -46,7 +46,7 @@ class GARCHEquityModel(EquityModel):
 
         # Check if a solution exists.
         if not self._has_solution():
-            raise ValueError("Has no valid solution")
+            raise NoParamtersError
 
         # Check if a volatility estimate exists.
         if self.volatility_sample is None:
@@ -137,7 +137,7 @@ class GARCHEquityModel(EquityModel):
 
         # Check if optimal parameters exist.
         if not self._has_solution():
-            raise ValueError("Model has no fitted parameters.")
+            raise NoParamtersError
 
         # Check if initial volatility exist.
         if self.last_volatility_estimate == 0:
@@ -216,7 +216,7 @@ class GJRGARCHEquityModel(EquityModel):
 
         # Check if a solution exists.
         if not self._has_solution():
-            raise ValueError("Has no valid solution")
+            raise NoParamtersError
 
         # Check if a volatility estimate exists.
         if self.volatility_sample is None:
@@ -274,7 +274,7 @@ class GJRGARCHEquityModel(EquityModel):
 
     def plot_volatility(self):
         if not self._has_solution():
-            raise ValueError("Model solution not available.")
+            raise NoParamtersError
         params = self.optimal_parameters
         vol_result = self._generate_volatility(params=params)
         plt.plot(vol_result)
