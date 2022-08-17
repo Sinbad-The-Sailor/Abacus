@@ -108,40 +108,38 @@ if __name__ == "__main__":
 
 def test_main():
     """Template for finial main/run method."""
-    # 1. Initialize config file.
+    # 1. Initialize config file/run configuration files/pingers.
     running = True
 
     # 2. Establish connection to db.
 
     # 3. Establish connection to markets.
 
-    # 4. Load previous portfolio.
+    # x. Establish connection to AWS.
+
+    # 4. Load previous portfolio from db.
 
     while running:
 
         # 5. Update market information.
-
         # 6. Commit to db.
 
+        # +++ RUN SIMULATION ENGINE +++
         # 7. Refit all models.
-
-        # 8. Commit to db.
-
         # 7. Recalibrate all valuation drivers.
-
+        # 9. Produce simulations
         # 8. Commit to db.
 
+        # +++ RUN VALUATION ENGINE +++
         # 9. Update all valuation
-
         # 10. Commit to db.
 
+        # +++ RUN OPTIMZATION EGINE +++
         # 11. Update portfolio.
-
         # 12. Commit to db.
 
         # 13. Update Dashboard.
-
-        # 14. Send report email.
+        # 14. Send report email from logging and resulting transactions.
 
         # ... wait until next period (1 day, 2 day, 1 week)
         # if any errors occur, send email with logs and stop the process.
