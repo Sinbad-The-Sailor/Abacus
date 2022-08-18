@@ -7,7 +7,7 @@ from models.equity_models import GARCHEquityModel, GJRGARCHEquityModel
 from models.fx_models import GARCHFXModel
 from instruments.instruments import Equity, FX
 from portfolio import Portfolio
-from risk_utils.risk_assessor import RiskAssessor
+from abacus_utils.risk_tools import risk_assessor
 
 
 def main():
@@ -98,7 +98,7 @@ def main():
     plt.hist(simulated_portfolio_returns, bins=50)
     plt.show()
 
-    risk_calc = RiskAssessor(simulated_portfolio_returns)
+    risk_calc = risk_assessor.RiskAssessor(simulated_portfolio_returns)
     risk_calc.risk_summary()
 
 

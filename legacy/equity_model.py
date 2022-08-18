@@ -6,8 +6,8 @@ from statsmodels.graphics.gofplots import qqplot
 from scipy.stats import norm
 from scipy.optimize import minimize
 
-from distributions.norm_poisson_mixture import npm
-from distributions.student_poisson_mixture import spm
+from abacus_utils.distributions.norm_poisson_mixture import npm
+from abacus_utils.distributions.student_poisson_mixture import spm
 
 from config import ABACUS_DATABASE_CONNECTION
 from database import database_parser

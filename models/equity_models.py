@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 
 from config import DEFALUT_STEPS
 from models.model import Model, NoParamtersError
-from distributions.norm_poisson_mixture import npm
+from abacus_utils.distributions.norm_poisson_mixture import npm
 
 
 class EquityModel(Model):

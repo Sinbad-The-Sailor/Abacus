@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from os import stat
 import numpy as np
 
 from scipy.optimize import minimize
