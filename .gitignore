@@ -1,5 +1,7 @@
-# created by virtualenv automatically
 venv/
 __pycache__/
 .vscode
 .ipynb_checkpoints
+.env
+.idea
+testing.py

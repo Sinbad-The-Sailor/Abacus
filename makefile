@@ -4,6 +4,7 @@ install:
 	@pip install --upgrade pip
 	@pip install -r requirements.txt
 
+# TODO: run .env file to load environment variables.
 run:
 	. venv/bin/activate
 	python main.py
