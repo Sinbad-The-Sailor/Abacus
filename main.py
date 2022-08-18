@@ -7,7 +7,9 @@ from models.equity_models import GARCHEquityModel, GJRGARCHEquityModel
 from models.fx_models import GARCHFXModel
 from instruments.instruments import Equity, FX
 from portfolio import Portfolio
+
 from abacus_utils.risk_tools import risk_assessor
+from abacus_simulator import simulator
 
 
 def main():
