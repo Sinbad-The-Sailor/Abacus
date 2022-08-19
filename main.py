@@ -1,24 +1,32 @@
 # -*- coding: utf-8 -*-
+from ast import Eq
 import numpy as np
 
 from matplotlib import pyplot as plt
 
 from models.equity_models import GARCHEquityModel, GJRGARCHEquityModel
 from models.fx_models import GARCHFXModel
-from instruments.instruments import Equity, FX
+from instruments.instruments import Equity, FX, Instrument
 from portfolio import Portfolio
 
 from abacus_utils.risk_tools import risk_assessor
 from abacus_simulator import simulator
 
 
-def main():
+def equity_model_factory(equity: Equity):
+    # TODO: More logic based on AIC or BIC e.g.
+    initial_parametes_gjr = np.array([0.05, 0.80, 0.001])
+    initial_parametes_gar = np.array([0.05, 0.80])
+    model = GJRGARCHEquityModel(
+        initial_parametes_gjr, equity.log_return_history)
+    equity.set_model(model=model)
 
-    # CREATE ASSETS.
+
+def main():
+    # Create stocks
     start = "2005-12-28"
     end = "2022-07-11"
     interval = "wk"
-
     stock1 = Equity(
         ric="XOM", currency="USD", start_date=start, end_date=end, interval=interval
     )
@@ -28,80 +36,28 @@ def main():
     stock3 = Equity(
         ric="^GSPC", currency="USD", start_date=start, end_date=end, interval=interval
     )
-
-    fx1 = FX(
-        ric="USDEUR=X",
-        currency="USD",
-        start_date=start,
-        end_date=end,
-        interval=interval,
-    )
-    fx2 = FX(
-        ric="USDGBP=X",
-        currency="USD",
-        start_date=start,
-        end_date=end,
-        interval=interval,
-    )
-
     stock4 = Equity(
-        ric="XOM", currency="USD", start_date=start, end_date=end, interval=interval
-    )
-    initial_parametes_gjr = np.array([0.05, 0.80, 0.001])
-
-    # CREATE MODELS FOR EACH ASSET.
-    initial_parametes = np.array([0.05, 0.80])
-
-    model_XOM = GARCHEquityModel(
-        initial_parameters=initial_parametes, data=stock1.log_return_history
-    )
-    model_BOA = GARCHEquityModel(
-        initial_parameters=initial_parametes, data=stock2.log_return_history
-    )
-    model_SPX = GARCHEquityModel(
-        initial_parameters=initial_parametes, data=stock3.log_return_history
-    )
-    model_XOM_New = GJRGARCHEquityModel(
-        initial_parameters=initial_parametes_gjr, data=stock4.log_return_history
+        ric="WFC", currency="USD", start_date=start, end_date=end, interval=interval
     )
 
-    model_EUR = GARCHFXModel(
-        initial_parameters=initial_parametes, data=fx1.log_return_history
-    )
-    model_GBP = GARCHFXModel(
-        initial_parameters=initial_parametes, data=fx2.log_return_history
-    )
-
-    # SET MODEL FOR EACH ASSET.
-    stock1.set_model(model_XOM)
-    stock2.set_model(model_BOA)
-    stock3.set_model(model_SPX)
-    stock4.set_model(model_XOM_New)
-
-    fx1.set_model(model_EUR)
-    fx2.set_model(model_GBP)
-
-    # CREATE PORTFOLIO AND RUN.
     instruments = [stock1, stock2, stock3, stock4]
-    holdings = np.array([10, 10, 100, 10])
 
-    portfolio = Portfolio(instruments=instruments, holdings=holdings)
+    # SHOULD BE IN SIMULATOR:
+    for instrument in instruments:
+        equity_model_factory(instrument)
 
-    portfolio.fit_models()
-    portfolio.fit_portfolio()
+    simulator = Portfolio(instruments=instruments)
+    simulator.fit_models()
+    simulator.fit_portfolio()
 
-    for instrument in portfolio.instruments:
+    for instrument in simulator.instruments:
         instrument.model.plot_volatility()
 
-    simulated_portfolio_returns = portfolio.run_simulation_portfolio(
-        1, 10000, dependency=True
+    simulated_portfolio_returns = simulator.run_simulation_portfolio(
+        52, 10000, dependency=True
     )
-
     plt.hist(simulated_portfolio_returns, bins=50)
     plt.show()
-
-    risk_calc = risk_assessor.RiskAssessor(simulated_portfolio_returns)
-    risk_calc.risk_summary()
 
 
 if __name__ == "__main__":
