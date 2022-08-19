@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from instruments.instruments import Equity, FX
-
 from abacus_simulator import forecaster
 
 
@@ -42,44 +41,9 @@ def main():
     stock12 = Equity(
         ric="WMT", currency="USD", start_date=start, end_date=end, interval=interval
     )
-    _stock1 = Equity(
-        ric="XOM", currency="USD", start_date=start, end_date=end, interval=interval
-    )
-    _stock2 = Equity(
-        ric="CVX", currency="USD", start_date=start, end_date=end, interval=interval
-    )
-    _stock3 = Equity(
-        ric="^GSPC", currency="USD", start_date=start, end_date=end, interval=interval
-    )
-    _stock4 = Equity(
-        ric="WFC", currency="USD", start_date=start, end_date=end, interval=interval
-    )
-    _stock6 = Equity(
-        ric="MSFT", currency="USD", start_date=start, end_date=end, interval=interval
-    )
-    _stock7 = Equity(
-        ric="CAT", currency="USD", start_date=start, end_date=end, interval=interval
-    )
-    _stock8 = Equity(
-        ric="NOC", currency="USD", start_date=start, end_date=end, interval=interval
-    )
-    _stock9 = Equity(
-        ric="KO", currency="USD", start_date=start, end_date=end, interval=interval
-    )
-    _stock10 = Equity(
-        ric="JNJ", currency="USD", start_date=start, end_date=end, interval=interval
-    )
-    _stock11 = Equity(
-        ric="AXP", currency="USD", start_date=start, end_date=end, interval=interval
-    )
-    _stock12 = Equity(
-        ric="WMT", currency="USD", start_date=start, end_date=end, interval=interval
-    )
 
     instruments = [stock1, stock2, stock3, stock4,
-                   stock6, stock7, stock8, stock9, stock10, stock11, stock12,
-                   _stock1, _stock2, _stock3, _stock4,
-                   _stock6, _stock7, _stock8, _stock9, _stock10, _stock11, _stock12]
+                   stock6, stock7, stock8, stock9, stock10, stock11, stock12]
 
     forc = forecaster.Forecaster(instruments=instruments, number_of_steps=5)
     forc.forecast()
