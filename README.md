@@ -1,5 +1,12 @@
 # Abacus
-<img alt="GitHub" src="https://img.shields.io/github/license/sinbad-the-sailor/abacus?style=for-the-badge">
+<div align="center">
+
+![GitHub](https://img.shields.io/github/license/sinbad-the-sailor/abacus?color=%23002D5A&style=flat-square)
+![GitHub repo size](https://img.shields.io/github/repo-size/sinbad-the-sailor/abacus?color=%23002D5A&style=flat-square)
+![GitHub last commit](https://img.shields.io/github/last-commit/sinbad-the-sailor/abacus?color=%23002D5A&style=flat-square)
+
+</div>
+
 
 Sequential investment decisions.
 
@@ -35,7 +42,7 @@ Example of 5-dimensional vine coupla (PCC).
 ### **References**
 
 
-#### Variance stabalizing and Preconditioning GARCH/GJR-GARCH models.
+#### Variance Stabalizing and Preconditioning for GARCH/GJR-GARCH models.
 
 * Zumbach, Gilles. (2000). The Pitfalls in Fitting Garch(1,1) Processes. 10.1007/978-1-4615-4389-3_8. 
 * Sundström, D. (2017). Automatized GARCH parameter estimation (Dissertation). Retrieved from http://urn.kb.se/resolve?urn=urn:nbn:se:kth:diva-213725
