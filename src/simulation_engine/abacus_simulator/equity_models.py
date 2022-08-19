@@ -6,8 +6,8 @@ from scipy.stats import norm
 from matplotlib import pyplot as plt
 
 from config import DEFALUT_STEPS
-from models.model import Model, NoParamtersError
 from abacus_utils.distributions.norm_poisson_mixture import npm
+from abacus_simulator.model import Model, NoParametersError
 
 
 class EquityModel(Model):
@@ -46,7 +46,7 @@ class GARCHEquityModel(EquityModel):
 
         # Check if a solution exists.
         if not self._has_solution():
-            raise NoParamtersError
+            raise NoParametersError
 
         # Check if a volatility estimate exists.
         if self.volatility_sample is None:
@@ -137,7 +137,7 @@ class GARCHEquityModel(EquityModel):
 
         # Check if optimal parameters exist.
         if not self._has_solution():
-            raise NoParamtersError
+            raise NoParametersError
 
         # Check if initial volatility exist.
         if self.last_volatility_estimate == 0:
@@ -216,7 +216,7 @@ class GJRGARCHEquityModel(EquityModel):
 
         # Check if a solution exists.
         if not self._has_solution():
-            raise NoParamtersError
+            raise NoParametersError
 
         # Check if a volatility estimate exists.
         if self.volatility_sample is None:
@@ -274,7 +274,7 @@ class GJRGARCHEquityModel(EquityModel):
 
     def plot_volatility(self):
         if not self._has_solution():
-            raise NoParamtersError
+            raise NoParametersError
         params = self.optimal_parameters
         vol_result = self._generate_volatility(params=params)
         plt.plot(vol_result)

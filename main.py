@@ -1,25 +1,7 @@
 # -*- coding: utf-8 -*-
-from ast import Eq
-import numpy as np
+from instruments.instruments import Equity, FX
 
-from matplotlib import pyplot as plt
-
-from models.equity_models import GARCHEquityModel, GJRGARCHEquityModel
-from models.fx_models import GARCHFXModel
-from instruments.instruments import Equity, FX, Instrument
-from portfolio import Portfolio
-
-from abacus_utils.risk_tools import risk_assessor
-from abacus_simulator import simulator
-
-
-def equity_model_factory(equity: Equity):
-    # TODO: More logic based on AIC or BIC e.g.
-    initial_parametes_gjr = np.array([0.05, 0.80, 0.001])
-    initial_parametes_gar = np.array([0.05, 0.80])
-    model = GJRGARCHEquityModel(
-        initial_parametes_gjr, equity.log_return_history)
-    equity.set_model(model=model)
+from abacus_simulator import forecaster
 
 
 def main():
@@ -39,25 +21,68 @@ def main():
     stock4 = Equity(
         ric="WFC", currency="USD", start_date=start, end_date=end, interval=interval
     )
-
-    instruments = [stock1, stock2, stock3, stock4]
-
-    # SHOULD BE IN SIMULATOR:
-    for instrument in instruments:
-        equity_model_factory(instrument)
-
-    simulator = Portfolio(instruments=instruments)
-    simulator.fit_models()
-    simulator.fit_portfolio()
-
-    for instrument in simulator.instruments:
-        instrument.model.plot_volatility()
-
-    simulated_portfolio_returns = simulator.run_simulation_portfolio(
-        52, 10000, dependency=True
+    stock6 = Equity(
+        ric="MSFT", currency="USD", start_date=start, end_date=end, interval=interval
     )
-    plt.hist(simulated_portfolio_returns, bins=50)
-    plt.show()
+    stock7 = Equity(
+        ric="CAT", currency="USD", start_date=start, end_date=end, interval=interval
+    )
+    stock8 = Equity(
+        ric="NOC", currency="USD", start_date=start, end_date=end, interval=interval
+    )
+    stock9 = Equity(
+        ric="KO", currency="USD", start_date=start, end_date=end, interval=interval
+    )
+    stock10 = Equity(
+        ric="JNJ", currency="USD", start_date=start, end_date=end, interval=interval
+    )
+    stock11 = Equity(
+        ric="AXP", currency="USD", start_date=start, end_date=end, interval=interval
+    )
+    stock12 = Equity(
+        ric="WMT", currency="USD", start_date=start, end_date=end, interval=interval
+    )
+    _stock1 = Equity(
+        ric="XOM", currency="USD", start_date=start, end_date=end, interval=interval
+    )
+    _stock2 = Equity(
+        ric="CVX", currency="USD", start_date=start, end_date=end, interval=interval
+    )
+    _stock3 = Equity(
+        ric="^GSPC", currency="USD", start_date=start, end_date=end, interval=interval
+    )
+    _stock4 = Equity(
+        ric="WFC", currency="USD", start_date=start, end_date=end, interval=interval
+    )
+    _stock6 = Equity(
+        ric="MSFT", currency="USD", start_date=start, end_date=end, interval=interval
+    )
+    _stock7 = Equity(
+        ric="CAT", currency="USD", start_date=start, end_date=end, interval=interval
+    )
+    _stock8 = Equity(
+        ric="NOC", currency="USD", start_date=start, end_date=end, interval=interval
+    )
+    _stock9 = Equity(
+        ric="KO", currency="USD", start_date=start, end_date=end, interval=interval
+    )
+    _stock10 = Equity(
+        ric="JNJ", currency="USD", start_date=start, end_date=end, interval=interval
+    )
+    _stock11 = Equity(
+        ric="AXP", currency="USD", start_date=start, end_date=end, interval=interval
+    )
+    _stock12 = Equity(
+        ric="WMT", currency="USD", start_date=start, end_date=end, interval=interval
+    )
+
+    instruments = [stock1, stock2, stock3, stock4,
+                   stock6, stock7, stock8, stock9, stock10, stock11, stock12,
+                   _stock1, _stock2, _stock3, _stock4,
+                   _stock6, _stock7, _stock8, _stock9, _stock10, _stock11, _stock12]
+
+    forc = forecaster.Forecaster(instruments=instruments, number_of_steps=5)
+    forc.forecast()
 
 
 if __name__ == "__main__":

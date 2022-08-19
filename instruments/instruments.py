@@ -4,10 +4,10 @@ import pandas as pd
 
 from datetime import datetime
 from abc import ABC
-from models.model import Model
-from models.equity_models import EquityModel
-from models.fx_models import FXModel
-from enums.currency_enum import Currency
+from abacus_simulator.model import Model
+from abacus_simulator.equity_models import EquityModel
+from abacus_simulator.fx_models import FXModel
+from abacus_utils.enums.currency_enum import Currency
 from pandas_datareader import data as pdr
 
 

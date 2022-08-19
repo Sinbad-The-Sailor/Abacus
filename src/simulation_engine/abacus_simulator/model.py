@@ -53,5 +53,5 @@ class Model(ABC):
         return True
 
 
-class NoParamtersError(ValueError):
+class NoParametersError(ValueError):
     pass

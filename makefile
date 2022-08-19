@@ -6,6 +6,7 @@ install:
 
 # TODO: run .env file to load environment variables.
 run:
+	@clear
 	. venv/bin/activate
 	python main.py
 

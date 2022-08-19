@@ -2,30 +2,39 @@
 import numpy as np
 import copulae as cop
 import pyvinecopulib as pv
+from abacus_simulator.model_factory import ModelFactory
 
 from instruments.instruments import Instrument
 from config import DEFALUT_STEPS, VINE_COPULA_FAMILIES, DEFALUT_SIMULATIONS
 
 
 class Simulator:
-    def __init__(self, instruments: list[Instrument], holdings: np.array):
+
+    def __init__(self, instruments: list[Instrument]):
         self.instruments = instruments
-        self.holdings = holdings
+        self.model_factory = ModelFactory
 
         try:
             self.number_of_instruments = len(instruments)
         except ValueError:
+            # log that no instruments are inserted. Critical.
             self.number_of_instruments = -1
 
         try:
             last_prices = self._last_prices()
-            self.value = holdings.T @ last_prices
-            print(f"value {self.value}")
         except ValueError:
+            # log that no prices are available. Critical.
             self.value = -1
 
-    def fit_models(self):
+        self.find_models()
+        self.fit_models()
+        self.fit_portfolio()
 
+    def find_models(self):
+        for instrument in self.instruments:
+            self.model_factory.equity_model_factory(instrument)
+
+    def fit_models(self):
         # Check if all instruments has a model.
         if not self._has_models():
             raise ValueError(f"One instrument has no model.")
@@ -44,7 +53,7 @@ class Simulator:
         if self.number_of_instruments == 1:
             raise ValueError("To few instruments to run dependency.")
 
-            # Creating uniform data.
+        # Creating uniform data.
         # TODO: Remove list to make this faster!
         # TODO: Assert lenght -> pick smallest if error.
         # TODO: Create dict for insturments in portfolio in order to never mix up returns!
@@ -94,13 +103,11 @@ class Simulator:
         number_of_steps: int = DEFALUT_STEPS,
         number_of_simulations: int = DEFALUT_SIMULATIONS,
         dependency: bool = True,
-    ) -> np.array:
+    ) -> list[np.array]:
 
         init_prices = self._last_prices()
-        terminal_art_portfolio_return = np.zeros(number_of_simulations)
 
         for simulation in range(number_of_simulations):
-
             # Portfolio constituance simulation.
             simultion_matrix = self.run_simultion_assets(
                 number_of_steps=number_of_steps, dependency=dependency
@@ -110,12 +117,10 @@ class Simulator:
             temp_prices = init_prices * \
                 np.prod(np.exp(simultion_matrix), axis=1)
 
-            # Portfolio returns.
-            terminal_art_portfolio_return[simulation] = (
-                self.holdings.T @ temp_prices / self.value - 1
-            )
+            print(simultion_matrix)
+            print(simulation)
 
-        return terminal_art_portfolio_return
+        return temp_prices
 
     def _generate_univariate_simulation(self, number_of_steps: int) -> np.array:
         # TODO: Remove list to make this faster!
@@ -141,8 +146,9 @@ class Simulator:
         if self.number_of_instruments > 2:
             simulated_uniforms = self.copula.simulate(number_of_steps)
 
+        # TODO: Remove list to make this faster if need be.
         result = []
-        for i in range(0, self.number_of_instruments):
+        for i in range(self.number_of_instruments):
             current_instrument = self.instruments[i]
             current_uniform_sample = simulated_uniforms[:, i]
             result.append(
@@ -189,7 +195,7 @@ class Simulator:
         return self.number_of_instruments
 
     def __str__(self):
-        pass
+        raise NotImplemented
 
     def __repr__(self):
-        pass
+        raise NotImplemented

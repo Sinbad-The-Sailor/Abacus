@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
-class model_factory:
+import numpy as np
+
+from instruments.instruments import Equity
+from abacus_simulator.equity_models import GJRGARCHEquityModel
+
+
+class ModelFactory:
     def __init__():
         # equity object property.
         # get equity -> feed into model selector -> fit model and apply it to equity. "return true".
@@ -13,3 +19,11 @@ class model_factory:
     def run_model_selection():
         # run different models and check which is the best (CV).
         pass
+
+    def equity_model_factory(equity: Equity):
+        # TODO: More logic based on AIC or BIC e.g.
+        initial_parametes_gjr = np.array([0.05, 0.80, 0.001])
+        initial_parametes_gar = np.array([0.05, 0.80])
+        model = GJRGARCHEquityModel(
+            initial_parametes_gjr, equity.log_return_history)
+        equity.set_model(model=model)
