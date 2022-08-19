@@ -1,4 +1,5 @@
 # Abacus
+<img alt="GitHub" src="https://img.shields.io/github/license/sinbad-the-sailor/abacus?style=for-the-badge">
 
 Sequential investment decisions.
 
