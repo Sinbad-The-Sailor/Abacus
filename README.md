@@ -1,4 +1,12 @@
 # Abacus
+<div align="center">
+
+![GitHub](https://img.shields.io/github/license/sinbad-the-sailor/abacus?color=%23002D5A&style=flat-square)
+![GitHub repo size](https://img.shields.io/github/repo-size/sinbad-the-sailor/abacus?color=%23002D5A&style=flat-square)
+![GitHub last commit](https://img.shields.io/github/last-commit/sinbad-the-sailor/abacus?color=%23002D5A&style=flat-square)
+
+</div>
+
 
 Sequential investment decisions.
 
@@ -32,11 +40,15 @@ Example of 5-dimensional vine coupla (PCC).
 </p>
 
 ### **References**
+---
 
+#### Model Predictive Control for Multi-Period Portfolio Optimization.
+* Oprisor R, Kwon R. Multi-Period Portfolio Optimization with Investor Views under Regime Switching. Journal of Risk and Financial Management. 2021; 14(1):3. https://doi.org/10.3390/jrfm14010003
 
-#### Variance stabalizing and Preconditioning GARCH/GJR-GARCH models.
+#### Variance Stabalizing and Preconditioning for GARCH/GJR-GARCH models.
 
-* Zumbach, Gilles. (2000). The Pitfalls in Fitting Garch(1,1) Processes. 10.1007/978-1-4615-4389-3_8. 
+* Zumbach, G. (2000). The Pitfalls in Fitting Garch(1,1) Processes. In: Dunis, C.L. (eds) Advances in Quantitative Asset Management. Studies in Computational Finance, vol 1. Springer, Boston, MA. https://doi.org/10.1007/978-1-4615-4389-3_8
 * Sundström, D. (2017). Automatized GARCH parameter estimation (Dissertation). Retrieved from http://urn.kb.se/resolve?urn=urn:nbn:se:kth:diva-213725
+
 
 
