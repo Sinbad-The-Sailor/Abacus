@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import pymysql
+import os
+
 from instruments.instruments import Equity, FX
 from abacus_simulator import forecaster
 
@@ -46,7 +49,7 @@ def main():
                    stock6, stock7, stock8, stock9, stock10, stock11, stock12]
 
     forc = forecaster.Forecaster(instruments=instruments, number_of_steps=5)
-    forc.forecast()
+    print(forc.forecast_returns())
 
 
 if __name__ == "__main__":
@@ -91,3 +94,20 @@ def test_main():
         # ... wait until next period (1 day, 2 day, 1 week)
         # if any errors occur, send email with logs and stop the process.
         pass
+
+
+def aws_database_connection():
+    try:
+        connection = pymysql.connect(host=os.getenv("AWS_DB_HOST"),
+                                     port=int(os.getenv("AWS_DB_PORT")),
+                                     user=os.getenv("AWS_DB_USER"),
+                                     passwd=os.getenv("AWS_DB_PASW"),
+                                     db=os.getenv("AWS_DB_NAME")
+                                     )
+        cursor = connection.cursor()
+        sql = "DESCRIBE Assets"
+        print(cursor.execute(sql))
+        print('[+] RDS Connection Successful')
+        connection.close()
+    except Exception as e:
+        print(f'[-] RDS Connection Failed: {e}')

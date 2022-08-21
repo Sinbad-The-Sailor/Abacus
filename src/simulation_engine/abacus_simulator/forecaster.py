@@ -12,7 +12,7 @@ class Forecaster:
         self.simulator = simulator.Simulator(instruments=instruments)
         self.init_prices = self.simulator._last_prices()
 
-    def forecast(self):
+    def forecast_returns(self):
         dim = (len(self.instruments), self.number_of_steps)
         dependency = True
         number_of_simulations = 1000
@@ -26,17 +26,17 @@ class Forecaster:
 
         result = 1/number_of_simulations * result
 
-        for _ in range(len(self.instruments)):
-            prices_XOM = []
-            prices_XOM.append(self.init_prices[_])
-            returns_XOM = result[_, :]
-            for i in range(self.number_of_steps):
-                prev_price = prices_XOM[i]
-                return_ = np.prod(np.exp(returns_XOM[:i]))
-                prices_XOM.append(prev_price*return_)
-            print(prices_XOM)
+        # for _ in range(len(self.instruments)):
+        #     prices_XOM = []
+        #     prices_XOM.append(self.init_prices[_])
+        #     returns_XOM = result[_, :]
+        #     for i in range(self.number_of_steps):
+        #         prev_price = prices_XOM[i]
+        #         return_ = np.prod(np.exp(returns_XOM[:i]))
+        #         prices_XOM.append(prev_price*return_)
+        #     print(prices_XOM)
 
-        print(result)
+        return result
 
     def forecast_prices(self):
         raise NotImplemented
