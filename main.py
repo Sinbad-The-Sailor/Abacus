@@ -5,9 +5,15 @@ import pymysql
 from abacus.instruments import Equity
 from abacus.simulator.forecaster import Forecaster
 from abacus.optimizer.policies import MPCDummy, MPCLogUtility
+from abacus.utilities import email_service
 
 
 def main():
+    msg = email_service._build_header("OK")
+    email_service.send_email(msg=msg)
+
+
+def main2():
     # Create stocks
     start = "2005-12-28"
     end = "2022-07-11"
