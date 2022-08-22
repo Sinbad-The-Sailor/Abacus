@@ -10,14 +10,12 @@ from abacus.simulator.model import Model
 
 
 class FXModel(Model):
-
     def __init__(self, initial_parameters, data):
         super().__init__(initial_parameters, data)
 
 
 # region FX Models
 class GARCHFXModel(FXModel):
-
     def __init__(self, initial_parameters, data):
         super().__init__(initial_parameters, data)
         self.last_volatility_estimate = 0
@@ -25,21 +23,21 @@ class GARCHFXModel(FXModel):
 
     def run_simulation(self, number_of_steps: int = DEFALUT_STEPS) -> np.array:
 
-        result = self._generate_simulation(
-            number_of_steps=number_of_steps, isVol=False)
+        result = self._generate_simulation(number_of_steps=number_of_steps, isVol=False)
 
         return result
 
-    def run_volatility_simulation(self, number_of_steps: int = DEFALUT_STEPS) -> np.array:
+    def run_volatility_simulation(
+        self, number_of_steps: int = DEFALUT_STEPS
+    ) -> np.array:
 
-        result = self._generate_simulation(
-            number_of_steps=number_of_steps, isVol=True)
+        result = self._generate_simulation(number_of_steps=number_of_steps, isVol=True)
 
         return result
 
     def generate_uniform_samples(self) -> np.array:
 
-        result = np.zeros(self.number_of_observations-1)
+        result = np.zeros(self.number_of_observations - 1)
 
         # Check if a solution exists.
         if not self._has_solution():
@@ -47,15 +45,14 @@ class GARCHFXModel(FXModel):
 
         # Check if a volatility estimate exists.
         if self.volatility_sample is None:
-            self.volatility_sample = self._generate_volatility(
-                self.optimal_parameters)
+            self.volatility_sample = self._generate_volatility(self.optimal_parameters)
 
         # Create normalized sample and transform it in one go.
         for i in range(1, self.number_of_observations):
             # TODO: REMOVE -1. Make all arrays have correct lenght.
             normalized_sample = self.data[i] / self.volatility_sample[i]
             uniform_sample = norm.cdf(normalized_sample, loc=0, scale=1)
-            result[i-1] = uniform_sample
+            result[i - 1] = uniform_sample
 
         return result
 
@@ -64,7 +61,8 @@ class GARCHFXModel(FXModel):
         # Create volatility samples.
         number_of_observations = len(uniform_samples)
         volatility_samples = self.run_volatility_simulation(
-            number_of_steps=number_of_observations)
+            number_of_steps=number_of_observations
+        )
 
         # Initialize empty numpy array.
         result = np.zeros(number_of_observations)
@@ -81,10 +79,14 @@ class GARCHFXModel(FXModel):
         # TODO: Add number of iterations and while loop.
 
         solution = minimize(
-            self._cost_function, self.initial_parameters, constraints=self._constraints(), args=self.data, method="SLSQP")
+            self._cost_function,
+            self.initial_parameters,
+            constraints=self._constraints(),
+            args=self.data,
+            method="SLSQP",
+        )
         self.optimal_parameters = solution.x
-        self.last_volatility_estimate = self._generate_volatility(
-            solution.x)[-1]
+        self.last_volatility_estimate = self._generate_volatility(solution.x)[-1]
 
         if self.verbose:
             print(f" {solution.x} {solution.success}")
@@ -96,16 +98,19 @@ class GARCHFXModel(FXModel):
         vol_est = self._generate_volatility(params)
 
         for i in range(1, self.number_of_observations):
-            log_loss += (np.log(vol_est[i] ** 2 + EPSILON) +
-                         (data[i] ** 2)/(vol_est[i] ** 2))
+            log_loss += np.log(vol_est[i] ** 2 + EPSILON) + (data[i] ** 2) / (
+                vol_est[i] ** 2
+            )
 
         return log_loss
 
     def _constraints(self) -> list[dict]:
-        constraints = [{'type': 'ineq', 'fun': lambda x: -x[1] - x[2] + (1-EPSILON)},
-                       {'type': 'ineq', 'fun': lambda x:  x[0] - EPSILON},
-                       {'type': 'ineq', 'fun': lambda x:  x[1] - EPSILON},
-                       {'type': 'ineq', 'fun': lambda x:  x[2] - EPSILON}]
+        constraints = [
+            {"type": "ineq", "fun": lambda x: -x[1] - x[2] + (1 - EPSILON)},
+            {"type": "ineq", "fun": lambda x: x[0] - EPSILON},
+            {"type": "ineq", "fun": lambda x: x[1] - EPSILON},
+            {"type": "ineq", "fun": lambda x: x[2] - EPSILON},
+        ]
         return constraints
 
     def plot_volatility(self):
@@ -123,19 +128,23 @@ class GARCHFXModel(FXModel):
         # TODO: MAKE THE ARRAYS SAME LENGHT! MISGUIDING OTHERWISE.
         result = np.zeros(self.number_of_observations)
 
-        vol_est = (params[0] + params[1] *
-                   (self.data[1] ** 2) + params[2] * (self.data[1] ** 2))
+        vol_est = (
+            params[0]
+            + params[1] * (self.data[1] ** 2)
+            + params[2] * (self.data[1] ** 2)
+        )
 
         result[1] = np.sqrt(vol_est)
 
         for i in range(2, self.number_of_observations):
-            vol_est = (params[0] + params[1] *
-                       (self.data[i] ** 2) + params[2] * vol_est)
+            vol_est = params[0] + params[1] * (self.data[i] ** 2) + params[2] * vol_est
             result[i] = np.sqrt(vol_est)
 
         return result
 
-    def _generate_simulation(self, number_of_steps: int, isVol: bool) -> tuple[np.array]:
+    def _generate_simulation(
+        self, number_of_steps: int, isVol: bool
+    ) -> tuple[np.array]:
 
         # Check if optimal parameters exist.
         if not self._has_solution():
@@ -161,7 +170,8 @@ class GARCHFXModel(FXModel):
         for i in range(number_of_steps):
             sample = norm.rvs(size=1, loc=0, scale=1)
             volatility_estimate = np.sqrt(
-                beta0 + beta1 * volatility_estimate ** 2 + beta2 * return_estimate ** 2)
+                beta0 + beta1 * volatility_estimate**2 + beta2 * return_estimate**2
+            )
             return_estimate = sample * volatility_estimate
 
             return_result[i] = return_estimate
@@ -171,4 +181,6 @@ class GARCHFXModel(FXModel):
             return volatility_result
         else:
             return return_result
+
+
 # endregion

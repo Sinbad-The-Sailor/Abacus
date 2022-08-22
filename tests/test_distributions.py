@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
-from abacus.abacus_utils import (generalized_pareto,
-                                 norm_poisson_mixture,
-                                 student_poisson_mixture)
+from abacus.utilities import (
+    generalized_pareto,
+    norm_poisson_mixture,
+    student_poisson_mixture,
+)
 
 
 def test_pdf_positivity_gpd():

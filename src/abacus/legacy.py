@@ -20,12 +20,12 @@ class EquityModel:
     def run_simulation(self):
         pass
 
-    def fit_model(self, model='normal'):
+    def fit_model(self, model="normal"):
         data = self._stock_data.get_log_returns()
-        data = data['close']
+        data = data["close"]
         print(np.mean(data))
 
-        if model == 'normal':
+        if model == "normal":
             cons = self._likelihood_constraints_normal()
             func = self._likelihood_function_normal
 
@@ -37,8 +37,7 @@ class EquityModel:
             mu0 = np.mean(data)
             x0 = np.array([omega0, alpha0, beta0, beta1, mu0])
 
-            garch_model_solution = minimize(
-                func, x0, constraints=cons, args=data)
+            garch_model_solution = minimize(func, x0, constraints=cons, args=data)
 
             # Added to keep method non-static. Might be useful to keep in Equity Model object instead of re-running
             # the optimization.
@@ -47,14 +46,15 @@ class EquityModel:
 
             return garch_model_solution
 
-        elif model == 'normal poisson mixture':
+        elif model == "normal poisson mixture":
             cons = self._likelihood_constraints_normal_poisson_mix()
             func = self._likelihood_function_normal_poisson_mixture
             init = self._init
             x0 = np.array(init)
             x0 = x0[0:-1]
             garch_poisson_model_solution = minimize(
-                func, x0, constraints=cons, args=data)
+                func, x0, constraints=cons, args=data
+            )
 
             self._model_solution = garch_poisson_model_solution.x
             self._model_fitted = True
@@ -65,7 +65,7 @@ class EquityModel:
 
             return garch_poisson_model_solution
 
-        elif model == 'student poisson mixture':
+        elif model == "student poisson mixture":
             # param[0] is omega
             # param[1] is alpha
             # param[2] is beta0
@@ -82,7 +82,8 @@ class EquityModel:
             x0 = np.array(init)
 
             garch_poisson_model_solution = minimize(
-                func, x0, constraints=cons, args=data)
+                func, x0, constraints=cons, args=data
+            )
 
             self._model_solution = garch_poisson_model_solution
             self._model_fitted = True
@@ -107,22 +108,27 @@ class EquityModel:
         """
         n_observations = len(data)
         log_likelihood = 0
-        initial_squared_vol_estimate = (params[0]
-                                        + params[1] * (data[0] ** 2)
-                                        + params[3] * (data[0] ** 2) *
-                                        np.where(data[0] < 0, 1, 0)
-                                        + params[2] * (data[0] ** 2))
+        initial_squared_vol_estimate = (
+            params[0]
+            + params[1] * (data[0] ** 2)
+            + params[3] * (data[0] ** 2) * np.where(data[0] < 0, 1, 0)
+            + params[2] * (data[0] ** 2)
+        )
         current_squared_vol_estimate = initial_squared_vol_estimate
 
         for i in range(1, n_observations):
-            log_likelihood = (log_likelihood
-                              + ((data[i-1] - params[4]) ** 2) /
-                              current_squared_vol_estimate
-                              + 2 * np.log(np.sqrt(current_squared_vol_estimate)))
+            log_likelihood = (
+                log_likelihood
+                + ((data[i - 1] - params[4]) ** 2) / current_squared_vol_estimate
+                + 2 * np.log(np.sqrt(current_squared_vol_estimate))
+            )
 
-            current_squared_vol_estimate = (params[0] + params[1] * (data[i-1] ** 2)
-                                            + params[3] * (data[i-1] ** 2) * np.where(data[i-1] < 0, 1, 0)
-                                            + params[2] * current_squared_vol_estimate)
+            current_squared_vol_estimate = (
+                params[0]
+                + params[1] * (data[i - 1] ** 2)
+                + params[3] * (data[i - 1] ** 2) * np.where(data[i - 1] < 0, 1, 0)
+                + params[2] * current_squared_vol_estimate
+            )
 
         return log_likelihood
 
@@ -137,10 +143,12 @@ class EquityModel:
         # x[2] is beta0
         # x[3] is beta1 (asymmetry modifier)
 
-        cons_garch = [{'type': 'ineq', 'fun': lambda x: -x[1] - x[2] - (0.5 * x[3]) + 1},
-                      {'type': 'ineq', 'fun': lambda x:  x[0]},
-                      {'type': 'ineq', 'fun': lambda x:  x[1] + x[3]},
-                      {'type': 'ineq', 'fun': lambda x:  x[2]}]
+        cons_garch = [
+            {"type": "ineq", "fun": lambda x: -x[1] - x[2] - (0.5 * x[3]) + 1},
+            {"type": "ineq", "fun": lambda x: x[0]},
+            {"type": "ineq", "fun": lambda x: x[1] + x[3]},
+            {"type": "ineq", "fun": lambda x: x[2]},
+        ]
         return cons_garch
 
     # noinspection PyMethodMayBeStatic
@@ -160,32 +168,44 @@ class EquityModel:
         # param[6] is lambda
         n_observations = len(data)
         log_likelihood = 0
-        initial_squared_vol_estimate = (params[0]
-                                        + params[1] * (data[0] ** 2)
-                                        + params[3] * (data[0] ** 2) *
-                                        np.where(data[0] < 0, 1, 0)
-                                        + params[2] * (data[0] ** 2))
+        initial_squared_vol_estimate = (
+            params[0]
+            + params[1] * (data[0] ** 2)
+            + params[3] * (data[0] ** 2) * np.where(data[0] < 0, 1, 0)
+            + params[2] * (data[0] ** 2)
+        )
         current_squared_vol_estimate = initial_squared_vol_estimate
 
         for i in range(0, n_observations):
-            log_likelihood = log_likelihood + np.log(npm.pdf(data[i], params[4],
-                                                     np.sqrt(current_squared_vol_estimate), params[5], params[6]))
+            log_likelihood = log_likelihood + np.log(
+                npm.pdf(
+                    data[i],
+                    params[4],
+                    np.sqrt(current_squared_vol_estimate),
+                    params[5],
+                    params[6],
+                )
+            )
 
-            current_squared_vol_estimate = (params[0] + params[1] * (data[i - 1] ** 2)
-                                            + params[3] * (data[i - 1] ** 2) * np.where(data[i - 1] < 0, 1, 0)
-                                            + params[2] * current_squared_vol_estimate)
+            current_squared_vol_estimate = (
+                params[0]
+                + params[1] * (data[i - 1] ** 2)
+                + params[3] * (data[i - 1] ** 2) * np.where(data[i - 1] < 0, 1, 0)
+                + params[2] * current_squared_vol_estimate
+            )
 
         return -log_likelihood
 
     # noinspection PyMethodMayBeStatic
     def _likelihood_constraints_normal_poisson_mix(self) -> dict:
-        cons_garch_poisson = [{'type': 'ineq', 'fun': lambda x: -x[1] - x[2] - (0.5 * x[3]) + 1},
-                              {'type': 'ineq', 'fun': lambda x: x[0]},
-                              {'type': 'ineq', 'fun': lambda x: x[1] + x[3]},
-                              {'type': 'ineq', 'fun': lambda x: x[2]},
-                              {'type': 'ineq', 'fun': lambda x: x[5]},
-                              {'type': 'ineq', 'fun': lambda x: x[6]}
-                              ]
+        cons_garch_poisson = [
+            {"type": "ineq", "fun": lambda x: -x[1] - x[2] - (0.5 * x[3]) + 1},
+            {"type": "ineq", "fun": lambda x: x[0]},
+            {"type": "ineq", "fun": lambda x: x[1] + x[3]},
+            {"type": "ineq", "fun": lambda x: x[2]},
+            {"type": "ineq", "fun": lambda x: x[5]},
+            {"type": "ineq", "fun": lambda x: x[6]},
+        ]
         return cons_garch_poisson
 
     # noinspection PyMethodMayBeStatic
@@ -206,23 +226,32 @@ class EquityModel:
         # param[7] is nu
         n_observations = len(data)
         log_likelihood = 0
-        initial_squared_vol_estimate = (params[0]
-                                        + params[1] * (data[0] ** 2)
-                                        + params[3] * (data[0] ** 2) *
-                                        np.where(data[0] < 0, 1, 0)
-                                        + params[2] * (data[0] ** 2))
+        initial_squared_vol_estimate = (
+            params[0]
+            + params[1] * (data[0] ** 2)
+            + params[3] * (data[0] ** 2) * np.where(data[0] < 0, 1, 0)
+            + params[2] * (data[0] ** 2)
+        )
         current_squared_vol_estimate = initial_squared_vol_estimate
 
         for i in range(0, n_observations):
-            log_likelihood = log_likelihood + np.log(spm.pdf(data[i], params[4],
-                                                     np.sqrt(
-                                                         current_squared_vol_estimate),
-                                                     params[5], params[6], params[7]
-                                                     ))
+            log_likelihood = log_likelihood + np.log(
+                spm.pdf(
+                    data[i],
+                    params[4],
+                    np.sqrt(current_squared_vol_estimate),
+                    params[5],
+                    params[6],
+                    params[7],
+                )
+            )
 
-            current_squared_vol_estimate = (params[0] + params[1] * (data[i - 1] ** 2)
-                                            + params[3] * (data[i - 1] ** 2) * np.where(data[i - 1] < 0, 1, 0)
-                                            + params[2] * current_squared_vol_estimate)
+            current_squared_vol_estimate = (
+                params[0]
+                + params[1] * (data[i - 1] ** 2)
+                + params[3] * (data[i - 1] ** 2) * np.where(data[i - 1] < 0, 1, 0)
+                + params[2] * current_squared_vol_estimate
+            )
 
         return -log_likelihood
 
@@ -241,14 +270,15 @@ class EquityModel:
         # param[6] is lambda
         # param[7] is nu
         abstol = 1e-6
-        cons_garch_poisson = [{'type': 'ineq', 'fun': lambda x: -x[1] - x[2] - (0.5 * x[3]) + 1},
-                              {'type': 'ineq', 'fun': lambda x: x[0]-abstol},
-                              {'type': 'ineq',
-                                  'fun': lambda x: x[1] + x[3]-abstol},
-                              {'type': 'ineq', 'fun': lambda x: x[2]-abstol},
-                              {'type': 'ineq', 'fun': lambda x: x[5]-abstol},
-                              {'type': 'ineq', 'fun': lambda x: x[6]-abstol},
-                              {'type': 'ineq', 'fun': lambda x: x[7]-3-abstol}]
+        cons_garch_poisson = [
+            {"type": "ineq", "fun": lambda x: -x[1] - x[2] - (0.5 * x[3]) + 1},
+            {"type": "ineq", "fun": lambda x: x[0] - abstol},
+            {"type": "ineq", "fun": lambda x: x[1] + x[3] - abstol},
+            {"type": "ineq", "fun": lambda x: x[2] - abstol},
+            {"type": "ineq", "fun": lambda x: x[5] - abstol},
+            {"type": "ineq", "fun": lambda x: x[6] - abstol},
+            {"type": "ineq", "fun": lambda x: x[7] - 3 - abstol},
+        ]
         return cons_garch_poisson
 
     def plot_volatility(self):
@@ -261,21 +291,24 @@ class EquityModel:
 
         data = self._stock_data.get_log_returns()
         time = data.index[1:]
-        data = data['close']
+        data = data["close"]
         vol = []
 
-        curr_vol = (omg
-                    + alp * (data[0] ** 2)
-                    + gam * (data[0] ** 2) * np.where(data[0], 1, 0)
-                    + bet * (data[0] ** 2))
+        curr_vol = (
+            omg
+            + alp * (data[0] ** 2)
+            + gam * (data[0] ** 2) * np.where(data[0], 1, 0)
+            + bet * (data[0] ** 2)
+        )
         vol.append(curr_vol)
 
         for i in range(2, len(data)):
-            curr_vol = (omg
-                        + alp * (data[i - 1] ** 2)
-                        + gam * (data[i - 1] ** 2) *
-                        np.where(data[i - 1] < 0, 1, 0)
-                        + bet * (vol[i - 2]))
+            curr_vol = (
+                omg
+                + alp * (data[i - 1] ** 2)
+                + gam * (data[i - 1] ** 2) * np.where(data[i - 1] < 0, 1, 0)
+                + bet * (vol[i - 2])
+            )
             vol.append(curr_vol)
 
         vol = np.sqrt(vol)
@@ -295,17 +328,20 @@ class EquityModel:
 
         uniforms = []
         data = self._stock_data.get_log_returns()
-        data = data['close']
+        data = data["close"]
         params = self._model_solution.x
-        curr_vol = (params[0]
-                    + params[1] * (data[0] ** 2)
-                    + params[3] * (data[0] ** 2) * np.where(data[0], 1, 0)
-                    + params[2] * (data[0] ** 2))
+        curr_vol = (
+            params[0]
+            + params[1] * (data[0] ** 2)
+            + params[3] * (data[0] ** 2) * np.where(data[0], 1, 0)
+            + params[2] * (data[0] ** 2)
+        )
 
         for i in range(1, len(data)):
             # Student T Mixture
-            u = spm.cdf(data[i], params[4], np.sqrt(curr_vol),
-                        params[5], params[6], params[7])
+            u = spm.cdf(
+                data[i], params[4], np.sqrt(curr_vol), params[5], params[6], params[7]
+            )
             # Normal Mixture
             # u = npm.cdf(data[i], params[4], np.sqrt(curr_vol), params[5], params[6])
             print(u)
@@ -315,15 +351,17 @@ class EquityModel:
             # u = (data[i] - params[4]) / np.sqrt(curr_vol)
             # u = norm.cdf(u, 0, 1)
             uniforms.append(u)
-            curr_vol = (params[0]
-                        + params[1] * (data[i] ** 2)
-                        + params[3] * (data[i] ** 2) * np.where(data[i], 1, 0)
-                        + params[2] * (curr_vol ** 2))
+            curr_vol = (
+                params[0]
+                + params[1] * (data[i] ** 2)
+                + params[3] * (data[i] ** 2) * np.where(data[i], 1, 0)
+                + params[2] * (curr_vol**2)
+            )
             print(len(uniforms))
         return np.array(uniforms)
 
     def plot_qq(self):
         uniforms = self._generate_uniform_return_observations()
-        qqplot(uniforms, norm, fit=False, line='q')
+        qqplot(uniforms, norm, fit=False, line="q")
         plt.title(self._stock_data.ric)
         plt.show()

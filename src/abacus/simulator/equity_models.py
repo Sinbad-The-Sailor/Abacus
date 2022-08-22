@@ -11,14 +11,12 @@ from abacus.simulator.model import Model, NoParametersError
 
 
 class EquityModel(Model):
-
     def __init__(self, initial_parameters, data):
         super().__init__(initial_parameters, data)
 
 
 # region Equity Models
 class GARCHEquityModel(EquityModel):
-
     def __init__(self, initial_parameters, data):
         super().__init__(initial_parameters, data[1:])
         self.last_volatility_estimate = 0
@@ -28,21 +26,21 @@ class GARCHEquityModel(EquityModel):
 
     def run_simulation(self, number_of_steps: int = DEFALUT_STEPS) -> np.array:
 
-        result = self._generate_simulation(
-            number_of_steps=number_of_steps, isVol=False)
+        result = self._generate_simulation(number_of_steps=number_of_steps, isVol=False)
 
         return result
 
-    def run_volatility_simulation(self, number_of_steps: int = DEFALUT_STEPS) -> np.array:
+    def run_volatility_simulation(
+        self, number_of_steps: int = DEFALUT_STEPS
+    ) -> np.array:
 
-        result = self._generate_simulation(
-            number_of_steps=number_of_steps, isVol=True)
+        result = self._generate_simulation(number_of_steps=number_of_steps, isVol=True)
 
         return result
 
     def generate_uniform_samples(self) -> np.array:
 
-        result = np.zeros(self.number_of_observations-1)
+        result = np.zeros(self.number_of_observations - 1)
 
         # Check if a solution exists.
         if not self._has_solution():
@@ -50,15 +48,14 @@ class GARCHEquityModel(EquityModel):
 
         # Check if a volatility estimate exists.
         if self.volatility_sample is None:
-            self.volatility_sample = self._generate_volatility(
-                self.optimal_parameters)
+            self.volatility_sample = self._generate_volatility(self.optimal_parameters)
 
         # Create normalized sample and transform it in one go.
         for i in range(1, self.number_of_observations):
             # TODO: REMOVE -1. Make all arrays have correct lenght.
             normalized_sample = self.data[i] / self.volatility_sample[i]
             uniform_sample = norm.cdf(normalized_sample, loc=0, scale=1)
-            result[i-1] = uniform_sample
+            result[i - 1] = uniform_sample
 
         return result
 
@@ -67,7 +64,8 @@ class GARCHEquityModel(EquityModel):
         # Create volatility samples.
         number_of_observations = len(uniform_samples)
         volatility_samples = self.run_volatility_simulation(
-            number_of_steps=number_of_observations)
+            number_of_steps=number_of_observations
+        )
 
         # Initialize empty numpy array.
         result = np.zeros(number_of_observations)
@@ -83,23 +81,23 @@ class GARCHEquityModel(EquityModel):
     def fit_model(self) -> bool:
         # TODO: Add number of iterations and while loop.
 
-        initial_parameters = self._precondition_parameters(
-            self.initial_parameters)
+        initial_parameters = self._precondition_parameters(self.initial_parameters)
 
-        solution = minimize(
-            self._cost_function, initial_parameters, args=self.data)
+        solution = minimize(self._cost_function, initial_parameters, args=self.data)
         self.optimal_parameters = solution.x
         self.last_volatility_estimate = self._generate_volatility(
-            self.optimal_parameters)[-1]
+            self.optimal_parameters
+        )[-1]
 
         print(
-            f" {self._uncondition_parameters(self.optimal_parameters)} {solution.success}")
+            f" {self._uncondition_parameters(self.optimal_parameters)} {solution.success}"
+        )
 
         return solution.success
 
     def _cost_function(self, params: np.array, data: np.array) -> float:
         vol_est = self._generate_volatility_squared(params)
-        log_loss = np.sum(np.log(vol_est) + (data**2)/vol_est)
+        log_loss = np.sum(np.log(vol_est) + (data**2) / vol_est)
         return log_loss
 
     def plot_volatility(self):
@@ -118,19 +116,16 @@ class GARCHEquityModel(EquityModel):
         result = np.zeros(self.number_of_observations)
         for i in range(0, self.number_of_observations):
             if i == 0:
-                result[i] = self.inital_volatility_esimate ** 2
+                result[i] = self.inital_volatility_esimate**2
             else:
                 mu_corr = np.exp(-np.exp(-params[0]))
                 mu_ewma = np.exp(-np.exp(-params[1]))
 
-                result[i] = (self.long_run_volatility_estimate**2
-                             + mu_corr
-                             * (mu_ewma * result[i-1]
-                                 + (1 - mu_ewma)
-                                 * self.data[i-1]**2
-                                 - self.long_run_volatility_estimate**2
-                                )
-                             )
+                result[i] = self.long_run_volatility_estimate**2 + mu_corr * (
+                    mu_ewma * result[i - 1]
+                    + (1 - mu_ewma) * self.data[i - 1] ** 2
+                    - self.long_run_volatility_estimate**2
+                )
         return result
 
     def _generate_simulation(self, number_of_steps: int, isVol: bool) -> np.array:
@@ -160,7 +155,8 @@ class GARCHEquityModel(EquityModel):
         for i in range(number_of_steps):
             sample = norm.rvs(size=1, loc=0, scale=1)
             volatility_estimate = np.sqrt(
-                omega + beta * volatility_estimate ** 2 + alpha * return_estimate ** 2)
+                omega + beta * volatility_estimate**2 + alpha * return_estimate**2
+            )
             return_estimate = sample * volatility_estimate
 
             return_result[i] = return_estimate
@@ -176,8 +172,8 @@ class GARCHEquityModel(EquityModel):
         mu_corr = params[0] + params[1]
         mu_ewma = params[1] / (params[0] + params[1])
 
-        z_corr = np.log(-1/np.log(mu_corr))
-        z_ewma = np.log(-1/np.log(mu_ewma))
+        z_corr = np.log(-1 / np.log(mu_corr))
+        z_ewma = np.log(-1 / np.log(mu_ewma))
 
         return np.array([z_corr, z_ewma])
 
@@ -193,7 +189,6 @@ class GARCHEquityModel(EquityModel):
 
 
 class GJRGARCHEquityModel(EquityModel):
-
     def __init__(self, initial_parameters, data):
         super().__init__(initial_parameters, data[1:])
         self.last_volatility_estimate = 0
@@ -202,17 +197,17 @@ class GJRGARCHEquityModel(EquityModel):
         self.long_run_volatility_estimate = np.std(self.data)
 
     def run_simulation(self, number_of_steps: int = DEFALUT_STEPS) -> np.array:
-        result = self._generate_simulation(
-            number_of_steps=number_of_steps, isVol=False)
+        result = self._generate_simulation(number_of_steps=number_of_steps, isVol=False)
         return result
 
-    def run_volatility_simulation(self, number_of_steps: int = DEFALUT_STEPS) -> np.array:
-        result = self._generate_simulation(
-            number_of_steps=number_of_steps, isVol=True)
+    def run_volatility_simulation(
+        self, number_of_steps: int = DEFALUT_STEPS
+    ) -> np.array:
+        result = self._generate_simulation(number_of_steps=number_of_steps, isVol=True)
         return result
 
     def generate_uniform_samples(self) -> np.array:
-        result = np.zeros(self.number_of_observations-1)
+        result = np.zeros(self.number_of_observations - 1)
 
         # Check if a solution exists.
         if not self._has_solution():
@@ -220,15 +215,14 @@ class GJRGARCHEquityModel(EquityModel):
 
         # Check if a volatility estimate exists.
         if self.volatility_sample is None:
-            self.volatility_sample = self._generate_volatility(
-                self.optimal_parameters)
+            self.volatility_sample = self._generate_volatility(self.optimal_parameters)
 
         # Create normalized sample and transform it in one go.
         for i in range(1, self.number_of_observations):
             # TODO: REMOVE -1. Make all arrays have correct lenght.
             normalized_sample = self.data[i] / self.volatility_sample[i]
             uniform_sample = norm.cdf(normalized_sample, loc=0, scale=1)
-            result[i-1] = uniform_sample
+            result[i - 1] = uniform_sample
 
         return result
 
@@ -237,7 +231,8 @@ class GJRGARCHEquityModel(EquityModel):
         # Create volatility samples.
         number_of_observations = len(uniform_samples)
         volatility_samples = self.run_volatility_simulation(
-            number_of_steps=number_of_observations)
+            number_of_steps=number_of_observations
+        )
 
         # Initialize empty numpy array.
         result = np.zeros(number_of_observations)
@@ -253,23 +248,23 @@ class GJRGARCHEquityModel(EquityModel):
     def fit_model(self) -> bool:
         # TODO: Add number of iterations and while loop.
 
-        initial_parameters = self._precondition_parameters(
-            self.initial_parameters)
+        initial_parameters = self._precondition_parameters(self.initial_parameters)
 
-        solution = minimize(
-            self._cost_function, initial_parameters, args=self.data)
+        solution = minimize(self._cost_function, initial_parameters, args=self.data)
         self.optimal_parameters = solution.x
         self.last_volatility_estimate = self._generate_volatility(
-            self.optimal_parameters)[-1]
+            self.optimal_parameters
+        )[-1]
 
         print(
-            f" {self._uncondition_parameters(self.optimal_parameters)} {solution.success}")
+            f" {self._uncondition_parameters(self.optimal_parameters)} {solution.success}"
+        )
 
         return solution.success
 
     def _cost_function(self, params: np.array, data: np.array) -> float:
         vol_est = self._generate_volatility_squared(params)
-        log_loss = np.sum(np.log(vol_est) + (data**2)/vol_est)
+        log_loss = np.sum(np.log(vol_est) + (data**2) / vol_est)
         return log_loss
 
     def plot_volatility(self):
@@ -288,21 +283,21 @@ class GJRGARCHEquityModel(EquityModel):
         result = np.zeros(self.number_of_observations)
         for i in range(0, self.number_of_observations):
             if i == 0:
-                result[i] = self.inital_volatility_esimate ** 2
+                result[i] = self.inital_volatility_esimate**2
             else:
                 mu_corr = np.exp(-np.exp(-params[0]))
                 mu_ewma = np.exp(-np.exp(-params[1]))
                 mu_asym = np.exp(-np.exp(-params[2]))
 
-                result[i] += (self.long_run_volatility_estimate ** 2 +
-                              mu_corr * (
-                                  mu_asym * result[i-1]
-                                  + (1 - mu_ewma) * self.data[i-1] ** 2
-                                  + 2 * (mu_ewma-mu_asym)
-                                  * self.data[i-1] ** 2 * np.where(self.data[i-1] < 0, 1, 0)
-                                  - self.long_run_volatility_estimate ** 2
-                              )
-                              )
+                result[i] += self.long_run_volatility_estimate**2 + mu_corr * (
+                    mu_asym * result[i - 1]
+                    + (1 - mu_ewma) * self.data[i - 1] ** 2
+                    + 2
+                    * (mu_ewma - mu_asym)
+                    * self.data[i - 1] ** 2
+                    * np.where(self.data[i - 1] < 0, 1, 0)
+                    - self.long_run_volatility_estimate**2
+                )
 
         return result
 
@@ -335,9 +330,9 @@ class GJRGARCHEquityModel(EquityModel):
             sample = norm.rvs(size=1, loc=0, scale=1)
             volatility_estimate = np.sqrt(
                 omega
-                + beta * volatility_estimate ** 2
-                + (alpha + gamma * np.where(return_estimate < 0, 1, 0)) *
-                return_estimate ** 2
+                + beta * volatility_estimate**2
+                + (alpha + gamma * np.where(return_estimate < 0, 1, 0))
+                * return_estimate**2
             )
             return_estimate = sample * volatility_estimate
 
@@ -352,14 +347,14 @@ class GJRGARCHEquityModel(EquityModel):
     @staticmethod
     def _precondition_parameters(params: np.array) -> np.array:
         mu_corr = params[0] + params[1] + params[2]
-        mu_ewma = ((params[1] + 0.5 * params[2]) /
-                   (params[0] + params[1] + 0.5 * params[2])
-                   )
+        mu_ewma = (params[1] + 0.5 * params[2]) / (
+            params[0] + params[1] + 0.5 * params[2]
+        )
         mu_asym = params[1] / (params[0] + params[1] + 0.5 * params[2])
 
-        z_corr = np.log(-1/np.log(mu_corr))
-        z_ewma = np.log(-1/np.log(mu_ewma))
-        z_asym = np.log(-1/np.log(mu_asym))
+        z_corr = np.log(-1 / np.log(mu_corr))
+        z_ewma = np.log(-1 / np.log(mu_ewma))
+        z_asym = np.log(-1 / np.log(mu_asym))
 
         return np.array([z_corr, z_ewma, z_asym])
 
@@ -405,31 +400,44 @@ class GJRGARCHNormalPoissonEquityModel(EquityModel):
     def _cost_function(self, params: np.array, data: np.array) -> float:
         n_observations = len(data)
         log_likelihood = 0
-        initial_squared_vol_estimate = (params[0]
-                                        + params[1] * (data[0] ** 2)
-                                        + params[3] * (data[0] ** 2) *
-                                        np.where(data[0] < 0, 1, 0)
-                                        + params[2] * (data[0] ** 2))
+        initial_squared_vol_estimate = (
+            params[0]
+            + params[1] * (data[0] ** 2)
+            + params[3] * (data[0] ** 2) * np.where(data[0] < 0, 1, 0)
+            + params[2] * (data[0] ** 2)
+        )
         current_squared_vol_estimate = initial_squared_vol_estimate
 
         for i in range(0, n_observations):
-            log_likelihood = log_likelihood + np.log(npm.pdf(data[i], params[4],
-                                                             np.sqrt(current_squared_vol_estimate), params[5], params[6]))
+            log_likelihood = log_likelihood + np.log(
+                npm.pdf(
+                    data[i],
+                    params[4],
+                    np.sqrt(current_squared_vol_estimate),
+                    params[5],
+                    params[6],
+                )
+            )
 
-            current_squared_vol_estimate = (params[0] + params[1] * (data[i - 1] ** 2)
-                                            + params[3] * (data[i - 1] ** 2) *
-                                            np.where(data[i - 1] < 0, 1, 0)
-                                            + params[2] * current_squared_vol_estimate)
+            current_squared_vol_estimate = (
+                params[0]
+                + params[1] * (data[i - 1] ** 2)
+                + params[3] * (data[i - 1] ** 2) * np.where(data[i - 1] < 0, 1, 0)
+                + params[2] * current_squared_vol_estimate
+            )
 
         return -log_likelihood
 
     def _constraints(self) -> list[dict]:
-        constraints = [{'type': 'ineq', 'fun': lambda x: -x[1] - x[2] - (0.5 * x[3]) + 1},
-                       {'type': 'ineq', 'fun': lambda x: x[0]},
-                       {'type': 'ineq', 'fun': lambda x: x[1] + x[3]},
-                       {'type': 'ineq', 'fun': lambda x: x[2]},
-                       {'type': 'ineq', 'fun': lambda x: x[5]},
-                       {'type': 'ineq', 'fun': lambda x: x[6]}
-                       ]
+        constraints = [
+            {"type": "ineq", "fun": lambda x: -x[1] - x[2] - (0.5 * x[3]) + 1},
+            {"type": "ineq", "fun": lambda x: x[0]},
+            {"type": "ineq", "fun": lambda x: x[1] + x[3]},
+            {"type": "ineq", "fun": lambda x: x[2]},
+            {"type": "ineq", "fun": lambda x: x[5]},
+            {"type": "ineq", "fun": lambda x: x[6]},
+        ]
         return constraints
+
+
 # endregion

@@ -24,6 +24,5 @@ class ModelFactory:
         # TODO: More logic based on AIC or BIC e.g.
         initial_parametes_gjr = np.array([0.05, 0.80, 0.001])
         initial_parametes_gar = np.array([0.05, 0.80])
-        model = GJRGARCHEquityModel(
-            initial_parametes_gjr, equity.log_return_history)
+        model = GJRGARCHEquityModel(initial_parametes_gjr, equity.log_return_history)
         equity.set_model(model=model)

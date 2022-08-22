@@ -22,7 +22,14 @@ class Instrument(ABC):
     model: Model
     has_model: bool = False
 
-    def __init__(self, ric: str, currency: Currency, start_date: datetime, end_date: datetime, interval: str):
+    def __init__(
+        self,
+        ric: str,
+        currency: Currency,
+        start_date: datetime,
+        end_date: datetime,
+        interval: str,
+    ):
         self.ric = ric
         self.start_date = start_date
         self.end_date = end_date
@@ -31,11 +38,14 @@ class Instrument(ABC):
 
         try:
             self.price_history = pdr.get_data_yahoo(
-                ric, start=start_date, end=end_date, interval=interval)['Adj Close']
+                ric, start=start_date, end=end_date, interval=interval
+            )["Adj Close"]
             self.art_return_history = self._art_return_history(
-                price_history=self.price_history)
+                price_history=self.price_history
+            )
             self.log_return_history = self._log_return_history(
-                price_history=self.price_history)
+                price_history=self.price_history
+            )
         except:
             # TODO: Add backup fetching and custom error.
             print("Cannot fetch yahoo data.")
@@ -73,12 +83,26 @@ class Instrument(ABC):
 class Equity(Instrument):
     model: EquityModel
 
-    def __init__(self, ric: str, currency: Currency, start_date: datetime, end_date: datetime, interval: str):
+    def __init__(
+        self,
+        ric: str,
+        currency: Currency,
+        start_date: datetime,
+        end_date: datetime,
+        interval: str,
+    ):
         super().__init__(ric, currency, start_date, end_date, interval)
 
 
 class FX(Instrument):
     model: FXModel
 
-    def __init__(self, ric: str, currency: Currency, start_date: datetime, end_date: datetime, interval: str):
+    def __init__(
+        self,
+        ric: str,
+        currency: Currency,
+        start_date: datetime,
+        end_date: datetime,
+        interval: str,
+    ):
         super().__init__(ric, currency, start_date, end_date, interval)

@@ -9,8 +9,8 @@ class MPC(ABC):
     """Return based MPC."""
 
     def __init__(
-            self, forecast: np.array, inital_portfolio: np.array,
-            cash_rate: np.array = 0.0):
+        self, forecast: np.array, inital_portfolio: np.array, cash_rate: np.array = 0.0
+    ):
 
         self.initial_portfolio = inital_portfolio
 
@@ -38,7 +38,6 @@ class MPC(ABC):
 
 
 class MPCDummy(MPC):
-
     def _build_objective(self, Z, W, R):
         objective = 0
 
@@ -46,7 +45,7 @@ class MPCDummy(MPC):
             if t == 0:
                 objective += R[:, t].T @ Z[:, t]
             else:
-                objective += R[:, t].T @ (W[:, t-1] + Z[:, t])
+                objective += R[:, t].T @ (W[:, t - 1] + Z[:, t])
         return objective
 
     def _build_constraints(self, Z, W):
@@ -55,24 +54,29 @@ class MPCDummy(MPC):
 
         for t in range(self.number_of_steps):
             if t == 0:
-                constr += [ones.T @ Z[:, t] == 0,
-                           Z[:, t] <= 1,
-                           W[:, t] == self.initial_portfolio + Z[:, t],
-                           W[:, t] >= 0,
-                           W[:, t] <= 1]
+                constr += [
+                    ones.T @ Z[:, t] == 0,
+                    Z[:, t] <= 1,
+                    W[:, t] == self.initial_portfolio + Z[:, t],
+                    W[:, t] >= 0,
+                    W[:, t] <= 1,
+                ]
             else:
-                constr += [ones.T @ Z[:, t] == 0,
-                           Z[:, t] <= 1,
-                           ]
-                if t < self.number_of_steps-1:
-                    constr += [W[:, t] == W[:, t-1] + Z[:, t],
-                               W[:, t] >= 0,
-                               W[:, t] <= 1]
+                constr += [
+                    ones.T @ Z[:, t] == 0,
+                    Z[:, t] <= 1,
+                ]
+                if t < self.number_of_steps - 1:
+                    constr += [
+                        W[:, t] == W[:, t - 1] + Z[:, t],
+                        W[:, t] >= 0,
+                        W[:, t] <= 1,
+                    ]
         return constr
 
     def optimize(self):
         Z = cp.Variable((self.number_of_assets, self.number_of_steps))
-        W = cp.Variable((self.number_of_assets, self.number_of_steps-1))
+        W = cp.Variable((self.number_of_assets, self.number_of_steps - 1))
         R = self.forecast
 
         objective = self._build_objective(Z, W, R)
@@ -83,10 +87,9 @@ class MPCDummy(MPC):
 
 
 class MPCLogUtility(MPC):
-
     def optimize(self):
         Z = cp.Variable((self.number_of_assets, self.number_of_steps))
-        W = cp.Variable((self.number_of_assets, self.number_of_steps-1))
+        W = cp.Variable((self.number_of_assets, self.number_of_steps - 1))
         R = self.forecast
 
         objective = self._build_objective(Z, W, R)
@@ -102,9 +105,9 @@ class MPCLogUtility(MPC):
             if t == 0:
                 objective += R[:, t].T @ Z[:, t]
             else:
-                objective += R[:, t].T @ (W[:, t-1] + Z[:, t])
+                objective += R[:, t].T @ (W[:, t - 1] + Z[:, t])
 
-        return cp.power(objective, -1.5) * (-1/1.5)
+        return cp.power(objective, -1.5) * (-1 / 1.5)
 
     def _build_constraints(self, Z, W):
         constr = []
@@ -112,17 +115,22 @@ class MPCLogUtility(MPC):
 
         for t in range(self.number_of_steps):
             if t == 0:
-                constr += [ones.T @ Z[:, t] == 0,
-                           Z[:, t] <= 1,
-                           W[:, t] == self.initial_portfolio + Z[:, t],
-                           W[:, t] >= 0,
-                           W[:, t] <= 1]
+                constr += [
+                    ones.T @ Z[:, t] == 0,
+                    Z[:, t] <= 1,
+                    W[:, t] == self.initial_portfolio + Z[:, t],
+                    W[:, t] >= 0,
+                    W[:, t] <= 1,
+                ]
             else:
-                constr += [ones.T @ Z[:, t] == 0,
-                           Z[:, t] <= 1,
-                           ]
-                if t < self.number_of_steps-1:
-                    constr += [W[:, t] == W[:, t-1] + Z[:, t],
-                               W[:, t] >= 0,
-                               W[:, t] <= 1]
+                constr += [
+                    ones.T @ Z[:, t] == 0,
+                    Z[:, t] <= 1,
+                ]
+                if t < self.number_of_steps - 1:
+                    constr += [
+                        W[:, t] == W[:, t - 1] + Z[:, t],
+                        W[:, t] >= 0,
+                        W[:, t] <= 1,
+                    ]
         return constr

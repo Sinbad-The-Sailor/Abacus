@@ -5,7 +5,6 @@ from abacus.simulator import simulator
 
 
 class Forecaster:
-
     def __init__(self, instruments, number_of_steps):
         self.instruments = instruments
         self.number_of_steps = number_of_steps
@@ -19,12 +18,13 @@ class Forecaster:
         result = np.zeros(dim)
 
         for _ in range(number_of_simulations):
-            simulated_matrix = self.simulator.run_simultion_assets(number_of_steps=self.number_of_steps,
-                                                                   dependency=True)
+            simulated_matrix = self.simulator.run_simultion_assets(
+                number_of_steps=self.number_of_steps, dependency=True
+            )
             simulated_matrix = np.vstack(simulated_matrix)
             result += simulated_matrix
 
-        result = 1/number_of_simulations * result
+        result = 1 / number_of_simulations * result
 
         # for _ in range(len(self.instruments)):
         #     prices_XOM = []

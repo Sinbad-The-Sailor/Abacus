@@ -9,7 +9,6 @@ from abacus.config import DEFALUT_STEPS, VINE_COPULA_FAMILIES, DEFALUT_SIMULATIO
 
 
 class Simulator:
-
     def __init__(self, instruments: list[Instrument]):
         self.instruments = instruments
         self.model_factory = ModelFactory
@@ -114,8 +113,7 @@ class Simulator:
             )
 
             # Portfolio prices.
-            temp_prices = init_prices * \
-                np.prod(np.exp(simultion_matrix), axis=1)
+            temp_prices = init_prices * np.prod(np.exp(simultion_matrix), axis=1)
 
             print(simultion_matrix)
             print(simulation)
@@ -128,8 +126,7 @@ class Simulator:
 
         for instrument in self.instruments:
             result.append(
-                instrument.model.run_simulation(
-                    number_of_steps=number_of_steps)
+                instrument.model.run_simulation(number_of_steps=number_of_steps)
             )
 
         return np.vstack(result)
