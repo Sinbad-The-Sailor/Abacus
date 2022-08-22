@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-import pymysql
 import os
+import pymysql
 
-from instruments.instruments import Equity, FX
-from abacus_simulator import forecaster
+from instruments.instruments import Equity
+from abacus_simulator.forecaster import Forecaster
+from abacus_optimizer.policies import MPCDummy, MPCLogUtility
 
 
 def main():
@@ -48,8 +49,21 @@ def main():
     instruments = [stock1, stock2, stock3, stock4,
                    stock6, stock7, stock8, stock9, stock10, stock11, stock12]
 
-    forc = forecaster.Forecaster(instruments=instruments, number_of_steps=5)
-    print(forc.forecast_returns())
+    forc = Forecaster(instruments=instruments, number_of_steps=5)
+    forecast = forc.forecast_returns()
+
+    import numpy as np
+    inital_portfolio = np.insert(np.zeros(len(instruments)), 0, 1)
+    mpc = MPCDummy(forecast=forecast, inital_portfolio=inital_portfolio)
+    mpc.optimize()
+    print(mpc.solution)
+
+    print("==========")
+    mpc_util = MPCLogUtility(
+        forecast=forecast, inital_portfolio=inital_portfolio)
+    mpc_util.optimize()
+    print(mpc_util.solution)
+    print("==========")
 
 
 if __name__ == "__main__":

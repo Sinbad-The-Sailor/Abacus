@@ -1,6 +1,5 @@
 # Test files
-testing.py
-testing_dataclasses.py
+tests
 
 # Visual Studio Code settings
 .vscode
