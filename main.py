@@ -3,8 +3,8 @@ import os
 import pymysql
 
 from abacus.instruments import Equity
-from abacus.abacus_simulator.forecaster import Forecaster
-from abacus.abacus_optimizer.policies import MPCDummy, MPCLogUtility
+from abacus.simulator.forecaster import Forecaster
+from abacus.optimizer.policies import MPCDummy, MPCLogUtility
 
 
 def main():

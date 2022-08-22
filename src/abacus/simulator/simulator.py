@@ -2,7 +2,7 @@
 import numpy as np
 import copulae as cop
 import pyvinecopulib as pv
-from abacus.abacus_simulator.model_factory import ModelFactory
+from abacus.simulator.model_factory import ModelFactory
 
 from abacus.instruments import Instrument
 from abacus.config import DEFALUT_STEPS, VINE_COPULA_FAMILIES, DEFALUT_SIMULATIONS

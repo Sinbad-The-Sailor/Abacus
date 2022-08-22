@@ -1,6 +1,5 @@
-# Test files
-tox.ini
-requirements_dev.txt
+# Temporary ignored files
+
 
 # Visual Studio Code settings
 .vscode

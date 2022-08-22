@@ -6,10 +6,8 @@ from statsmodels.graphics.gofplots import qqplot
 from scipy.stats import norm
 from scipy.optimize import minimize
 
-from abacus_utils.norm_poisson_mixture import npm
-from abacus_utils.student_poisson_mixture import spm
-
-from abacus.config import ABACUS_DATABASE_CONNECTION
+from abacus.utilities.norm_poisson_mixture import npm
+from abacus.utilities.student_poisson_mixture import spm
 
 
 class EquityModel:

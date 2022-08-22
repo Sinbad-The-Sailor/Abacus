@@ -6,8 +6,8 @@ from scipy.stats import norm
 from matplotlib import pyplot as plt
 
 from abacus.config import DEFALUT_STEPS
-from abacus.abacus_utils.norm_poisson_mixture import npm
-from abacus.abacus_simulator.model import Model, NoParametersError
+from abacus.utilities.norm_poisson_mixture import npm
+from abacus.simulator.model import Model, NoParametersError
 
 
 class EquityModel(Model):

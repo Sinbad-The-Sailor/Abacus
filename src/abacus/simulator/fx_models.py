@@ -6,7 +6,7 @@ from scipy.stats import norm
 from matplotlib import pyplot as plt
 
 from abacus.config import DEFALUT_STEPS, EPSILON
-from abacus.abacus_simulator.model import Model
+from abacus.simulator.model import Model
 
 
 class FXModel(Model):

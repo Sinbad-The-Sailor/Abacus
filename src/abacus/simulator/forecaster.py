@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
-from abacus.abacus_simulator import simulator
+from abacus.simulator import simulator
 
 
 class Forecaster:
