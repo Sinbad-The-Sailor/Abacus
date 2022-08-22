@@ -32,7 +32,6 @@ future==0.18.2
 identify==2.5.1
 idna==3.3
 iniconfig==1.1.1
-ipopt==1.0.3
 ipykernel==6.13.0
 ipython==8.2.0
 ipython-genutils==0.2.0
