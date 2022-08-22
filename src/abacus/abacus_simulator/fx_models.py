@@ -5,8 +5,8 @@ from scipy.optimize import minimize
 from scipy.stats import norm
 from matplotlib import pyplot as plt
 
-from config import DEFALUT_STEPS, EPSILON
-from abacus_simulator.model import Model
+from abacus.config import DEFALUT_STEPS, EPSILON
+from abacus.abacus_simulator.model import Model
 
 
 class FXModel(Model):

@@ -5,9 +5,9 @@ from scipy.optimize import minimize
 from scipy.stats import norm
 from matplotlib import pyplot as plt
 
-from config import DEFALUT_STEPS
-from abacus_utils.distributions.norm_poisson_mixture import npm
-from abacus_simulator.model import Model, NoParametersError
+from abacus.config import DEFALUT_STEPS
+from abacus.abacus_utils.norm_poisson_mixture import npm
+from abacus.abacus_simulator.model import Model, NoParametersError
 
 
 class EquityModel(Model):

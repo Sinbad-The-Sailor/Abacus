@@ -6,18 +6,15 @@ from statsmodels.graphics.gofplots import qqplot
 from scipy.stats import norm
 from scipy.optimize import minimize
 
-from abacus_utils.distributions.norm_poisson_mixture import npm
-from abacus_utils.distributions.student_poisson_mixture import spm
+from abacus_utils.norm_poisson_mixture import npm
+from abacus_utils.student_poisson_mixture import spm
 
-from config import ABACUS_DATABASE_CONNECTION
-from database import database_parser
+from abacus.config import ABACUS_DATABASE_CONNECTION
 
 
 class EquityModel:
     def __init__(self, stock_data):
         self._stock_data = stock_data
-        self._init = database_parser.select_init_solution(
-            ABACUS_DATABASE_CONNECTION, stock_data.ric)
         self._model_solution = None
         self._model_fitted = False
         self._uniform_transformed_returns = []
@@ -91,9 +88,6 @@ class EquityModel:
 
             self._model_solution = garch_poisson_model_solution
             self._model_fitted = True
-
-            database_parser.write_final_solution(ABACUS_DATABASE_CONNECTION, list(self._model_solution.x),
-                                                 self._stock_data.ric)
 
             return garch_poisson_model_solution
 

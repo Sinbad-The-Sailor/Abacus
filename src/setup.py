@@ -3,9 +3,9 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name="abacus-utils",
+    name="abacus",
     version="0.0.1",
-    description="Proprietary utility functions.",
+    description="Package for automatic sequential optimal investments.",
     license="MIT",
     packages=find_packages(),
 )

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
-from instruments.instruments import Equity
-from abacus_simulator.equity_models import GJRGARCHEquityModel
+from abacus.instruments import Equity
+from abacus.abacus_simulator.equity_models import GJRGARCHEquityModel
 
 
 class ModelFactory:

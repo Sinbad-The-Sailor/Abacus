@@ -1,5 +1,6 @@
 # Test files
-tests
+tox.ini
+requirements_dev.txt
 
 # Visual Studio Code settings
 .vscode
