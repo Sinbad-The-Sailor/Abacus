@@ -3,7 +3,6 @@ requires = ["setuptools>=60.2.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.pytest.ini_options]
-addopts = "--cov=abacus"
 testpaths=[
     "tests",
 ]
