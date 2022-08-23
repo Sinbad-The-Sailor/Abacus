@@ -9,6 +9,9 @@ from abacus.config import DEFALUT_STEPS
 from abacus.utilities.norm_poisson_mixture import npm
 from abacus.simulator.model import Model, NoParametersError
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class EquityModel(Model):
     def __init__(self, initial_parameters, data):
@@ -26,7 +29,8 @@ class GARCHEquityModel(EquityModel):
 
     def run_simulation(self, number_of_steps: int = DEFALUT_STEPS) -> np.array:
 
-        result = self._generate_simulation(number_of_steps=number_of_steps, isVol=False)
+        result = self._generate_simulation(
+            number_of_steps=number_of_steps, isVol=False)
 
         return result
 
@@ -34,7 +38,8 @@ class GARCHEquityModel(EquityModel):
         self, number_of_steps: int = DEFALUT_STEPS
     ) -> np.array:
 
-        result = self._generate_simulation(number_of_steps=number_of_steps, isVol=True)
+        result = self._generate_simulation(
+            number_of_steps=number_of_steps, isVol=True)
 
         return result
 
@@ -48,7 +53,8 @@ class GARCHEquityModel(EquityModel):
 
         # Check if a volatility estimate exists.
         if self.volatility_sample is None:
-            self.volatility_sample = self._generate_volatility(self.optimal_parameters)
+            self.volatility_sample = self._generate_volatility(
+                self.optimal_parameters)
 
         # Create normalized sample and transform it in one go.
         for i in range(1, self.number_of_observations):
@@ -81,9 +87,11 @@ class GARCHEquityModel(EquityModel):
     def fit_model(self) -> bool:
         # TODO: Add number of iterations and while loop.
 
-        initial_parameters = self._precondition_parameters(self.initial_parameters)
+        initial_parameters = self._precondition_parameters(
+            self.initial_parameters)
 
-        solution = minimize(self._cost_function, initial_parameters, args=self.data)
+        solution = minimize(self._cost_function,
+                            initial_parameters, args=self.data)
         self.optimal_parameters = solution.x
         self.last_volatility_estimate = self._generate_volatility(
             self.optimal_parameters
@@ -92,6 +100,8 @@ class GARCHEquityModel(EquityModel):
         print(
             f" {self._uncondition_parameters(self.optimal_parameters)} {solution.success}"
         )
+        if not solution.success:
+            logger.warning("minimizer not succesful.")
 
         return solution.success
 
@@ -197,13 +207,15 @@ class GJRGARCHEquityModel(EquityModel):
         self.long_run_volatility_estimate = np.std(self.data)
 
     def run_simulation(self, number_of_steps: int = DEFALUT_STEPS) -> np.array:
-        result = self._generate_simulation(number_of_steps=number_of_steps, isVol=False)
+        result = self._generate_simulation(
+            number_of_steps=number_of_steps, isVol=False)
         return result
 
     def run_volatility_simulation(
         self, number_of_steps: int = DEFALUT_STEPS
     ) -> np.array:
-        result = self._generate_simulation(number_of_steps=number_of_steps, isVol=True)
+        result = self._generate_simulation(
+            number_of_steps=number_of_steps, isVol=True)
         return result
 
     def generate_uniform_samples(self) -> np.array:
@@ -215,7 +227,8 @@ class GJRGARCHEquityModel(EquityModel):
 
         # Check if a volatility estimate exists.
         if self.volatility_sample is None:
-            self.volatility_sample = self._generate_volatility(self.optimal_parameters)
+            self.volatility_sample = self._generate_volatility(
+                self.optimal_parameters)
 
         # Create normalized sample and transform it in one go.
         for i in range(1, self.number_of_observations):
@@ -248,9 +261,11 @@ class GJRGARCHEquityModel(EquityModel):
     def fit_model(self) -> bool:
         # TODO: Add number of iterations and while loop.
 
-        initial_parameters = self._precondition_parameters(self.initial_parameters)
+        initial_parameters = self._precondition_parameters(
+            self.initial_parameters)
 
-        solution = minimize(self._cost_function, initial_parameters, args=self.data)
+        solution = minimize(self._cost_function,
+                            initial_parameters, args=self.data)
         self.optimal_parameters = solution.x
         self.last_volatility_estimate = self._generate_volatility(
             self.optimal_parameters
@@ -259,7 +274,8 @@ class GJRGARCHEquityModel(EquityModel):
         print(
             f" {self._uncondition_parameters(self.optimal_parameters)} {solution.success}"
         )
-
+        if not solution.success:
+            logger.warning("minimizer not succesful.")
         return solution.success
 
     def _cost_function(self, params: np.array, data: np.array) -> float:
@@ -422,7 +438,8 @@ class GJRGARCHNormalPoissonEquityModel(EquityModel):
             current_squared_vol_estimate = (
                 params[0]
                 + params[1] * (data[i - 1] ** 2)
-                + params[3] * (data[i - 1] ** 2) * np.where(data[i - 1] < 0, 1, 0)
+                + params[3] * (data[i - 1] ** 2) *
+                np.where(data[i - 1] < 0, 1, 0)
                 + params[2] * current_squared_vol_estimate
             )
 
