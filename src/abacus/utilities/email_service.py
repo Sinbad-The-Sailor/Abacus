@@ -15,6 +15,7 @@ def send_email(msg: str, status: str):
     pasw = os.getenv("EMAIL_PASW")
 
     recipient = adrs
+    recipient = "karlaxel.n@outlook.com"
     sender = adrs
 
     message = _build_full_msg(msg, status)
@@ -29,7 +30,8 @@ def send_email(msg: str, status: str):
 
 def _build_full_msg(msg: str, status: str) -> MIMEMultipart:
     header = _build_header(status)
-    msg = f"{header}\n\n {msg}"
+    log = _build_log()
+    msg = f"{header}\n\n{msg}\n\n{log}"
     msg = msg.replace('\n', '<br>')
     msg = "<pre><code>" + msg + "</code></pre>"
 
@@ -43,17 +45,28 @@ def _build_full_msg(msg: str, status: str) -> MIMEMultipart:
 
 def _build_header(status: str) -> str:
     file = open("src/abacus/utilities/email_header.txt", "r")
-    logo = file.read()
+    logo_offset = " " * 11
+    logo = ""
+    for line in file:
+        logo += logo_offset + line.rstrip("\n") + "\n"
+    file.close()
     date = str(dt.date.today())
-    date_offset = "-" * 21
-
+    date_offset = "-" * 32
     if status == "OK":
-        stat_offset = "-" * 21
+        stat_offset = "-" * 32
     elif status == "CRITICAL":
-        stat_offset = "-" * 18
+        stat_offset = "-" * 29
     else:
         raise ValueError("Invalid status for email header.")
 
-    header = f"{logo}\n\n {date_offset} {date} {date_offset}\n {stat_offset} STATUS: {status} {stat_offset}"
-    file.close()
+    header = f"{logo}\n\n{date_offset} {date} {date_offset}\n{stat_offset} STATUS: {status} {stat_offset}"
     return header
+
+
+def _build_log() -> str:
+    file = open(".log", "r")
+    log = file.read()
+    file.close()
+    offset = "-" * 35
+    log = f"{offset} .LOG {offset}\n{log}"
+    return log
