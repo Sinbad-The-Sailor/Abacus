@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import pymysql
+import numpy as np
 
 from abacus.instruments import Equity
 from abacus.simulator.forecaster import Forecaster
@@ -53,7 +54,6 @@ def main():
     forc = Forecaster(instruments=instruments, number_of_steps=5)
     forecast = forc.forecast_returns()
 
-    import numpy as np
     inital_portfolio = np.insert(np.zeros(len(instruments)), 0, 1)
     mpc = MPCDummy(forecast=forecast, inital_portfolio=inital_portfolio)
     mpc.optimize()
