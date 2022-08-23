@@ -9,11 +9,6 @@ from abacus.utilities import email_service
 
 
 def main():
-    msg = email_service._build_header("OK")
-    email_service.send_email(msg=msg)
-
-
-def main2():
     # Create stocks
     start = "2005-12-28"
     end = "2022-07-11"
@@ -70,6 +65,8 @@ def main2():
     mpc_util.optimize()
     print(mpc_util.solution)
     print("==========")
+
+    email_service.send_email(msg=str(mpc_util.solution), status="OK")
 
 
 if __name__ == "__main__":

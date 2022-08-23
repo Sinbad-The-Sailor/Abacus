@@ -3,21 +3,42 @@ import os
 import smtplib
 import datetime as dt
 
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
-def send_email(msg: str):
+
+def send_email(msg: str, status: str):
+
     host = os.getenv("EMAIL_HOST")
     port = int(os.getenv("EMAIL_PORT"))
-    adrs = str(os.getenv("EMAIL_ADRS"))
-    pasw = str(os.getenv("EMAIL_PASW"))
+    adrs = os.getenv("EMAIL_ADRS")
+    pasw = os.getenv("EMAIL_PASW")
 
-    print(adrs, pasw)
+    recipient = adrs
+    sender = adrs
+
+    message = _build_full_msg(msg, status)
 
     with smtplib.SMTP(host=host, port=port) as server:
         server.starttls()
         server.login(user=adrs,
                      password=pasw)
-        server.send_message(msg=str(msg), from_addr=adrs, to_addrs=adrs)
+        server.sendmail(sender, recipient, message.as_string())
         server.close()
+
+
+def _build_full_msg(msg: str, status: str) -> MIMEMultipart:
+    header = _build_header(status)
+    msg = f"{header}\n\n {msg}"
+    msg = msg.replace('\n', '<br>')
+    msg = "<pre><code>" + msg + "</code></pre>"
+
+    message = MIMEMultipart()
+    message['Subject'] = f"Investment Report {status}"
+    html = MIMEText(msg, "html")
+    message.attach(html)
+
+    return message
 
 
 def _build_header(status: str) -> str:
@@ -36,7 +57,3 @@ def _build_header(status: str) -> str:
     header = f"{logo}\n\n {date_offset} {date} {date_offset}\n {stat_offset} STATUS: {status} {stat_offset}"
     file.close()
     return header
-
-
-class Emailer:
-    pass
