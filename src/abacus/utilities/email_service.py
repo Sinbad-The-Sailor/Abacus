@@ -15,7 +15,6 @@ def send_email(msg: str, status: str):
     pasw = os.getenv("EMAIL_PASW")
 
     recipient = adrs
-    recipient = "karlaxel.n@outlook.com"
     sender = adrs
 
     message = _build_full_msg(msg, status)
