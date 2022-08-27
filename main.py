@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from tkinter import E
 import numpy as np
 
 from abacus.simulator.forecaster import Forecaster
@@ -31,13 +30,14 @@ def main():
     forecast = forc.forecast_returns()
 
     inital_portfolio = np.insert(np.zeros(len(instruments)), 0, 1)
+
     mpc = MPCDummy(forecast=forecast, inital_portfolio=inital_portfolio)
     mpc.optimize()
+    mpc_util = MPCLogUtility(forecast=forecast, inital_portfolio=inital_portfolio)
+    mpc_util.optimize()
 
     print(mpc.solution)
     print("==========")
-    mpc_util = MPCLogUtility(forecast=forecast, inital_portfolio=inital_portfolio)
-    mpc_util.optimize()
     print(mpc_util.solution)
     print("==========")
 
