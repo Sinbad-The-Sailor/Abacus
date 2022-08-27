@@ -8,6 +8,13 @@ from email.mime.multipart import MIMEMultipart
 
 
 def send_email(msg: str, status: str):
+    """
+    Connects to email service and sends a message.
+
+    Args:
+        msg (str): Message.
+        status (str): Program status.
+    """
 
     host = os.getenv("EMAIL_HOST")
     port = int(os.getenv("EMAIL_PORT"))
@@ -23,11 +30,22 @@ def send_email(msg: str, status: str):
         server.starttls()
         server.login(user=adrs,
                      password=pasw)
-        server.sendmail(sender, recipient, message.as_string())
+        server.sendmail(sender, recipient, message)
         server.close()
 
 
-def _build_full_msg(msg: str, status: str) -> MIMEMultipart:
+def _build_full_msg(msg: str, status: str) -> str:
+    """
+    Creates full email message with HTML formatting.
+
+    Args:
+        msg (str): Message to be sent.
+        status (str): Status of program.
+
+    Returns:
+        str: HTML formatted message.
+    """
+
     header = _build_header(status)
     log = _build_log()
     msg = f"{header}\n\n{msg}\n\n{log}"
@@ -39,10 +57,23 @@ def _build_full_msg(msg: str, status: str) -> MIMEMultipart:
     html = MIMEText(msg, "html")
     message.attach(html)
 
-    return message
+    return message.as_string()
 
 
 def _build_header(status: str) -> str:
+    """
+    Creates the email header including a status code and date.
+
+    Args:
+        status (str): Status code for the program.
+
+    Raises:
+        ValueError: Invalid status code.
+
+    Returns:
+        str: Formatted header for email.
+    """
+
     file = open("src/abacus/utilities/email_header.txt", "r")
     logo_offset = " " * 11
     logo = ""
@@ -59,13 +90,22 @@ def _build_header(status: str) -> str:
         raise ValueError("Invalid status for email header.")
 
     header = f"{logo}\n\n{date_offset} {date} {date_offset}\n{stat_offset} STATUS: {status} {stat_offset}"
+
     return header
 
 
 def _build_log() -> str:
+    """
+    Reads the .log file and creates a formatted string.
+
+    Returns:
+        str: Formatted log for email.
+    """
+
     file = open(".log", "r")
     log = file.read()
     file.close()
     offset = "-" * 35
     log = f"{offset} .LOG {offset}\n{log}"
+
     return log

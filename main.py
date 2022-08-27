@@ -21,32 +21,38 @@ def main():
     # creating Equity object which has a model which is empty.
     # return a list of instruments
 
-    start = "2000-01-01"
-    end = "2005-01-01"
-    interval = "wk"
-    instrument_codes = []
-
-    dataloader = DataLoader()
-    instruments = dataloader.load_yahoo_data(instrument_codes)
-
-    def load_insturments_codes():
-        return []
-    instrument_codes = load_data_from_db()
-
-    def load_data(instrument_codes):
-        if True:
-            # free version load_data_yahoo(instrument_codes)
-            pass
-        else:
-            # update_data(instrument_codes)
-            # codes = load_instrument_codes()
-            # load_instruments(codes)
-            pass
-
-    # Create stocks
     start = "2005-12-28"
     end = "2022-07-11"
     interval = "wk"
+    instrument_specification = {"XOM": {"Currency": "USD", "Type": "Equity"},
+                                "CVX": {"Currency": "USD", "Type": "Equity"},
+                                "^GSPC": {"Currency": "USD", "Type": "Equity"},
+                                "WFC": {"Currency": "USD", "Type": "Equity"},
+                                "MSFT": {"Currency": "USD", "Type": "Equity"},
+                                "CAT": {"Currency": "USD", "Type": "Equity"},
+                                "NOC": {"Currency": "USD", "Type": "Equity"},
+                                "KO": {"Currency": "USD", "Type": "Equity"},
+                                }
+
+    # dataloader = DataLoader()
+    # instruments = dataloader.load_yahoo_data(instrument_codes)
+
+    # def load_insturments_codes():
+    #     return []
+    # instrument_codes = load_data_from_db()
+
+    # def load_data(instrument_codes):
+    #     if True:
+    #         # free version load_data_yahoo(instrument_codes)
+    #         pass
+    #     else:
+    #         # update_data(instrument_codes)
+    #         # codes = load_instrument_codes()
+    #         # load_instruments(codes)
+    #         pass
+
+    # Create stocks
+
     stock1 = Equity(
         ric="XOM", currency="USD", start_date=start, end_date=end, interval=interval
     )
