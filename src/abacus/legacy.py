@@ -355,7 +355,7 @@ class EquityModel:
                 params[0]
                 + params[1] * (data[i] ** 2)
                 + params[3] * (data[i] ** 2) * np.where(data[i], 1, 0)
-                + params[2] * (curr_vol**2)
+                + params[2] * (curr_vol ** 2)
             )
             print(len(uniforms))
         return np.array(uniforms)

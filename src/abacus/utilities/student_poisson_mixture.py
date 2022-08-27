@@ -30,7 +30,7 @@ class StudentPoissonMixture:
             sigma * np.sqrt(np.pi * (nu - 2)) * gamma(nu / 2)
         )
         total_mix_density = np.exp(-lamb) * (
-            1 + (x - mu) ** 2 / ((nu - 2) * sigma**2)
+            1 + (x - mu) ** 2 / ((nu - 2) * sigma ** 2)
         ) ** ((-nu - 1) / 2)
 
         for k in range(1, number_of_terms):
@@ -87,7 +87,7 @@ class StudentPoissonMixture:
     def _student_integral(
         s: float, x: float, k: int, mu: float, sigma: float, kappa: float, nu: float
     ) -> float:
-        evaluation = (1 + (s - mu) ** 2 / (sigma**2 * (nu - 2))) ** (
+        evaluation = (1 + (s - mu) ** 2 / (sigma ** 2 * (nu - 2))) ** (
             -(nu + 1) / 2
         ) * np.exp(-0.5 * ((x - s) / (sigma * kappa * np.sqrt(k))) ** 2)
         return evaluation

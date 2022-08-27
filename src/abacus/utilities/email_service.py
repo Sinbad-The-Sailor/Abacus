@@ -15,7 +15,6 @@ def send_email(msg: str, status: str):
         msg (str): Message.
         status (str): Program status.
     """
-
     host = os.getenv("EMAIL_HOST")
     port = int(os.getenv("EMAIL_PORT"))
     adrs = os.getenv("EMAIL_ADRS")
@@ -28,8 +27,7 @@ def send_email(msg: str, status: str):
 
     with smtplib.SMTP(host=host, port=port) as server:
         server.starttls()
-        server.login(user=adrs,
-                     password=pasw)
+        server.login(user=adrs, password=pasw)
         server.sendmail(sender, recipient, message)
         server.close()
 
@@ -45,15 +43,14 @@ def _build_full_msg(msg: str, status: str) -> str:
     Returns:
         str: HTML formatted message.
     """
-
     header = _build_header(status)
     log = _build_log()
     msg = f"{header}\n\n{msg}\n\n{log}"
-    msg = msg.replace('\n', '<br>')
+    msg = msg.replace("\n", "<br>")
     msg = "<pre><code>" + msg + "</code></pre>"
 
     message = MIMEMultipart()
-    message['Subject'] = f"Investment Report {status}"
+    message["Subject"] = f"Investment Report {status}"
     html = MIMEText(msg, "html")
     message.attach(html)
 
@@ -73,7 +70,6 @@ def _build_header(status: str) -> str:
     Returns:
         str: Formatted header for email.
     """
-
     file = open("src/abacus/utilities/email_header.txt", "r")
     logo_offset = " " * 11
     logo = ""
@@ -101,7 +97,6 @@ def _build_log() -> str:
     Returns:
         str: Formatted log for email.
     """
-
     file = open(".log", "r")
     log = file.read()
     file.close()

@@ -27,7 +27,7 @@ class NormalPoissonMixture:
         total_mix_density = 0
         for k in range(0, number_of_terms):
             total_mix_density = total_mix_density + poisson.pmf(k, lamb) * norm.pdf(
-                x, mu, sigma * np.sqrt(1 + k * kappa**2)
+                x, mu, sigma * np.sqrt(1 + k * kappa ** 2)
             )
         return total_mix_density
 

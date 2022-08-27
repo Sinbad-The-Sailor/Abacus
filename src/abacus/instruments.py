@@ -5,23 +5,10 @@ import pandas as pd
 from datetime import datetime
 from abc import ABC
 from abacus.simulator.model import Model
-from abacus.simulator.equity_models import EquityModel
-from abacus.simulator.fx_models import FXModel
 from abacus.utilities.currency_enum import Currency
-from pandas_datareader import data as pdr
 
 
 class Instrument(ABC):
-    ric: str
-    local_currency: Currency
-    start_date: datetime
-    end_date: datetime
-    interval: str
-    price_history: pd.DataFrame
-    return_history: pd.DataFrame
-    model: Model
-    has_model: bool = False
-
     def __init__(
         self,
         ric: str,
@@ -36,53 +23,46 @@ class Instrument(ABC):
         self.interval = interval
         self.local_currency = currency
 
-        try:
-            self.price_history = pdr.get_data_yahoo(
-                ric, start=start_date, end=end_date, interval=interval
-            )["Adj Close"]
-            self.art_return_history = self._art_return_history(
-                price_history=self.price_history
-            )
-            self.log_return_history = self._log_return_history(
-                price_history=self.price_history
-            )
-        except:
-            # TODO: Add backup fetching and custom error.
-            print("Cannot fetch yahoo data.")
+        self.price_history = None
+        self.art_return_history = None
+        self.log_return_history = None
+        self.model = None
+        self.has_model = False
 
-    def set_model(self, model: Model) -> None:
+    def set_model(self, model: Model):
         self.model = model
         self.has_model = True
 
-    def art_return_history():
-        pass
+    def set_price_history(self, price_history: pd.DataFrame):
+        self.price_history = price_history
+        self.art_return_history = self._art_return_history()
+        self.log_return_history = self._log_return_history()
 
-    def log_return_history():
-        pass
+    def _art_return_history(self) -> pd.DataFrame:
+        if self._has_prices:
+            return self.price_history / self.price_history.shift(1)[1:]
+        else:
+            raise ValueError("No price history exists.")
 
-    def _establish_connection(self):
-        pass
+    def _log_return_history(self) -> pd.DataFrame:
+        if self._has_prices:
+            return np.log(self.price_history / self.price_history.shift(1))[1:]
+        else:
+            raise ValueError("No price history exists.")
 
-    def _has_prices(self):
+    def _has_prices(self) -> bool:
+        """
+        Checks if instrument has price history dataframe.
+
+        Returns:
+            bool: status of price history.
+        """
         if self.price_hisotry is None:
             return False
         return True
 
-    @staticmethod
-    def _art_return_history(price_history: pd.DataFrame) -> pd.DataFrame:
-        return price_history / price_history.shift(1)[1:]
-
-    @staticmethod
-    def _log_return_history(price_history: pd.DataFrame) -> pd.DataFrame:
-        return np.log(price_history / price_history.shift(1))[1:]
-
-    def __str__(self) -> str:
-        return "instrument"
-
 
 class Equity(Instrument):
-    model: EquityModel
-
     def __init__(
         self,
         ric: str,
@@ -95,8 +75,6 @@ class Equity(Instrument):
 
 
 class FX(Instrument):
-    model: FXModel
-
     def __init__(
         self,
         ric: str,

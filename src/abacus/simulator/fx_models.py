@@ -170,7 +170,7 @@ class GARCHFXModel(FXModel):
         for i in range(number_of_steps):
             sample = norm.rvs(size=1, loc=0, scale=1)
             volatility_estimate = np.sqrt(
-                beta0 + beta1 * volatility_estimate**2 + beta2 * return_estimate**2
+                beta0 + beta1 * volatility_estimate ** 2 + beta2 * return_estimate ** 2
             )
             return_estimate = sample * volatility_estimate
 
