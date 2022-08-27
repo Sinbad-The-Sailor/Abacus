@@ -56,6 +56,6 @@ Example of 5-dimensional vine coupla (PCC).
 
 #### Extreme Value Theory and Financial Risk Management.
 
-* Avdulaj, K. (2011). The Extreme Value Theory as a Tool to Measure Market Risk, IES Working Paper, No. 26/2011, Charles University in Prague, Institute of Economic Studies (IES), Prague
+* Avdulaj, K. (2011). The Extreme Value Theory as a Tool to Measure Market Risk, IES Working Paper, No. 26/2011, Charles University in Prague, Institute of Economic Studies (IES), Prague. http://hdl.handle.net/10419/83384
 * McNeil A, Frey R, Embrechts, P. (2005). Quantitative Risk Management: Concepts, Techniques, and Tools. 
 * Hull, J. (2018). Risk management and financial institutions. Wiley Finance Series. Wiley.
