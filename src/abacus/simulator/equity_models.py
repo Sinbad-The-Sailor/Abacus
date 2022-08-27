@@ -14,13 +14,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class EquityModel(Model):
-    def __init__(self, initial_parameters, data):
-        super().__init__(initial_parameters, data)
-
-
 # region Equity Models
-class GARCHEquityModel(EquityModel):
+class GARCHEquityModel(Model):
     def __init__(self, initial_parameters, data):
         super().__init__(initial_parameters, data[1:])
         self.last_volatility_estimate = 0
@@ -194,7 +189,7 @@ class GARCHEquityModel(EquityModel):
         return np.array([alpha, beta])
 
 
-class GJRGARCHEquityModel(EquityModel):
+class GJRGARCHEquityModel(Model):
     def __init__(self, initial_parameters, data):
         super().__init__(initial_parameters, data[1:])
         self.last_volatility_estimate = 0
@@ -378,7 +373,7 @@ class GJRGARCHEquityModel(EquityModel):
         return np.array([alpha, beta, gamma])
 
 
-class GJRGARCHNormalPoissonEquityModel(EquityModel):
+class GJRGARCHNormalPoissonEquityModel(Model):
     # param[0] is omega
     # param[1] is alpha
     # param[2] is beta0

@@ -9,13 +9,8 @@ from abacus.config import DEFALUT_STEPS, EPSILON
 from abacus.simulator.model import Model
 
 
-class FXModel(Model):
-    def __init__(self, initial_parameters, data):
-        super().__init__(initial_parameters, data)
-
-
 # region FX Models
-class GARCHFXModel(FXModel):
+class GARCHFXModel(Model):
     def __init__(self, initial_parameters, data):
         super().__init__(initial_parameters, data)
         self.last_volatility_estimate = 0
