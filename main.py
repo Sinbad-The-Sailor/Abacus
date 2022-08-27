@@ -7,9 +7,42 @@ from abacus.instruments import Equity
 from abacus.simulator.forecaster import Forecaster
 from abacus.optimizer.policies import MPCDummy, MPCLogUtility
 from abacus.utilities import email_service
+from abacus.utilities.dataloader import DataLoader
 
 
 def main():
+    # new load data setup.
+    # start, end, interval specified.
+    # list of ric.
+    # from abacus.utilities import data_loader
+    # from abacus.utilities import data_updater
+    # data_updater(interval, end)
+    # load_assets(list of instruments) using data_loader
+    # creating Equity object which has a model which is empty.
+    # return a list of instruments
+
+    start = "2000-01-01"
+    end = "2005-01-01"
+    interval = "wk"
+    instrument_codes = []
+
+    dataloader = DataLoader()
+    instruments = dataloader.load_yahoo_data(instrument_codes)
+
+    def load_insturments_codes():
+        return []
+    instrument_codes = load_data_from_db()
+
+    def load_data(instrument_codes):
+        if True:
+            # free version load_data_yahoo(instrument_codes)
+            pass
+        else:
+            # update_data(instrument_codes)
+            # codes = load_instrument_codes()
+            # load_instruments(codes)
+            pass
+
     # Create stocks
     start = "2005-12-28"
     end = "2022-07-11"
