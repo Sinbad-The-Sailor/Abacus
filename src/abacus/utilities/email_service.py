@@ -7,100 +7,96 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 
-def send_email(msg: str, status: str):
+class EmailService:
     """
-    Connects to email service and sends a message.
-
-    Args:
-        msg (str): Message.
-        status (str): Program status.
+    EmailService to send formatted email as a status update once program is finished.
     """
-    host = os.getenv("EMAIL_HOST")
-    port = int(os.getenv("EMAIL_PORT"))
-    adrs = os.getenv("EMAIL_ADRS")
-    pasw = os.getenv("EMAIL_PASW")
 
-    recipient = adrs
-    sender = adrs
+    def __init__(self, msg, status):
+        self.msg = msg
+        self.status = status
 
-    message = _build_full_msg(msg, status)
+    def send_email(self):
+        """
+        Connects to email service and sends a message.
+        """
+        host = os.getenv("EMAIL_HOST")
+        port = int(os.getenv("EMAIL_PORT"))
+        adrs = os.getenv("EMAIL_ADRS")
+        pasw = os.getenv("EMAIL_PASW")
 
-    with smtplib.SMTP(host=host, port=port) as server:
-        server.starttls()
-        server.login(user=adrs, password=pasw)
-        server.sendmail(sender, recipient, message)
-        server.close()
+        recipient = adrs
+        sender = adrs
 
+        message = self._build_full_msg()
 
-def _build_full_msg(msg: str, status: str) -> str:
-    """
-    Creates full email message with HTML formatting.
+        with smtplib.SMTP(host=host, port=port) as server:
+            server.starttls()
+            server.login(user=adrs, password=pasw)
+            server.sendmail(sender, recipient, message)
+            server.close()
 
-    Args:
-        msg (str): Message to be sent.
-        status (str): Status of program.
+    def _build_full_msg(self) -> str:
+        """
+        Creates full email message with HTML formatting.
 
-    Returns:
-        str: HTML formatted message.
-    """
-    header = _build_header(status)
-    log = _build_log()
-    msg = f"{header}\n\n{msg}\n\n{log}"
-    msg = msg.replace("\n", "<br>")
-    msg = "<pre><code>" + msg + "</code></pre>"
+        Returns:
+            str: HTML formatted message.
+        """
+        header = self._build_header()
+        log = self._build_log()
+        msg = f"{header}\n\n{self.msg}\n\n{log}"
+        msg = msg.replace("\n", "<br>")
+        msg = "<pre><code>" + msg + "</code></pre>"
 
-    message = MIMEMultipart()
-    message["Subject"] = f"Investment Report {status}"
-    html = MIMEText(msg, "html")
-    message.attach(html)
+        message = MIMEMultipart()
+        message["Subject"] = f"Investment Report {self.status}"
+        html = MIMEText(msg, "html")
+        message.attach(html)
 
-    return message.as_string()
+        return message.as_string()
 
+    def _build_header(self) -> str:
+        """
+        Creates the email header including a status code and date.
 
-def _build_header(status: str) -> str:
-    """
-    Creates the email header including a status code and date.
+        Raises:
+            ValueError: Invalid status code.
 
-    Args:
-        status (str): Status code for the program.
+        Returns:
+            str: Formatted header for email.
+        """
+        file = open("src/abacus/utilities/email_header.txt", "r")
+        logo_offset = " " * 11
+        logo = ""
+        for line in file:
+            logo += logo_offset + line.rstrip("\n") + "\n"
+        file.close()
+        date = str(dt.date.today())
+        date_offset = "-" * 32
+        if self.status == "OK":
+            stat_offset = "-" * 32
+        elif self.status == "CRITICAL":
+            stat_offset = "-" * 29
+        else:
+            raise ValueError("Invalid status for email header.")
 
-    Raises:
-        ValueError: Invalid status code.
+        header = f"{logo}\n\n{date_offset} {date} {date_offset}\n{stat_offset} STATUS: {self.status} {stat_offset}"
 
-    Returns:
-        str: Formatted header for email.
-    """
-    file = open("src/abacus/utilities/email_header.txt", "r")
-    logo_offset = " " * 11
-    logo = ""
-    for line in file:
-        logo += logo_offset + line.rstrip("\n") + "\n"
-    file.close()
-    date = str(dt.date.today())
-    date_offset = "-" * 32
-    if status == "OK":
-        stat_offset = "-" * 32
-    elif status == "CRITICAL":
-        stat_offset = "-" * 29
-    else:
-        raise ValueError("Invalid status for email header.")
+        return header
 
-    header = f"{logo}\n\n{date_offset} {date} {date_offset}\n{stat_offset} STATUS: {status} {stat_offset}"
+    @staticmethod
+    def _build_log() -> str:
+        """
+        Reads the .log file and creates a formatted string.
 
-    return header
+        Returns:
+            str: Formatted log for email.
+        """
+        file = open(".log", "r")
+        log = file.read()
+        file.close()
+        offset = "-" * 35
+        log = f"{offset} .LOG {offset}\n{log}"
 
-
-def _build_log() -> str:
-    """
-    Reads the .log file and creates a formatted string.
-
-    Returns:
-        str: Formatted log for email.
-    """
-    file = open(".log", "r")
-    log = file.read()
-    file.close()
-    offset = "-" * 35
-    log = f"{offset} .LOG {offset}\n{log}"
-
-    return log
+        return log

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from ast import Eq
 import os
 import pymysql
 
@@ -14,8 +13,12 @@ logger = logging.getLogger(__name__)
 
 
 class DataLoader:
+    """
+    Data loading class to fetch and market and portfolio data from different providers.
+    """
+
     def __init__(self, start, end, interval):
-        self._has_connection = False
+        self.has_connection = False
         self.start = start
         self.end = end
         self.interval = interval
@@ -57,6 +60,34 @@ class DataLoader:
 
         return instruments
 
+    def _yahoo_instrument_builder(
+        self, type: str, code: str, currency: str, start: str, end: str, interval: str
+    ) -> Instrument:
+        """
+        Creates a instrument instance depending on type specified.
+
+        Args:
+            type (str): Type of instrument.
+            code (str): Code for yfiance identification.
+            currency (str): Local currency of instrument.
+            start (str): Start date.
+            end (str): End date.
+            interval (str): Time interval.
+
+        Raises:
+            ValueError: If instrument type is unrecognized.
+
+        Returns:
+            Instrument: Built instrument.
+        """
+
+        if InstrumentType[type].name == "Equity":
+            return Equity(code, Currency[currency].value, start, end, interval)
+        elif InstrumentType[type].name == "FX":
+            return FX(code, Currency[currency].value, start, end, interval)
+        else:
+            raise ValueError("Instrument Type not recognized.")
+
     # Using AWS / DB connection with appropriate schema.
     def create_connection(self) -> pymysql.Connection:
         """
@@ -66,7 +97,23 @@ class DataLoader:
         Returns:
             pymysql.Connection:
         """
-        pass
+        try:
+            connection = pymysql.connect(
+                host=os.getenv("AWS_DB_HOST"),
+                port=int(os.getenv("AWS_DB_PORT")),
+                user=os.getenv("AWS_DB_USER"),
+                passwd=os.getenv("AWS_DB_PASW"),
+                db=os.getenv("AWS_DB_NAME"),
+            )
+            cursor = connection.cursor()
+            sql = "DESCRIBE Assets"
+            print(cursor.execute(sql))
+            print("[+] RDS Connection Successful")
+            connection.close()
+        except Exception as e:
+            print(f"[-] RDS Connection Failed: {e}")
+
+        return None
 
     def load_instrument_codes():
         pass
@@ -96,34 +143,6 @@ class DataLoader:
         Returns:
             bool: connection status.
         """
-        if self._has_connection:
+        if self.has_connection:
             return True
         return False
-
-    def _yahoo_instrument_builder(
-        self, type: str, code: str, currency: str, start: str, end: str, interval: str
-    ) -> Instrument:
-        """
-        Creates a instrument instance depending on type specified.
-
-        Args:
-            type (str): Type of instrument.
-            code (str): Code for yfiance identification.
-            currency (str): Local currency of instrument.
-            start (str): Start date.
-            end (str): End date.
-            interval (str): Time interval.
-
-        Raises:
-            ValueError: If instrument type is unrecognized.
-
-        Returns:
-            Instrument: Built instrument.
-        """
-
-        if InstrumentType[type].name == "Equity":
-            return Equity(code, Currency[currency].value, start, end, interval)
-        elif InstrumentType[type].name == "FX":
-            return FX(code, Currency[currency].value, start, end, interval)
-        else:
-            raise ValueError("Instrument Type not recognized.")

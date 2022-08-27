@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-import os
-import pymysql
+from tkinter import E
 import numpy as np
 
 from abacus.simulator.forecaster import Forecaster
 from abacus.optimizer.policies import MPCDummy, MPCLogUtility
-from abacus.utilities import email_service
+from abacus.utilities.email_service import EmailService
 from abacus.utilities.dataloader import DataLoader
 
 
@@ -42,7 +41,8 @@ def main():
     print(mpc_util.solution)
     print("==========")
 
-    email_service.send_email(msg=str(mpc_util.solution), status="OK")
+    email_service = EmailService(msg=str(mpc_util.solution), status="OK")
+    email_service.send_email()
 
 
 if __name__ == "__main__":
@@ -87,21 +87,3 @@ def test_main():
         # ... wait until next period (1 day, 2 day, 1 week)
         # if any errors occur, send email with logs and stop the process.
         pass
-
-
-def aws_database_connection():
-    try:
-        connection = pymysql.connect(
-            host=os.getenv("AWS_DB_HOST"),
-            port=int(os.getenv("AWS_DB_PORT")),
-            user=os.getenv("AWS_DB_USER"),
-            passwd=os.getenv("AWS_DB_PASW"),
-            db=os.getenv("AWS_DB_NAME"),
-        )
-        cursor = connection.cursor()
-        sql = "DESCRIBE Assets"
-        print(cursor.execute(sql))
-        print("[+] RDS Connection Successful")
-        connection.close()
-    except Exception as e:
-        print(f"[-] RDS Connection Failed: {e}")
