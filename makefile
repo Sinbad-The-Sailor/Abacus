@@ -1,4 +1,4 @@
-all: run
+all: lint run
 
 install:
 	@pip install --upgrade pip
@@ -6,13 +6,12 @@ install:
 
 # TODO: run .env file to load environment variables.
 run:
-	@clear
 	. venv/bin/activate
 	python main.py
 
 # TODO: should lint src and working directory.
 lint:
-	@black *.py
+	@black .
 
 # TODO: should remove all .pyc and pycache folders.
 clean:

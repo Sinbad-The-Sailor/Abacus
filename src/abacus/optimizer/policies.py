@@ -13,7 +13,7 @@ class MPC(ABC):
     ):
 
         self.initial_portfolio = inital_portfolio
-
+        self.solution = None
         self.shape = forecast.shape
 
         # Adding cash as an asset.
@@ -35,6 +35,17 @@ class MPC(ABC):
     @abstractmethod
     def _build_constraints(self):
         pass
+
+    def _has_solution(self) -> bool:
+        """
+        Checks if model has a solution.
+
+        Returns:
+            bool: solution status.
+        """
+        if self.solution is not None:
+            return True
+        return False
 
 
 class MPCDummy(MPC):

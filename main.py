@@ -34,8 +34,8 @@ def main():
     inital_portfolio = np.insert(np.zeros(len(instruments)), 0, 1)
     mpc = MPCDummy(forecast=forecast, inital_portfolio=inital_portfolio)
     mpc.optimize()
-    print(mpc.solution)
 
+    print(mpc.solution)
     print("==========")
     mpc_util = MPCLogUtility(forecast=forecast, inital_portfolio=inital_portfolio)
     mpc_util.optimize()
