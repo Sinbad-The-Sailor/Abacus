@@ -54,6 +54,12 @@ Example of 5-dimensional vine coupla (PCC).
 * Zumbach, G. (2000). The Pitfalls in Fitting Garch(1,1) Processes. In: Dunis, C.L. (eds) Advances in Quantitative Asset Management. Studies in Computational Finance, vol 1. Springer, Boston, MA. https://doi.org/10.1007/978-1-4615-4389-3_8
 * Sundström, D. (2017). Automatized GARCH parameter estimation (Dissertation). Retrieved from http://urn.kb.se/resolve?urn=urn:nbn:se:kth:diva-213725
 
+#### Copulas, Copula based Forecasting and Vine Copulas.
+
+* Roger, N. (2006). An Introduction to Copulas (Springer Series in Statistics). Springer-Verlag, Berlin, Heidelberg.
+* Simard, C. & Rémillard, B. (2015). Forecasting time series with multivariate copulas. Dependence Modeling, 3(1). https://doi.org/10.1515/demo-2015-0005
+* Czado, C. (2019). Analyzing Dependent Data with Vine Copulas: A Practical Guide With R. Lecture Notes in Statistics. Springer International Publishing.
+
 #### Extreme Value Theory and Financial Risk Management.
 
 * Avdulaj, K. (2011). The Extreme Value Theory as a Tool to Measure Market Risk, IES Working Paper, No. 26/2011, Charles University in Prague, Institute of Economic Studies (IES), Prague. http://hdl.handle.net/10419/83384
