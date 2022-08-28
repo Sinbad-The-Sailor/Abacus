@@ -2,25 +2,7 @@
 import numpy as np
 
 from abacus.instruments import Equity, Instrument, FX
-from abacus.simulator.equity_models import GJRGARCHEquityModel
-
-
-class ModelFactory:
-    def __init__():
-        pass
-
-    def build_model():
-        pass
-
-    def run_model_selection():
-        # run different models and check which is the best (CV).
-        pass
-
-    def equity_model_factory(equity: Equity):
-        initial_parametes_gjr = np.array([0.05, 0.80, 0.001])
-        initial_parametes_gar = np.array([0.05, 0.80])
-        model = GJRGARCHEquityModel(initial_parametes_gjr, equity.log_return_history)
-        equity.set_model(model=model)
+from abacus.simulator.models import GARCHModel, GJRGARCHModel
 
 
 class ModelSelector:
@@ -31,34 +13,72 @@ class ModelSelector:
     Currently using AIC (Akaike Information Criterion).
     """
 
-    ELIGABLE_EQUITY_MODELS = []
-    ELIGABLE_FX_MODELS = []
-
     def __init__(self, instruments: list[Instrument]):
         self.instruments = instruments
-
-    def build_model(self, instrument):
-        if isinstance(instrument, Equity):
-            self._build_equity(instrument)
-        elif isinstance(instrument, FX):
-            self._build_FX(instrument)
 
     def build_all(self):
         """
         Applies a model builder for every instrument given.
         """
-        for instrument in self.instrument:
+        for instrument in self.instruments:
             self.build_model(instrument)
 
-    def _build_equity(self):
-        minimal_aic = None
-        for model in self.ELIGABLE_EQUITY_MODELS:
-            pass
+    def build_model(self, instrument: Instrument):
+        """
+        Matches type of instrument with appropriate builder.
 
-    def _build_FX(self):
-        minimal_aic = None
-        for model in self.ELIGABLE_FX_MODELS:
-            pass
+        Args:
+            instrument (Instrument): target instrument
+        """
+        if isinstance(instrument, Equity):
+            self._build_equity(instrument)
+        elif isinstance(instrument, FX):
+            self._build_FX(instrument)
 
-    def aic(self, likelihood, parameters):
-        pass
+    def _build_equity(self, instrument: Equity):
+        """
+        Finds and builds an Equity model for a Equity instrument. Can only use
+        Equity admissable models.
+
+        Args:
+            instrument (Equity): input Equity instrument.
+        """
+        minimal_aic = np.Inf
+        minimal_model = None
+
+        gjr_model = GJRGARCHModel(data=instrument.log_return_history)
+        gjr_model.fit_model()
+        if gjr_model.aic() < minimal_aic:
+            minimal_aic = gjr_model.aic()
+            minimal_model = gjr_model
+        gar_model = GARCHModel(data=instrument.log_return_history)
+        gar_model.fit_model()
+        if gar_model.aic() < minimal_aic:
+            minimal_aic = gar_model.aic()
+            minimal_model = gar_model
+
+        instrument.set_model(minimal_model)
+
+    def _build_FX(self, instrument: FX):
+        """
+        Finds and builds an FX model for a FX instrument. Can only use
+        FX admissable models.
+
+        Args:
+            instrument (FX): input FX instrument.
+        """
+        minimal_aic = np.Inf
+        minimal_model = None
+
+        gjr_model = GJRGARCHModel(data=instrument.log_return_history)
+        gjr_model.fit_model()
+        if gjr_model.aic() < minimal_aic:
+            minimal_aic = gjr_model.aic()
+            minimal_model = gjr_model
+        gar_model = GARCHModel(data=instrument.log_return_history)
+        gar_model.fit_model()
+        if gar_model.aic() < minimal_aic:
+            minimal_aic = gar_model.aic()
+            minimal_model = gar_model
+
+        instrument.set_model(minimal_model)

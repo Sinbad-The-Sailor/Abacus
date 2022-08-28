@@ -2,7 +2,7 @@
 import numpy as np
 import copulae as cop
 import pyvinecopulib as pv
-from abacus.simulator.model_factory import ModelFactory
+from abacus.simulator.model_factory import ModelSelector
 
 from abacus.instruments import Instrument
 from abacus.config import DEFALUT_STEPS, VINE_COPULA_FAMILIES, DEFALUT_SIMULATIONS
@@ -11,7 +11,7 @@ from abacus.config import DEFALUT_STEPS, VINE_COPULA_FAMILIES, DEFALUT_SIMULATIO
 class Simulator:
     def __init__(self, instruments: list[Instrument]):
         self.instruments = instruments
-        self.model_factory = ModelFactory
+        self.model_selector = ModelSelector(instruments=instruments)
 
         try:
             self.number_of_instruments = len(instruments)
@@ -26,12 +26,13 @@ class Simulator:
             self.value = -1
 
         self.find_models()
-        self.fit_models()
         self.fit_portfolio()
 
     def find_models(self):
-        for instrument in self.instruments:
-            self.model_factory.equity_model_factory(instrument)
+        self.model_selector.build_all()
+
+        # for instrument in self.instruments:
+        #    self.model_factory.equity_model_factory(instrument)
 
     def fit_models(self):
         # Check if all instruments has a model.

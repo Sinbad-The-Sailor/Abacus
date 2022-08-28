@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import numpy as np
 import pyvinecopulib as pv
 
 EPSILON = 1e-8
@@ -15,3 +16,6 @@ VINE_COPULA_FAMILIES = [
     pv.BicopFamily.bb7,
     pv.BicopFamily.bb8,
 ]
+INITIAL_GARCH_PARAMETERS = np.array([0.05, 0.80])
+INITIAL_GJRGARCH_PARAMETERS = np.array([0.05, 0.80, 0.001])
+INITIAL_NPM_PARAMETERS = np.array([0.0, 1.0, 0.0, 0.0, 0.0])

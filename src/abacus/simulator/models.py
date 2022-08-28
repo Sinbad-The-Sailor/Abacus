@@ -5,7 +5,12 @@ from scipy.optimize import minimize
 from scipy.stats import norm
 from matplotlib import pyplot as plt
 
-from abacus.config import DEFALUT_STEPS
+from abacus.config import (
+    DEFALUT_STEPS,
+    INITIAL_GARCH_PARAMETERS,
+    INITIAL_GJRGARCH_PARAMETERS,
+    INITIAL_NPM_PARAMETERS,
+)
 from abacus.utilities.norm_poisson_mixture import npm
 from abacus.simulator.model import Model, NoParametersError
 
@@ -14,14 +19,15 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-# region Equity Models
-class GARCHEquityModel(Model):
-    def __init__(self, initial_parameters, data):
-        super().__init__(initial_parameters, data[1:])
+class GARCHModel(Model):
+    def __init__(self, data):
+        super().__init__(data, initial_parameters=INITIAL_GARCH_PARAMETERS)
         self.last_volatility_estimate = 0
         self.volatility_sample = None
         self.inital_volatility_esimate = np.std(self.data[:20])
         self.long_run_volatility_estimate = np.std(self.data)
+        self.log_likelihood_value = None
+        self.number_of_parameters = 2
 
     def run_simulation(self, number_of_steps: int = DEFALUT_STEPS) -> np.array:
 
@@ -87,7 +93,7 @@ class GARCHEquityModel(Model):
         self.last_volatility_estimate = self._generate_volatility(
             self.optimal_parameters
         )[-1]
-
+        self.log_likelihood_value = solution.fun
         print(
             f" {self._uncondition_parameters(self.optimal_parameters)} {solution.success}"
         )
@@ -189,13 +195,15 @@ class GARCHEquityModel(Model):
         return np.array([alpha, beta])
 
 
-class GJRGARCHEquityModel(Model):
-    def __init__(self, initial_parameters, data):
-        super().__init__(initial_parameters, data[1:])
+class GJRGARCHModel(Model):
+    def __init__(self, data):
+        super().__init__(data, initial_parameters=INITIAL_GJRGARCH_PARAMETERS)
         self.last_volatility_estimate = 0
         self.volatility_sample = None
         self.inital_volatility_esimate = np.std(self.data[:20])
         self.long_run_volatility_estimate = np.std(self.data)
+        self.log_likelihood_value = None
+        self.number_of_parameters = 3
 
     def run_simulation(self, number_of_steps: int = DEFALUT_STEPS) -> np.array:
         result = self._generate_simulation(number_of_steps=number_of_steps, isVol=False)
@@ -256,9 +264,9 @@ class GJRGARCHEquityModel(Model):
         self.last_volatility_estimate = self._generate_volatility(
             self.optimal_parameters
         )[-1]
-
+        self.log_likelihood_value = solution.fun
         print(
-            f" {self._uncondition_parameters(self.optimal_parameters)} {solution.success}"
+            f" {self._uncondition_parameters(self.optimal_parameters)} {solution.success} {solution.fun}"
         )
         if not solution.success:
             logger.warning("minimizer not succesful.")
@@ -373,7 +381,7 @@ class GJRGARCHEquityModel(Model):
         return np.array([alpha, beta, gamma])
 
 
-class GJRGARCHNormalPoissonEquityModel(Model):
+class GJRGARCHNormalPoissonModel(Model):
     # param[0] is omega
     # param[1] is alpha
     # param[2] is beta0
@@ -382,8 +390,8 @@ class GJRGARCHNormalPoissonEquityModel(Model):
     # param[5] is kappa
     # param[6] is lambda
 
-    def __init__(self, initial_parameters, data):
-        super().__init__(initial_parameters, data)
+    def __init__(self, data):
+        super().__init__(data, initial_parameters=INITIAL_NPM_PARAMETERS)
         self.last_volatility_estimate = 0
         self.volatility_sample = None
 
@@ -440,6 +448,3 @@ class GJRGARCHNormalPoissonEquityModel(Model):
             {"type": "ineq", "fun": lambda x: x[6]},
         ]
         return constraints
-
-
-# endregion
