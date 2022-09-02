@@ -1,4 +1,15 @@
+<div align="center">
+
 # Abacus
+
+</div>
+
+> Automatic sequential investment decisons.
+> Currently only working as a risk tool for ETF portfolios and scenario generation.
+>
+>
+
+
 <div align="center">
 
 ![GitHub](https://img.shields.io/github/license/sinbad-the-sailor/abacus?color=%23002D5A&style=flat-square)
@@ -8,12 +19,21 @@
 
 </div>
 
+### **Table of Contents**
 
-Sequential investment decisions.
+### **Introduction**
 
-Currently only working as a risk tool for ETF portfolios and scenario generation.
+### **Architecture**
 
-### **Equity Model**
+### **Valuation**
+
+### **Multi-Period Optimzation**
+
+### **Risk Management**
+
+### **Forecasting**
+
+##### **Equity Model**
 Stocks and other equities are model using a modified version of a discretized Merton-Jump-Diffusion SDE. Volatility is updated using a GJR-GARCH(1,1) model, and innovations within the model have a generalized Student's t distribution.
 
 <p align="center">
@@ -32,7 +52,7 @@ The conditional return distribution follow a so-called Student-Poisson-Mixture w
 <img width="559" alt="image" src="https://user-images.githubusercontent.com/62723280/164237856-57a466a2-0a65-4e48-bfb3-5c6181605706.png">
 </p>
 
-### **Vine Copula Dependency Strucutre**
+##### **Vine Copula Dependency Strucutre**
 Vine copulas are derived from the so-called pair-copula-construction (PCC). This is done by decomposing a multivariate distribution (pdf), and repetedly applying Sklar's theorem. One can describe the pair construction using the graph theoreical concept of Vines.
 
 Example of 5-dimensional vine coupla (PCC).
