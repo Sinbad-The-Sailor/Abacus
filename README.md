@@ -69,6 +69,14 @@ Example of 5-dimensional vine coupla (PCC).
 * Oprisor R, Kwon R. Multi-Period Portfolio Optimization with Investor Views under Regime Switching. Journal of Risk and Financial Management. 2021; 14(1):3. https://doi.org/10.3390/jrfm14010003
 * Fremlin, S. (2019). Online intra-day portfolio optimization using regime based models (Dissertation). Retrieved from http://lup.lub.lu.se/student-papers/record/8972097
 
+#### Time Series Models.
+
+* Hamilton, J. D. (1994). Time Series Analysis. Princeton University Press. 
+
+#### Nonlinear Autoregressive model with Neural Networks.
+
+* Benrhmach G, Namir K, Namir A, Bouyaghroumni J. (2020). "Nonlinear Autoregressive Neural Network and Extended Kalman Filters for Prediction of Financial Time Series". Journal of Applied Mathematics. vol 2020. Article ID 5057801. https://doi.org/10.1155/2020/5057801
+
 #### Variance Stabalizing and Preconditioning for GARCH/GJR-GARCH models.
 
 * Zumbach, G. (2000). The Pitfalls in Fitting Garch(1,1) Processes. In: Dunis, C.L. (eds) Advances in Quantitative Asset Management. Studies in Computational Finance, vol 1. Springer, Boston, MA. https://doi.org/10.1007/978-1-4615-4389-3_8
