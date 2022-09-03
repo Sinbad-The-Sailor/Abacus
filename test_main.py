@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from abacus.simulator.new_model_selection import MA
+from abacus.simulator.ma import MA
 from abacus.utilities.dataloader import DataLoader
 
 from matplotlib import pyplot as plt
@@ -17,7 +17,6 @@ def test_main():
     dataloader = DataLoader(start=start, end=end, interval=interval)
     instruments = dataloader.load_yahoo_data(instrument_specification)
 
-
     print("Fitting models...")
     # Testing MA model
     instrument = instruments[0]
@@ -28,7 +27,6 @@ def test_main():
     # plt.plot(model._generate_residuals(model.solution))
     # plt.plot(range(len(instrument.log_return_history), len(instrument.log_return_history)+1500), model.run_simulation(1500))
     # plt.show()
-
 
     # historical_prices = (np.exp(np.cumsum(instrument.log_return_history))*instrument.price_history[0])
     # prices = np.exp(np.cumsum(model.run_simulation(152)))*historical_prices[-1]
@@ -41,41 +39,6 @@ def test_main():
     # plt.plot(range(len(historical_prices), len(historical_prices)+152), np.exp(np.cumsum(model.run_simulation(152)))*historical_prices[-1])
     # plt.plot(range(len(historical_prices), len(historical_prices)+152), np.exp(np.cumsum(model.run_simulation(152)))*historical_prices[-1])
     # plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 if __name__ == "__main__":

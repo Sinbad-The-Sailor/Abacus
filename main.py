@@ -3,7 +3,6 @@ import numpy as np
 
 from abacus.simulator.forecaster import Forecaster
 from abacus.optimizer.policies import MPCDummy, MPCLogUtility
-from abacus.simulator.new_model_selection import Model
 from abacus.utilities.email_service import EmailService
 from abacus.utilities.dataloader import DataLoader
 
