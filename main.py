@@ -3,11 +3,13 @@ import numpy as np
 
 from abacus.simulator.forecaster import Forecaster
 from abacus.optimizer.policies import MPCDummy, MPCLogUtility
+from abacus.simulator.new_model_selection import Model
 from abacus.utilities.email_service import EmailService
 from abacus.utilities.dataloader import DataLoader
 
 
 def main():
+    # Loading configurations...
     start = "2005-12-28"
     end = "2022-07-11"
     interval = "wk"
@@ -22,25 +24,26 @@ def main():
         "KO": {"Currency": "USD", "Type": "Equity"},
     }
 
-    # Load data from yahoo.
+    # Loading data...
     dataloader = DataLoader(start=start, end=end, interval=interval)
     instruments = dataloader.load_yahoo_data(instrument_specification)
 
+    # Forecasting returns...
     forc = Forecaster(instruments=instruments, number_of_steps=5)
     forecast = forc.forecast_returns()
 
+    # Optimizing portfolio...
     inital_portfolio = np.insert(np.zeros(len(instruments)), 0, 1)
-
     mpc = MPCDummy(forecast=forecast, inital_portfolio=inital_portfolio)
     mpc.optimize()
     mpc_util = MPCLogUtility(forecast=forecast, inital_portfolio=inital_portfolio)
     mpc_util.optimize()
-
     print(mpc.solution)
     print("==========")
     print(mpc_util.solution)
     print("==========")
 
+    # Sending updated information...
     email_service = EmailService(msg=str(mpc_util.solution), status="OK")
     email_service.send_email()
 
