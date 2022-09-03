@@ -21,12 +21,10 @@ def test_main():
     print("Fitting models...")
     # Testing MA model
     instrument = instruments[0]
-    model = MA(np.array(instrument.log_return_history), 25)
+    model = MA(np.array(instrument.log_return_history), 2)
     print(model.fit_model())
 
-    print(model.transform_to_uniform())
-    plt.plot(model.transform_to_true(model.transform_to_uniform()))
-    plt.show()
+    print(model.mse)
     # plt.plot(model._generate_residuals(model.solution))
     # plt.plot(range(len(instrument.log_return_history), len(instrument.log_return_history)+1500), model.run_simulation(1500))
     # plt.show()

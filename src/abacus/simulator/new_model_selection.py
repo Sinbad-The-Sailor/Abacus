@@ -43,9 +43,6 @@ class Model(ABC):
     def transform_to_true(self) -> np.array:
         pass
 
-    @abstractmethod
-    def step_prediction(self) -> np.array:
-        pass
 
 
 class MA(Model):
@@ -99,7 +96,7 @@ class MA(Model):
 
     @property
     def mse(self) -> float:
-        pass
+        return np.sum(self._generate_residuals(self.solution) ** 2)
 
 
     def run_simulation(self, number_of_steps: int) -> np.array:
@@ -143,9 +140,6 @@ class MA(Model):
         mu = self.solution[0]
         sigma = self.solution[1]
         theta = self.solution[2:]
-
-        print(theta.shape)
-        print(current_residuals.shape)
 
         for i in range(0, number_of_observations):
             residual = norm.ppf(uniform_sample[i])
@@ -195,8 +189,6 @@ class MA(Model):
 
         return residuals
 
-    def step_prediction():
-        pass
 
 
 
