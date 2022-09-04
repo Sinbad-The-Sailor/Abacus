@@ -36,3 +36,7 @@ class Model(ABC):
     @abstractmethod
     def transform_to_uniform(self) -> np.array:
         pass
+
+
+class StationarityError(ValueError):
+    pass

@@ -3,7 +3,7 @@ import numpy as np
 
 from numpy.linalg import inv
 from scipy.stats import norm
-from abacus.simulator.model_new import Model
+from abacus.simulator.model_new import Model, StationarityError
 
 
 class AR(Model):
@@ -35,15 +35,17 @@ class AR(Model):
         y = self.data[lag:]
         x = []
         for i in range(lag):
-            x.append(self.data[lag-i-1:number_of_observations-i-1])
+            x.append(self.data[lag - i - 1 : number_of_observations - i - 1])
         x = np.stack(x).T
         phi = inv(x.T @ x) @ x.T @ y
 
-        parameters = np.zeros(self.p+2)
+        parameters = np.zeros(self.p + 2)
         parameters[0] = np.mean(self.data)
         parameters[1] = np.std(self.data)
         parameters[2:] = phi
+
         self.solution = parameters
+        self._check_unit_roots()
 
         return parameters
 
@@ -64,15 +66,19 @@ class AR(Model):
             np.array: simulated process.
         """
         simulated_process = np.zeros(number_of_steps)
-        current_regression_values = self.data[-self.p:]
+        current_regression_values = self.data[-self.p :]
         mu = self.solution[0]
         sigma = self.solution[1]
         phi = self.solution[2:]
 
         for i in range(number_of_steps):
             residual = np.random.normal()
-            simulated_process[i] = mu + phi.T @ current_regression_values + sigma * residual
-            current_regression_values = np.insert(current_regression_values[:-1], 0, simulated_process[i])
+            simulated_process[i] = (
+                mu + phi.T @ current_regression_values + sigma * residual
+            )
+            current_regression_values = np.insert(
+                current_regression_values[:-1], 0, simulated_process[i]
+            )
 
         return simulated_process
 
@@ -90,15 +96,19 @@ class AR(Model):
         """
         number_of_observations = len(uniform_sample)
         simulated_process = np.zeros(number_of_observations)
-        current_regression_values = self.data[-self.p:]
+        current_regression_values = self.data[-self.p :]
         mu = self.solution[0]
         sigma = self.solution[1]
         phi = self.solution[2:]
 
         for i in range(number_of_observations):
             residual = norm.ppf(uniform_sample[i])
-            simulated_process[i] = mu + phi.T @ current_regression_values + sigma * residual
-            current_regression_values = np.insert(current_regression_values[:-1], 0, simulated_process[i])
+            simulated_process[i] = (
+                mu + phi.T @ current_regression_values + sigma * residual
+            )
+            current_regression_values = np.insert(
+                current_regression_values[:-1], 0, simulated_process[i]
+            )
 
         return simulated_process
 
@@ -112,37 +122,35 @@ class AR(Model):
         """
         number_of_observations = len(self.data)
         uniform_sample = np.zeros(number_of_observations)
-        current_regression_values = self.data[:self.p]
+        current_regression_values = self.data[: self.p]
         mu = self.solution[0]
         sigma = self.solution[1]
         phi = self.solution[2:]
 
         for i in range(number_of_observations):
-            if i <= self.p-1:
-                uniform_sample[i] = norm.cdf((self.data[i]-mu)/sigma)
+            if i <= self.p - 1:
+                uniform_sample[i] = norm.cdf((self.data[i] - mu) / sigma)
             else:
-                uniform_sample[i] = norm.cdf((self.data[i] - mu - phi.T @ current_regression_values)/sigma)
-                current_regression_values = np.insert(current_regression_values[:-1], 0, self.data[i])
+                uniform_sample[i] = norm.cdf(
+                    (self.data[i] - mu - phi.T @ current_regression_values) / sigma
+                )
+                current_regression_values = np.insert(
+                    current_regression_values[:-1], 0, self.data[i]
+                )
 
         return uniform_sample
-
-    def _characteristic_roots(self, coefficients: np.array) -> np.array:
-        """
-        Calculates the roots of the AR(p) characteristic polynomial to check for non-weak-stationarity.
-
-        Args:
-            coefficients (np.array): coefficients of the polynomial.
-
-        Returns:
-            np.array: roots of the polynomial.
-        """
-        pass
 
     def _check_unit_roots(self) -> None:
         """
         Checks for unit roots outside the unit circle.
 
         Raises:
-            ValueError: raised if unit root is found.
+            StationarityError: raised if unit root is found.
         """
-        raise ValueError("Stationarity encountered.")
+        coefficients = np.ones(self.p + 1)
+        coefficients[1:] = self.solution[2:]
+        roots = np.roots(coefficients)
+
+        for root in roots:
+            if np.abs(root) >= 1:
+                raise StationarityError("non-stationarity encountered.")

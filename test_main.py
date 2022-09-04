@@ -21,7 +21,7 @@ def test_main():
     print("Fitting models...")
     # Testing MA model
     instrument = instruments[0]
-    #model = MA(np.array(instrument.log_return_history), 2)
+    # model = MA(np.array(instrument.log_return_history), 2)
     model = AR(np.array(instrument.log_return_history), 20)
     print(model.fit_model())
     plt.plot(model.run_simulation(125))
@@ -29,6 +29,8 @@ def test_main():
     print(model.transform_to_uniform())
     plt.plot(model.transform_to_true(model.transform_to_uniform()))
     plt.show()
+
+    model._check_unit_roots()
 
     # plt.plot(model._generate_residuals(model.solution))
     # plt.plot(range(len(instrument.log_return_history), len(instrument.log_return_history)+1500), model.run_simulation(1500))
