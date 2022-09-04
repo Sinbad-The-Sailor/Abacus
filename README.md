@@ -5,7 +5,7 @@
 </div>
 
 > Automatic sequential investment decisons.
-> Currently only making bad decisions. Work in process.
+> Currently only making bad decisions. Work in progress.
 >
 >
 
