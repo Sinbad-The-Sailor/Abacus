@@ -4,7 +4,7 @@
 
 </div>
 
-> Automatic sequential investment decisons.
+> Automatic sequential investment decisions.
 > Currently only making bad decisions. Work in progress.
 >
 >
