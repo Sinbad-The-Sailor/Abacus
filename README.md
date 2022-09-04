@@ -5,7 +5,7 @@
 </div>
 
 > Automatic sequential investment decisons.
-> Currently only working as a risk tool for ETF portfolios and scenario generation.
+> Currently only making bad decisions. Work in process.
 >
 >
 
@@ -20,16 +20,21 @@
 </div>
 
 ### **Table of Contents**
+- [Getting Started](#getting-started)
+- [Architecture](#architecture)
+- [Portfolio Optimization](#portfolio-optimization)
+- [Forecasting](#forecasting)
+    - [Equity Models](#equity-model)
+    - [Vine Copula Dependency Structure](#vine-copula-dependency-strucutre)
+- [Valuation](#valuation)
+- [Risk Management](#risk-management)
+- [References](#references)
 
-### **Introduction**
+### **Getting Started**
 
 ### **Architecture**
 
-### **Valuation**
-
-### **Multi-Period Optimzation**
-
-### **Risk Management**
+### **Portfolio Optimization**
 
 ### **Forecasting**
 
@@ -60,8 +65,12 @@ Example of 5-dimensional vine coupla (PCC).
 <img width="403" alt="image" src="https://user-images.githubusercontent.com/62723280/169716182-d73f6456-3f21-4074-b24c-bc94de7272f0.png">
 </p>
 
-### **References**
----
+### **Valuation**
+
+### **Risk Management**
+
+### **References** 
+---------------------------------------
 
 #### Model Predictive Control for Multi-Period Portfolio Optimization.
 
@@ -69,7 +78,7 @@ Example of 5-dimensional vine coupla (PCC).
 * Oprisor R, Kwon R. Multi-Period Portfolio Optimization with Investor Views under Regime Switching. Journal of Risk and Financial Management. 2021; 14(1):3. https://doi.org/10.3390/jrfm14010003
 * Fremlin, S. (2019). Online intra-day portfolio optimization using regime based models (Dissertation). Retrieved from http://lup.lub.lu.se/student-papers/record/8972097
 
-#### Time Series Models.
+#### AR, MA, and ARMA Time Series Models.
 
 * Hamilton, J. D. (1994). Time Series Analysis. Princeton University Press. 
 
