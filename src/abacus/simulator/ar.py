@@ -2,6 +2,7 @@
 import numpy as np
 
 from numpy.linalg import inv
+from scipy.stats import norm
 from abacus.simulator.model_new import Model
 
 
@@ -70,7 +71,21 @@ class AR(Model):
         pass
 
     def transform_to_uniform(self) -> np.array:
-        pass
+        number_of_observations = len(self.data)
+        uniform_sample = np.zeros(number_of_observations)
+        current_regression_values = self.data[:self.p]
+        mu = self.solution[0]
+        sigma = self.solution[1]
+        phi = self.solution[2:]
+
+        for i in range(number_of_observations):
+            if i <= self.p-1:
+                uniform_sample[i] = norm.cdf((self.data[i]-mu)/sigma)
+            else:
+                uniform_sample[i] = norm.cdf((self.data[i] - mu - phi.T @ current_regression_values)/sigma)
+                current_regression_values = np.insert(current_regression_values[:-1], 0, self.data[i])
+
+        return uniform_sample
 
     def _characteristic_roots(self, solution: np.array) -> np.array:
         pass

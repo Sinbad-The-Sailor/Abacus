@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 from abacus.simulator.ma import MA
+from abacus.simulator.ar import AR
 from abacus.utilities.dataloader import DataLoader
 
 from matplotlib import pyplot as plt
@@ -20,10 +21,13 @@ def test_main():
     print("Fitting models...")
     # Testing MA model
     instrument = instruments[0]
-    model = MA(np.array(instrument.log_return_history), 2)
+    #model = MA(np.array(instrument.log_return_history), 2)
+    model = AR(np.array(instrument.log_return_history), 20)
     print(model.fit_model())
+    plt.plot(model.run_simulation(125))
+    plt.show()
+    print(model.transform_to_uniform())
 
-    print(model.mse)
     # plt.plot(model._generate_residuals(model.solution))
     # plt.plot(range(len(instrument.log_return_history), len(instrument.log_return_history)+1500), model.run_simulation(1500))
     # plt.show()
