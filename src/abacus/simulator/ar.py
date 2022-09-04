@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import re
 import numpy as np
 
 from numpy.linalg import inv
@@ -20,7 +21,8 @@ class AR(Model):
 
     @property
     def mse(self) -> float:
-        pass
+        number_of_observations = len(self.data) - self.p
+        return np.sum(self._generate_residuals(self.solution) ** 2) / number_of_observations
 
     def fit_model(self) -> np.array:
         """
@@ -122,23 +124,41 @@ class AR(Model):
         """
         number_of_observations = len(self.data)
         uniform_sample = np.zeros(number_of_observations)
-        current_regression_values = self.data[: self.p]
+        residuals = self._generate_residuals(self.solution)
         mu = self.solution[0]
         sigma = self.solution[1]
-        phi = self.solution[2:]
 
         for i in range(number_of_observations):
             if i <= self.p - 1:
                 uniform_sample[i] = norm.cdf((self.data[i] - mu) / sigma)
             else:
                 uniform_sample[i] = norm.cdf(
-                    (self.data[i] - mu - phi.T @ current_regression_values) / sigma
-                )
-                current_regression_values = np.insert(
-                    current_regression_values[:-1], 0, self.data[i]
+                    (self.data[i] - residuals[i-self.p]) / sigma
                 )
 
         return uniform_sample
+
+    def _generate_residuals(self, params: np.array) -> np.array:
+        """
+        Helper method to recursivley generate residuals based on some set of values for params.
+
+        Args:
+            params (np.array): parameters of the model.
+
+        Returns:
+            np.array: residuals calculated based of the guessed parameters.
+        """
+        number_of_observations = len(self.data)
+        residuals = np.zeros(number_of_observations-self.p)
+        current_regression_values = self.data[:self.p]
+        mu = params[0]
+
+        phi = params[2:]
+        for i in range(number_of_observations-self.p):
+            residuals[i] = self.data[i] - mu - phi.T @ current_regression_values
+            current_regression_values = np.insert(current_regression_values[:-1],0,self.data[i])
+
+        return residuals
 
     def _check_unit_roots(self) -> None:
         """

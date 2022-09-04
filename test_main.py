@@ -31,22 +31,29 @@ def test_main():
     plt.show()
 
     model._check_unit_roots()
-
+    print(model._generate_residuals(model.solution))
+    print(model.mse)
     # plt.plot(model._generate_residuals(model.solution))
     # plt.plot(range(len(instrument.log_return_history), len(instrument.log_return_history)+1500), model.run_simulation(1500))
     # plt.show()
 
-    # historical_prices = (np.exp(np.cumsum(instrument.log_return_history))*instrument.price_history[0])
-    # prices = np.exp(np.cumsum(model.run_simulation(152)))*historical_prices[-1]
-    # plt.plot(np.array(historical_prices))
-    # plt.plot(range(len(historical_prices), len(historical_prices)+152), prices)
+    historical_prices = (np.exp(np.cumsum(instrument.log_return_history))*instrument.price_history[0])
+    prices = np.exp(np.cumsum(model.run_simulation(200)))*historical_prices[-1]
+    plt.plot(np.array(historical_prices))
+    plt.plot(range(len(historical_prices), len(historical_prices)+200), np.exp(np.cumsum(model.run_simulation(200)))*historical_prices[-1])
+    plt.plot(range(len(historical_prices), len(historical_prices)+200), np.exp(np.cumsum(model.run_simulation(200)))*historical_prices[-1])
+    plt.plot(range(len(historical_prices), len(historical_prices)+200), np.exp(np.cumsum(model.run_simulation(200)))*historical_prices[-1])
+    plt.plot(range(len(historical_prices), len(historical_prices)+200), np.exp(np.cumsum(model.run_simulation(200)))*historical_prices[-1])
+    plt.plot(range(len(historical_prices), len(historical_prices)+200), np.exp(np.cumsum(model.run_simulation(200)))*historical_prices[-1])
+
+
     # plt.plot(range(len(historical_prices), len(historical_prices)+152), np.exp(np.cumsum(model.run_simulation(152)))*historical_prices[-1])
     # plt.plot(range(len(historical_prices), len(historical_prices)+152), np.exp(np.cumsum(model.run_simulation(152)))*historical_prices[-1])
     # plt.plot(range(len(historical_prices), len(historical_prices)+152), np.exp(np.cumsum(model.run_simulation(152)))*historical_prices[-1])
     # plt.plot(range(len(historical_prices), len(historical_prices)+152), np.exp(np.cumsum(model.run_simulation(152)))*historical_prices[-1])
     # plt.plot(range(len(historical_prices), len(historical_prices)+152), np.exp(np.cumsum(model.run_simulation(152)))*historical_prices[-1])
     # plt.plot(range(len(historical_prices), len(historical_prices)+152), np.exp(np.cumsum(model.run_simulation(152)))*historical_prices[-1])
-    # plt.show()
+    plt.show()
 
 
 if __name__ == "__main__":

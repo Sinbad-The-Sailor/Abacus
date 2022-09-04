@@ -39,7 +39,9 @@ class MA(Model):
         Returns:
             float: sum of mean squared errors.
         """
-        return np.sum(self._generate_residuals(self.solution) ** 2)
+        residuals = self._generate_residuals(self.solution)
+        number_of_observations = len(residuals)
+        return np.sum(residuals ** 2) / number_of_observations
 
     def fit_model(self) -> np.array:
         """
