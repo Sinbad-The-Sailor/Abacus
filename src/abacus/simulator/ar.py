@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import re
 import numpy as np
 
 from numpy.linalg import inv
@@ -116,8 +115,9 @@ class AR(Model):
 
     def transform_to_uniform(self) -> np.array:
         """
-        Transformes the normalized time series to uniform variables, assuming Gaussian White Noise. Uses
-        a standard normalization approach for the first p values to avoid shrinking the dataset.
+        Transformes the normalized time series to uniform variables, assuming Gaussian White Noise.
+        Uses a standard normalization approach without using regression for the first p values to avoid
+        shrinking the dataset.
 
         Returns:
             np.array: sample of uniform variables U(0,1).
