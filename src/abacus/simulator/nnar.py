@@ -24,7 +24,9 @@ class NNAR(Model):
 
     @property
     def mse(self) -> float:
-        raise NotImplemented
+        number_of_observations = len(self.data) - self.p
+        residuals = self._generate_residuals()
+        return np.sum(residuals ** 2) / number_of_observations
 
     def fit_model(self):
         """
@@ -103,14 +105,12 @@ class NNAR(Model):
         number_of_observations = len(uniform_sample)
         simulated_process = np.zeros(number_of_observations)
         current_regression_values = self.data[-self.p :]
-        mu = self.solution[0]
-        sigma = self.solution[1]
-        phi = self.solution[2:]
+        sigma = self.solution
 
         for i in range(number_of_observations):
             residual = norm.ppf(uniform_sample[i])
             simulated_process[i] = (
-                mu + phi.T @ current_regression_values + sigma * residual
+                self.net(torch.Tensor(current_regression_values)) + sigma * residual
             )
             current_regression_values = np.insert(
                 current_regression_values[:-1], 0, simulated_process[i]
@@ -128,13 +128,12 @@ class NNAR(Model):
         """
         number_of_observations = len(self.data)
         uniform_sample = np.zeros(number_of_observations)
-        residuals = self._generate_residuals(self.solution)
-        mu = self.solution[0]
-        sigma = self.solution[1]
+        residuals = self._generate_residuals()
+        sigma = self.solution
 
         for i in range(number_of_observations):
             if i <= self.p - 1:
-                uniform_sample[i] = norm.cdf((self.data[i] - mu) / sigma)
+                uniform_sample[i] = norm.cdf((self.data[i] - np.mean(self.data)) / sigma)
             else:
                 uniform_sample[i] = norm.cdf(
                     (self.data[i] - residuals[i-self.p]) / sigma
@@ -142,7 +141,7 @@ class NNAR(Model):
 
         return uniform_sample
 
-    def _generate_residuals(self, params: np.array) -> np.array:
+    def _generate_residuals(self) -> np.array:
         """
         Helper method to recursivley generate residuals based on some set of values for params.
 
@@ -155,11 +154,9 @@ class NNAR(Model):
         number_of_observations = len(self.data)
         residuals = np.zeros(number_of_observations-self.p)
         current_regression_values = self.data[:self.p]
-        mu = params[0]
 
-        phi = params[2:]
         for i in range(number_of_observations-self.p):
-            residuals[i] = self.data[i] - mu - phi.T @ current_regression_values
+            residuals[i] = self.data[i] - self.net(torch.Tensor(current_regression_values))
             current_regression_values = np.insert(current_regression_values[:-1],0,self.data[i])
 
         return residuals

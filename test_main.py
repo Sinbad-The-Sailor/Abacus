@@ -13,7 +13,7 @@ def test_main():
     end = "2022-07-11"
     interval = "wk"
     instrument_specification = {
-        "EUR=X": {"Currency": "USD", "Type": "Equity"},
+        "XOM": {"Currency": "USD", "Type": "Equity"},
     }
     print("Downloading data...")
     dataloader = DataLoader(start=start, end=end, interval=interval)
@@ -49,11 +49,10 @@ def test_main():
     plt.plot(np.array(historical_prices))
     plt.show()
 
-
-
-
-
-
+    print(nnar_model.mse)
+    print(nnar_model.transform_to_uniform())
+    plt.plot(nnar_model.transform_to_true(nnar_model.transform_to_uniform()))
+    plt.show()
 
 
 if __name__ == "__main__":
