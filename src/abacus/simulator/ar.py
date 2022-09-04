@@ -54,6 +54,15 @@ class AR(Model):
         pass
 
     def run_simulation(self, number_of_steps: int) -> np.array:
+        """
+        Runs univariate simulation of process.
+
+        Args:
+            number_of_steps (int): number of simulation steps into the future.
+
+        Returns:
+            np.array: simulated process.
+        """
         simulated_process = np.zeros(number_of_steps)
         current_regression_values = self.data[-self.p:]
         mu = self.solution[0]
@@ -67,10 +76,40 @@ class AR(Model):
 
         return simulated_process
 
-    def transform_to_true(self) -> np.array:
-        pass
+    def transform_to_true(self, uniform_sample: np.array) -> np.array:
+        """
+        Transforms a predicted uniform sample to true values of the process. Very similar to the
+        univarite simulation case, the difference is only that uniform samples are obtained from
+        elsewhere.
+
+        Args:
+            uniform_sample (np.array): sample of uniform variables U(0,1).
+
+        Returns:
+            np.array: simulated process.
+        """
+        number_of_observations = len(uniform_sample)
+        simulated_process = np.zeros(number_of_observations)
+        current_regression_values = self.data[-self.p:]
+        mu = self.solution[0]
+        sigma = self.solution[1]
+        phi = self.solution[2:]
+
+        for i in range(number_of_observations):
+            residual = norm.ppf(uniform_sample[i])
+            simulated_process[i] = mu + phi.T @ current_regression_values + sigma * residual
+            current_regression_values = np.insert(current_regression_values[:-1], 0, simulated_process[i])
+
+        return simulated_process
 
     def transform_to_uniform(self) -> np.array:
+        """
+        Transformes the normalized time series to uniform variables, assuming Gaussian White Noise. Uses
+        a standard normalization approach for the first p values to avoid shrinking the dataset.
+
+        Returns:
+            np.array: sample of uniform variables U(0,1).
+        """
         number_of_observations = len(self.data)
         uniform_sample = np.zeros(number_of_observations)
         current_regression_values = self.data[:self.p]
@@ -87,8 +126,23 @@ class AR(Model):
 
         return uniform_sample
 
-    def _characteristic_roots(self, solution: np.array) -> np.array:
+    def _characteristic_roots(self, coefficients: np.array) -> np.array:
+        """
+        Calculates the roots of the AR(p) characteristic polynomial to check for non-weak-stationarity.
+
+        Args:
+            coefficients (np.array): coefficients of the polynomial.
+
+        Returns:
+            np.array: roots of the polynomial.
+        """
         pass
 
-    def _check_unit_roots(self, solution: np.array) -> None:
-        pass
+    def _check_unit_roots(self) -> None:
+        """
+        Checks for unit roots outside the unit circle.
+
+        Raises:
+            ValueError: raised if unit root is found.
+        """
+        raise ValueError("Stationarity encountered.")

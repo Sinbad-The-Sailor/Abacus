@@ -27,6 +27,8 @@ def test_main():
     plt.plot(model.run_simulation(125))
     plt.show()
     print(model.transform_to_uniform())
+    plt.plot(model.transform_to_true(model.transform_to_uniform()))
+    plt.show()
 
     # plt.plot(model._generate_residuals(model.solution))
     # plt.plot(range(len(instrument.log_return_history), len(instrument.log_return_history)+1500), model.run_simulation(1500))
