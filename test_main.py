@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+from abacus.simulator.gjr_grach import GJRGARCH
 from abacus.simulator.ma import MA
 from abacus.simulator.ar import AR
 from abacus.simulator.garch import GARCH
@@ -25,7 +26,7 @@ def test_main():
     # Testing AR/MA model
     instrument = instruments[0]
     returns = np.array(instrument.log_return_history)
-    garch_model = GARCH(instrument.log_return_history)
+    garch_model = GJRGARCH(instrument.log_return_history)
     garch_model.fit_model()
 
     plt.plot(returns)
@@ -36,10 +37,10 @@ def test_main():
     plt.plot(garch_model.transform_to_true(garch_model.transform_to_uniform()))
     plt.show()
 
-    # historical_prices = (np.exp(np.cumsum(instrument.log_return_history))*instrument.price_history[0])
-    # plt.plot(np.array(historical_prices))
-    # plt.plot(range(len(historical_prices), len(historical_prices)+200), np.exp(np.cumsum(garch_model.run_simulation(200)))*historical_prices[-1])
-    # plt.show()
+    historical_prices = (np.exp(np.cumsum(instrument.log_return_history))*instrument.price_history[0])
+    plt.plot(np.array(historical_prices))
+    plt.plot(range(len(historical_prices), len(historical_prices)+200), np.exp(np.cumsum(garch_model.run_simulation(200)))*historical_prices[-1])
+    plt.show()
 
     # ma_model = MA(np.array(instrument.log_return_history), 2)
     # ar_model = AR(np.array(instrument.log_return_history), 20)

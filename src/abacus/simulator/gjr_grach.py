@@ -1,46 +1,101 @@
 # -*- coding: utf-8 -*-
-class GJRGARCHModel(Model):
+import numpy as np
+import logging
+
+from scipy.stats import norm
+from scipy.optimize import minimize
+from matplotlib import pyplot as plt
+from abacus.simulator.model import Model, NoParametersError
+
+
+logger = logging.getLogger(__name__)
+
+
+class GJRGARCH(Model):
     def __init__(self, data):
-        super().__init__(data, initial_parameters=INITIAL_GJRGARCH_PARAMETERS)
+        super().__init__(data)
         self.last_volatility_estimate = 0
         self.volatility_sample = None
         self.inital_volatility_esimate = np.std(self.data[:20])
         self.long_run_volatility_estimate = np.std(self.data)
-        self.log_likelihood_value = None
-        self.number_of_parameters = 3
 
-    def run_simulation(self, number_of_steps: int = DEFALUT_STEPS) -> np.array:
+    @property
+    def initial_solution(self) -> np.array:
+        """
+        Basic initial solution for the GJR-GARCH(1,1) model with variance target.
+
+        Returns:
+            np.array: list of inital values for parameters. Formatted as: [alpha, beta, gamma].
+        """
+        return np.array([0.05, 0.80, 0.001])
+
+    @property
+    def mse(self) -> float:
+        """
+        Calculates the mean squared error.
+
+        Returns:
+            float: sum of mean squared errors.
+        """
+        return np.sum(self.data ** 2)
+
+    def fit_model(self) -> bool:
+        """
+        Fits model with trust-constr method. Nelder-Mead is also suitable for this model.
+
+        Returns:
+            np.array: optimal parameters.
+        """
+        initial_parameters = self._precondition_parameters(self.initial_solution)
+        solution = minimize(self._cost_function, initial_parameters, args=self.data, method="trust-constr")
+        self.solution = solution.x
+        self.last_volatility_estimate = self._generate_volatility(
+            self.solution
+        )[-1]
+        self.log_likelihood_value = solution.fun
+        if not solution.success:
+            logger.warning("minimizer not succesful.")
+        return solution.success
+
+    def _cost_function(self, params: np.array, data: np.array) -> float:
+        """
+        Defines the conditional log loss for the GJR-GARCH model. Calculates the loss recursively.
+
+        Args:
+            params (np.array): parameters formatted as [alpha, beta, gamma].
+
+        Returns:
+            float: log loss value.
+        """
+        vol_est = self._generate_volatility_squared(params)
+        log_loss = np.sum(np.log(vol_est) + (data ** 2) / vol_est)
+        return log_loss
+
+    def run_simulation(self, number_of_steps: int) -> np.array:
+        """
+        Runs univariate simulation of process.
+
+        Args:
+            number_of_steps (int): number of simulation steps into the future.
+
+        Returns:
+            np.array: simulated process.
+        """
         result = self._generate_simulation(number_of_steps=number_of_steps, isVol=False)
         return result
 
-    def run_volatility_simulation(
-        self, number_of_steps: int = DEFALUT_STEPS
-    ) -> np.array:
-        result = self._generate_simulation(number_of_steps=number_of_steps, isVol=True)
-        return result
+    def transform_to_true(self, uniform_samples: np.array) -> np.array:
+        """
+        Transforms a predicted uniform sample to true values of the process. Very similar to the
+        univarite simulation case, the difference is only that uniform samples are obtained from
+        elsewhere.
 
-    def generate_uniform_samples(self) -> np.array:
-        result = np.zeros(self.number_of_observations - 1)
+        Args:
+            uniform_sample (np.array): sample of uniform variables U(0,1).
 
-        # Check if a solution exists.
-        if not self._has_solution():
-            raise NoParametersError
-
-        # Check if a volatility estimate exists.
-        if self.volatility_sample is None:
-            self.volatility_sample = self._generate_volatility(self.optimal_parameters)
-
-        # Create normalized sample and transform it in one go.
-        for i in range(1, self.number_of_observations):
-            # TODO: REMOVE -1. Make all arrays have correct lenght.
-            normalized_sample = self.data[i] / self.volatility_sample[i]
-            uniform_sample = norm.cdf(normalized_sample, loc=0, scale=1)
-            result[i - 1] = uniform_sample
-
-        return result
-
-    def generate_correct_samples(self, uniform_samples: np.array) -> np.array:
-
+        Returns:
+            np.array: simulated process.
+        """
         # Create volatility samples.
         number_of_observations = len(uniform_samples)
         volatility_samples = self.run_volatility_simulation(
@@ -58,44 +113,89 @@ class GJRGARCHModel(Model):
 
         return result
 
-    def fit_model(self) -> bool:
-        # TODO: Add number of iterations and while loop.
+    def transform_to_uniform(self) -> np.array:
+        """
+        Transformes the normalized time series to uniform variables, assuming Gaussian White Noise.
 
-        initial_parameters = self._precondition_parameters(self.initial_parameters)
+        Returns:
+            np.array: sample of uniform variables U(0,1).
+        """
+        number_of_observations = len(self.data)
+        result = np.zeros(number_of_observations - 1)
 
-        solution = minimize(self._cost_function, initial_parameters, args=self.data)
-        self.optimal_parameters = solution.x
-        self.last_volatility_estimate = self._generate_volatility(
-            self.optimal_parameters
-        )[-1]
-        self.log_likelihood_value = solution.fun
-        print(
-            f" {self._uncondition_parameters(self.optimal_parameters)} {solution.success} {solution.fun}"
-        )
-        if not solution.success:
-            logger.warning("minimizer not succesful.")
-        return solution.success
+        # Check if a solution exists.
+        if self.solution is None:
+            raise NoParametersError
 
-    def _cost_function(self, params: np.array, data: np.array) -> float:
-        vol_est = self._generate_volatility_squared(params)
-        log_loss = np.sum(np.log(vol_est) + (data ** 2) / vol_est)
-        return log_loss
+        # Check if a volatility estimate exists.
+        if self.volatility_sample is None:
+            self.volatility_sample = self._generate_volatility(self.solution)
+
+        # Create normalized sample and transform it in one go.
+        for i in range(1, number_of_observations):
+            # TODO: REMOVE -1. Make all arrays have correct lenght.
+            normalized_sample = self.data[i] / self.volatility_sample[i]
+            uniform_sample = norm.cdf(normalized_sample, loc=0, scale=1)
+            result[i - 1] = uniform_sample
+
+        return result
+
+    def run_volatility_simulation(
+        self, number_of_steps: int
+    ) -> np.array:
+        """
+        Helper method to recursivley run volatility simulation.
+
+        Args:
+            number_of_steps (int): number of simulation steps into the future.
+
+        Returns:
+            np.array: simulated volatility process.
+        """
+        result = self._generate_simulation(number_of_steps=number_of_steps, isVol=True)
+        return result
 
     def plot_volatility(self):
-        if not self._has_solution():
+        """
+        Helper method to plot the implied volatility for optimal parameters. Helps check if
+        volatility looks reasonable.
+
+        Raises:
+            NoParametersError: if the model has not been fitted.
+        """
+        if self.solution is None:
             raise NoParametersError
-        params = self.optimal_parameters
+        params = self.solution
         vol_result = self._generate_volatility(params=params)
         plt.plot(vol_result)
         plt.show()
 
     def _generate_volatility(self, params: np.array) -> np.array:
+        """
+        Helper method to recursivley calculate volatility.
+
+        Args:
+            params (np.array): parameters for the GJR-GARCH model.
+
+        Returns:
+            np.array: filtered volatility.
+        """
         result = np.sqrt(self._generate_volatility_squared(params=params))
         return result
 
     def _generate_volatility_squared(self, params: np.array) -> np.array:
-        result = np.zeros(self.number_of_observations)
-        for i in range(0, self.number_of_observations):
+        """
+        Helper method to recursivley calculate squared volatility.
+
+        Args:
+            params (np.array): parameters for the GJR-GARCH model.
+
+        Returns:
+            np.array: filtered squared volatility.
+        """
+        number_of_observations = len(self.data)
+        result = np.zeros(number_of_observations)
+        for i in range(0, number_of_observations):
             if i == 0:
                 result[i] = self.inital_volatility_esimate ** 2
             else:
@@ -116,9 +216,18 @@ class GJRGARCHModel(Model):
         return result
 
     def _generate_simulation(self, number_of_steps: int, isVol: bool) -> np.array:
+        """
+        Helper method to recursivley simulate either the return process or the volatility
+        process.
 
+        Args:
+            params (np.array): parameters for the GJR-GARCH model.
+
+        Returns:
+            np.array: simulated return or volatility process.
+        """
         # Check if optimal parameters exist.
-        if not self._has_solution():
+        if self.solution is None:
             raise ValueError("Model has no fitted parameters.")
 
         # Check if initial volatility exist.
@@ -133,7 +242,7 @@ class GJRGARCHModel(Model):
         return_estimate = self.data[-1]
         volatility_estimate = self.last_volatility_estimate
 
-        parameters = self._uncondition_parameters(self.optimal_parameters)
+        parameters = self._uncondition_parameters(self.solution)
         alpha = parameters[0]
         beta = parameters[1]
         gamma = parameters[2]
@@ -160,6 +269,15 @@ class GJRGARCHModel(Model):
 
     @staticmethod
     def _precondition_parameters(params: np.array) -> np.array:
+        """
+        Preconditioning to obtain more stable optimzation problem
+
+        Args:
+            params (np.array): GJR-GARCH parameters.
+
+        Returns:
+            np.array: transformed GJR-GARCH parameters.
+        """
         mu_corr = params[0] + params[1] + params[2]
         mu_ewma = (params[1] + 0.5 * params[2]) / (
             params[0] + params[1] + 0.5 * params[2]
@@ -174,6 +292,15 @@ class GJRGARCHModel(Model):
 
     @staticmethod
     def _uncondition_parameters(params: np.array) -> np.array:
+        """
+        Unconditioning to obtain more original parameters from transformed parameters.
+
+        Args:
+            params (np.array): transformed GJR-GARCH parameters.
+
+        Returns:
+            np.array: GJR-GARCH parameters.
+        """
         mu_corr = np.exp(-np.exp(-params[0]))
         mu_ewma = np.exp(-np.exp(-params[1]))
         mu_asym = np.exp(-np.exp(-params[2]))

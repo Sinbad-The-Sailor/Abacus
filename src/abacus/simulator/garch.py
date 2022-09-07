@@ -5,7 +5,7 @@ import logging
 from scipy.stats import norm
 from scipy.optimize import minimize
 from matplotlib import pyplot as plt
-from abacus.simulator.model_new import Model, NoParametersError
+from abacus.simulator.model import Model, NoParametersError
 
 
 logger = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ class GARCH(Model):
     @property
     def initial_solution(self) -> np.array:
         """
-        Basic initial solution for the garch(1,1) model with variance target.
+        Basic initial solution for the GARCH(1,1) model with variance target.
 
         Returns:
             np.array: list of inital values for parameters. Formatted as: [alpha, beta].
@@ -47,7 +47,6 @@ class GARCH(Model):
             np.array: optimal parameters.
         """
         initial_parameters = self._precondition_parameters(self.initial_solution)
-
         solution = minimize(self._cost_function, initial_parameters, args=self.data, method="trust-constr")
         self.solution = solution.x
         self.last_volatility_estimate = self._generate_volatility(

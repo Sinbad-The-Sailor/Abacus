@@ -4,7 +4,7 @@ import numpy as np
 
 from scipy.optimize import minimize
 from scipy.stats import norm
-from abacus.simulator.model_new import Model
+from abacus.simulator.model import Model
 from abacus.config import EPSILON
 
 

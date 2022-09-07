@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 from scipy.stats import norm
-from abacus.simulator.model_new import Model
+from abacus.simulator.model import Model
 
 
 class NNAR(Model):
