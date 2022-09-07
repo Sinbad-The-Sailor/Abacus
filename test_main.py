@@ -2,6 +2,7 @@
 import numpy as np
 from abacus.simulator.ma import MA
 from abacus.simulator.ar import AR
+from abacus.simulator.garch import GARCH
 from abacus.simulator.nnar import NNAR
 from abacus.utilities.dataloader import DataLoader
 
@@ -24,6 +25,22 @@ def test_main():
     # Testing AR/MA model
     instrument = instruments[0]
     returns = np.array(instrument.log_return_history)
+    garch_model = GARCH(instrument.log_return_history)
+    garch_model.fit_model()
+
+    plt.plot(returns)
+    plt.plot(range(len(returns), len(returns) + 2000), garch_model.run_simulation(2000))
+    plt.show()
+
+    print(garch_model.transform_to_uniform())
+    plt.plot(garch_model.transform_to_true(garch_model.transform_to_uniform()))
+    plt.show()
+
+    # historical_prices = (np.exp(np.cumsum(instrument.log_return_history))*instrument.price_history[0])
+    # plt.plot(np.array(historical_prices))
+    # plt.plot(range(len(historical_prices), len(historical_prices)+200), np.exp(np.cumsum(garch_model.run_simulation(200)))*historical_prices[-1])
+    # plt.show()
+
     # ma_model = MA(np.array(instrument.log_return_history), 2)
     # ar_model = AR(np.array(instrument.log_return_history), 20)
     # ar_model.fit_model()
@@ -34,25 +51,31 @@ def test_main():
     # plt.plot(np.array(historical_prices))
     # plt.plot(range(len(historical_prices), len(historical_prices)+200), np.exp(np.cumsum(ar_model.run_simulation(200)))*historical_prices[-1])
     # plt.show()
-    nnar_model = NNAR(returns, 9)
-    nnar_model.fit_model()
 
-    steps = 25
-    simulated_values = nnar_model.run_simulation(steps)
-    plt.plot(returns)
-    plt.plot(range(len(returns), len(returns) + steps), simulated_values)
-    plt.show()
 
-    historical_prices = (np.exp(np.cumsum(instrument.log_return_history))*instrument.price_history[0])
-    plt.plot(range(len(historical_prices), len(historical_prices)+steps), np.exp(np.cumsum(simulated_values))*historical_prices[-1])
-    plt.plot(range(len(historical_prices), len(historical_prices)+steps), np.exp(np.cumsum(nnar_model.run_simulation(steps)))*historical_prices[-1])
-    plt.plot(np.array(historical_prices))
-    plt.show()
 
-    print(nnar_model.mse)
-    print(nnar_model.transform_to_uniform())
-    plt.plot(nnar_model.transform_to_true(nnar_model.transform_to_uniform()))
-    plt.show()
+
+
+
+    # nnar_model = NNAR(returns, 9)
+    # nnar_model.fit_model()
+
+    # steps = 25
+    # simulated_values = nnar_model.run_simulation(steps)
+    # plt.plot(returns)
+    # plt.plot(range(len(returns), len(returns) + steps), simulated_values)
+    # plt.show()
+
+    # historical_prices = (np.exp(np.cumsum(instrument.log_return_history))*instrument.price_history[0])
+    # plt.plot(range(len(historical_prices), len(historical_prices)+steps), np.exp(np.cumsum(simulated_values))*historical_prices[-1])
+    # plt.plot(range(len(historical_prices), len(historical_prices)+steps), np.exp(np.cumsum(nnar_model.run_simulation(steps)))*historical_prices[-1])
+    # plt.plot(np.array(historical_prices))
+    # plt.show()
+
+    # print(nnar_model.mse)
+    # print(nnar_model.transform_to_uniform())
+    # plt.plot(nnar_model.transform_to_true(nnar_model.transform_to_uniform()))
+    # plt.show()
 
 
 if __name__ == "__main__":
