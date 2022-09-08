@@ -1,0 +1,9 @@
+/.github
+/.git
+/examples
+/docs
+/.vscode
+/.pytest_cache
+/.mypy_cache
+makefile
+.pre-commit-config.yaml
