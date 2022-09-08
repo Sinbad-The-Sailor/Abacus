@@ -37,7 +37,7 @@ class GARCH(Model):
         Returns:
             float: sum of mean squared errors.
         """
-        raise np.sum(self.data ** 2)
+        return np.sum(self.data ** 2)
 
     def fit_model(self) -> bool:
         """

@@ -4,6 +4,7 @@ from abacus.simulator.gjr_grach import GJRGARCH
 from abacus.simulator.ma import MA
 from abacus.simulator.ar import AR
 from abacus.simulator.garch import GARCH
+from abacus.simulator.model_factory import ModelFactory
 from abacus.simulator.nnar import NNAR
 from abacus.utilities.dataloader import DataLoader
 
@@ -24,10 +25,25 @@ def test_main():
     print("Fitting models...")
 
     # Testing AR/MA model
+
+
+
+
+    model_factory = ModelFactory(instruments)
+    model_factory.build_all()
+
+
+
+
+
+
     instrument = instruments[0]
     returns = np.array(instrument.log_return_history)
     garch_model = GJRGARCH(instrument.log_return_history)
     garch_model.fit_model()
+
+
+    print(type(garch_model).__name__)
 
     plt.plot(returns)
     plt.plot(range(len(returns), len(returns) + 2000), garch_model.run_simulation(2000))

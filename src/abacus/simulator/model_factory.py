@@ -1,84 +1,54 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+from abacus.config import ADMISSABLE_EQUTIY_MODELS, ADMISSABLE_FX_MODELS
 
-from abacus.instruments import Equity, Instrument, FX
-from abacus.simulator.models import GARCHModel, GJRGARCHModel
+from abacus.instruments import FX, Equity, Instrument
+from abacus.simulator.ar import AR
+from abacus.simulator.garch import GARCH
+from abacus.simulator.gjr_grach import GJRGARCH
+from abacus.simulator.ma import MA
+from abacus.simulator.model import Model
+from abacus.simulator.nnar import NNAR
 
 
-class ModelSelector:
-    """
-    Model factory for instruments. Picks the most appropriate model for each
-    instrument using information criteria.
-
-    Currently using AIC (Akaike Information Criterion).
-    """
-
-    def __init__(self, instruments: list[Instrument]):
+class ModelFactory:
+    def __init__(self, instruments: list[Instrument]) -> None:
         self.instruments = instruments
 
-    def build_all(self):
-        """
-        Applies a model builder for every instrument given.
-        """
+    def build_model(self, data, model_name: str) -> Model:
+        if model_name == "AR":
+            return AR(data)
+        elif model_name == "MA":
+            return MA(data)
+        elif model_name == "NNAR":
+            return NNAR(data)
+        elif model_name == "GARCH":
+            return GARCH(data)
+        elif model_name == "GJRGARCH":
+            return GJRGARCH(data)
+        else:
+            raise ValueError(f"Model {model_name} not available.")
+
+    def select_model(self, instrument: Instrument) -> None:
+        current_MSE = np.Inf
+        current_model = None
+
+        if type(instrument) is Equity:
+            for model_name in ADMISSABLE_EQUTIY_MODELS:
+                potential_model = self.build_model(instrument.log_return_history, model_name)
+                if potential_model.mse < current_MSE:
+                    current_MSE = potential_model.mse
+                    current_model = potential_model
+
+        elif type(instrument) is FX:
+            for model_name in ADMISSABLE_FX_MODELS:
+                potential_model = self.build_model(instrument.log_return_history, model_name)
+                if potential_model.mse < current_MSE:
+                    current_MSE  = potential_model.mse
+                    current_model = potential_model
+
+        instrument.set_model(current_model)
+
+    def build_all(self) -> None:
         for instrument in self.instruments:
-            self.build_model(instrument)
-
-    def build_model(self, instrument: Instrument):
-        """
-        Matches type of instrument with appropriate builder.
-
-        Args:
-            instrument (Instrument): target instrument
-        """
-        if isinstance(instrument, Equity):
-            self._build_equity(instrument)
-        elif isinstance(instrument, FX):
-            self._build_FX(instrument)
-
-    def _build_equity(self, instrument: Equity):
-        """
-        Finds and builds an Equity model for a Equity instrument. Can only use
-        Equity admissable models.
-
-        Args:
-            instrument (Equity): input Equity instrument.
-        """
-        minimal_aic = np.Inf
-        minimal_model = None
-
-        gjr_model = GJRGARCHModel(data=instrument.log_return_history)
-        gjr_model.fit_model()
-        if gjr_model.aic() < minimal_aic:
-            minimal_aic = gjr_model.aic()
-            minimal_model = gjr_model
-        gar_model = GARCHModel(data=instrument.log_return_history)
-        gar_model.fit_model()
-        if gar_model.aic() < minimal_aic:
-            minimal_aic = gar_model.aic()
-            minimal_model = gar_model
-
-        instrument.set_model(minimal_model)
-
-    def _build_FX(self, instrument: FX):
-        """
-        Finds and builds an FX model for a FX instrument. Can only use
-        FX admissable models.
-
-        Args:
-            instrument (FX): input FX instrument.
-        """
-        minimal_aic = np.Inf
-        minimal_model = None
-
-        gjr_model = GJRGARCHModel(data=instrument.log_return_history)
-        gjr_model.fit_model()
-        if gjr_model.aic() < minimal_aic:
-            minimal_aic = gjr_model.aic()
-            minimal_model = gjr_model
-        gar_model = GARCHModel(data=instrument.log_return_history)
-        gar_model.fit_model()
-        if gar_model.aic() < minimal_aic:
-            minimal_aic = gar_model.aic()
-            minimal_model = gar_model
-
-        instrument.set_model(minimal_model)
+            self.select_model(instrument)
