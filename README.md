@@ -1,4 +1,15 @@
+<div align="center">
+
 # Abacus
+
+</div>
+
+> Automatic sequential investment decisions.
+> Currently only making bad decisions. Work in progress.
+>
+>
+
+
 <div align="center">
 
 ![GitHub](https://img.shields.io/github/license/sinbad-the-sailor/abacus?color=%23002D5A&style=flat-square)
@@ -8,12 +19,26 @@
 
 </div>
 
+### **Table of Contents**
+- [Getting Started](#getting-started)
+- [Architecture](#architecture)
+- [Portfolio Optimization](#portfolio-optimization)
+- [Forecasting](#forecasting)
+    - [Equity Models](#equity-model)
+    - [Vine Copula Dependency Structure](#vine-copula-dependency-strucutre)
+- [Valuation](#valuation)
+- [Risk Management](#risk-management)
+- [References](#references)
 
-Sequential investment decisions.
+### **Getting Started**
 
-Currently only working as a risk tool for ETF portfolios and scenario generation.
+### **Architecture**
 
-### **Equity Model**
+### **Portfolio Optimization**
+
+### **Forecasting**
+
+##### **Equity Model**
 Stocks and other equities are model using a modified version of a discretized Merton-Jump-Diffusion SDE. Volatility is updated using a GJR-GARCH(1,1) model, and innovations within the model have a generalized Student's t distribution.
 
 <p align="center">
@@ -32,7 +57,7 @@ The conditional return distribution follow a so-called Student-Poisson-Mixture w
 <img width="559" alt="image" src="https://user-images.githubusercontent.com/62723280/164237856-57a466a2-0a65-4e48-bfb3-5c6181605706.png">
 </p>
 
-### **Vine Copula Dependency Strucutre**
+##### **Vine Copula Dependency Strucutre**
 Vine copulas are derived from the so-called pair-copula-construction (PCC). This is done by decomposing a multivariate distribution (pdf), and repetedly applying Sklar's theorem. One can describe the pair construction using the graph theoreical concept of Vines.
 
 Example of 5-dimensional vine coupla (PCC).
@@ -40,8 +65,12 @@ Example of 5-dimensional vine coupla (PCC).
 <img width="403" alt="image" src="https://user-images.githubusercontent.com/62723280/169716182-d73f6456-3f21-4074-b24c-bc94de7272f0.png">
 </p>
 
-### **References**
----
+### **Valuation**
+
+### **Risk Management**
+
+### **References** 
+---------------------------------------
 
 #### Model Predictive Control for Multi-Period Portfolio Optimization.
 
@@ -49,10 +78,24 @@ Example of 5-dimensional vine coupla (PCC).
 * Oprisor R, Kwon R. Multi-Period Portfolio Optimization with Investor Views under Regime Switching. Journal of Risk and Financial Management. 2021; 14(1):3. https://doi.org/10.3390/jrfm14010003
 * Fremlin, S. (2019). Online intra-day portfolio optimization using regime based models (Dissertation). Retrieved from http://lup.lub.lu.se/student-papers/record/8972097
 
+#### AR, MA, and ARMA Time Series Models.
+
+* Hamilton, J. D. (1994). Time Series Analysis. Princeton University Press. 
+
+#### Nonlinear Autoregressive model with Neural Networks.
+
+* Benrhmach G, Namir K, Namir A, Bouyaghroumni J. (2020). "Nonlinear Autoregressive Neural Network and Extended Kalman Filters for Prediction of Financial Time Series". Journal of Applied Mathematics. vol 2020. Article ID 5057801. https://doi.org/10.1155/2020/5057801
+
 #### Variance Stabalizing and Preconditioning for GARCH/GJR-GARCH models.
 
 * Zumbach, G. (2000). The Pitfalls in Fitting Garch(1,1) Processes. In: Dunis, C.L. (eds) Advances in Quantitative Asset Management. Studies in Computational Finance, vol 1. Springer, Boston, MA. https://doi.org/10.1007/978-1-4615-4389-3_8
 * Sundström, D. (2017). Automatized GARCH parameter estimation (Dissertation). Retrieved from http://urn.kb.se/resolve?urn=urn:nbn:se:kth:diva-213725
+
+#### Copulas, Copula based Forecasting and Vine Copulas.
+
+* Roger, N. (2006). An Introduction to Copulas (Springer Series in Statistics). Springer-Verlag, Berlin, Heidelberg.
+* Simard, C. & Rémillard, B. (2015). Forecasting time series with multivariate copulas. Dependence Modeling, 3(1). https://doi.org/10.1515/demo-2015-0005
+* Czado, C. (2019). Analyzing Dependent Data with Vine Copulas: A Practical Guide With R. Lecture Notes in Statistics. Springer International Publishing.
 
 #### Extreme Value Theory and Financial Risk Management.
 
