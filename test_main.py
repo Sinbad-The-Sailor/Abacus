@@ -17,6 +17,9 @@ def test_main():
     interval = "wk"
     instrument_specification = {
         "XOM": {"Currency": "USD", "Type": "Equity"},
+        "CVX": {"Currency": "USD", "Type": "Equity"},
+        "MSFT": {"Currency": "USD", "Type": "Equity"},
+        "WFC": {"Currency": "USD", "Type": "Equity"}
     }
     print("Downloading data...")
     dataloader = DataLoader(start=start, end=end, interval=interval)

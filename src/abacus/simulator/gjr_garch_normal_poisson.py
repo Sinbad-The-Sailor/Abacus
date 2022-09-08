@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
-from abacus.simulator.model_new import Model
+from abacus.simulator.model import Model
 from abacus.utilities.norm_poisson_mixture import npm
 
 

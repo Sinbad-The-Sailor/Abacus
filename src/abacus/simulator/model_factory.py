@@ -12,6 +12,12 @@ from abacus.simulator.nnar import NNAR
 
 
 class ModelFactory:
+    """
+    Model factory for instruments. Picks the most appropriate model for each
+    instrument using an error estimate.
+
+    Currently using MSE (Mean Squared Error).
+    """
     def __init__(self, instruments: list[Instrument]) -> None:
         self.instruments = instruments
 
@@ -36,6 +42,7 @@ class ModelFactory:
         if type(instrument) is Equity:
             for model_name in ADMISSABLE_EQUTIY_MODELS:
                 potential_model = self.build_model(instrument.log_return_history, model_name)
+                potential_model.fit_model()
                 if potential_model.mse < current_MSE:
                     current_MSE = potential_model.mse
                     current_model = potential_model
@@ -43,6 +50,7 @@ class ModelFactory:
         elif type(instrument) is FX:
             for model_name in ADMISSABLE_FX_MODELS:
                 potential_model = self.build_model(instrument.log_return_history, model_name)
+                potential_model.fit_model()
                 if potential_model.mse < current_MSE:
                     current_MSE  = potential_model.mse
                     current_model = potential_model
@@ -50,5 +58,8 @@ class ModelFactory:
         instrument.set_model(current_model)
 
     def build_all(self) -> None:
+        """
+        Applies a model builder for every instrument given.
+        """
         for instrument in self.instruments:
             self.select_model(instrument)

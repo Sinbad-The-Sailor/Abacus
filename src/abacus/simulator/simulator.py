@@ -2,8 +2,8 @@
 import numpy as np
 import copulae as cop
 import pyvinecopulib as pv
-from abacus.simulator.model_selector import ModelSelector
 
+from abacus.simulator.model_factory import ModelFactory
 from abacus.instruments import Instrument
 from abacus.config import DEFALUT_STEPS, VINE_COPULA_FAMILIES, DEFALUT_SIMULATIONS
 
@@ -11,7 +11,7 @@ from abacus.config import DEFALUT_STEPS, VINE_COPULA_FAMILIES, DEFALUT_SIMULATIO
 class Simulator:
     def __init__(self, instruments: list[Instrument]):
         self.instruments = instruments
-        self.model_selector = ModelSelector(instruments=instruments)
+        self.model_factory = ModelFactory(instruments=instruments)
 
         try:
             self.number_of_instruments = len(instruments)
@@ -29,7 +29,7 @@ class Simulator:
         self.fit_portfolio()
 
     def find_models(self):
-        self.model_selector.build_all()
+        self.model_factory.build_all()
 
         # for instrument in self.instruments:
         #    self.model_factory.equity_model_factory(instrument)
@@ -59,7 +59,7 @@ class Simulator:
         # TODO: Create dict for insturments in portfolio in order to never mix up returns!
         uniforms = []
         for instrument in self.instruments:
-            uniforms.append(instrument.model.generate_uniform_samples())
+            uniforms.append(instrument.model.transform_to_uniform())
 
         uniforms = np.stack(uniforms).T
 
@@ -150,7 +150,7 @@ class Simulator:
             current_instrument = self.instruments[i]
             current_uniform_sample = simulated_uniforms[:, i]
             result.append(
-                current_instrument.model.generate_correct_samples(
+                current_instrument.model.transform_to_true(
                     current_uniform_sample
                 )
             )
@@ -185,7 +185,7 @@ class Simulator:
 
     def _has_solution(self) -> bool:
         for instrument in self.instruments:
-            if instrument.model._has_solution == False:
+            if instrument.model.solution is None:
                 return False
         return True
 
