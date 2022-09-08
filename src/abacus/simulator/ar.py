@@ -152,8 +152,8 @@ class AR(Model):
         residuals = np.zeros(number_of_observations-self.p)
         current_regression_values = self.data[:self.p]
         mu = params[0]
-
         phi = params[2:]
+
         for i in range(number_of_observations-self.p):
             residuals[i] = self.data[i] - mu - phi.T @ current_regression_values
             current_regression_values = np.insert(current_regression_values[:-1],0,self.data[i])

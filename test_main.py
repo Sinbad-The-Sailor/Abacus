@@ -31,35 +31,37 @@ def test_main():
 
 
 
-
-    model_factory = ModelFactory(instruments)
-    model_factory.build_all()
-
-
-
-
-
-
     instrument = instruments[0]
-    returns = np.array(instrument.log_return_history)
-    garch_model = GJRGARCH(instrument.log_return_history)
-    garch_model.fit_model()
+    model_factory = ModelFactory(instruments)
+    # model_factory.build_all()
+    ar_model = AR(np.array(instrument.log_return_history), 5)
+    ar_model.fit_model()
+    print(ar_model.mse)
+    print(ar_model.solution)
 
 
-    print(type(garch_model).__name__)
 
-    plt.plot(returns)
-    plt.plot(range(len(returns), len(returns) + 2000), garch_model.run_simulation(2000))
-    plt.show()
 
-    print(garch_model.transform_to_uniform())
-    plt.plot(garch_model.transform_to_true(garch_model.transform_to_uniform()))
-    plt.show()
 
-    historical_prices = (np.exp(np.cumsum(instrument.log_return_history))*instrument.price_history[0])
-    plt.plot(np.array(historical_prices))
-    plt.plot(range(len(historical_prices), len(historical_prices)+200), np.exp(np.cumsum(garch_model.run_simulation(200)))*historical_prices[-1])
-    plt.show()
+    # returns = np.array(instrument.log_return_history)
+    # garch_model = GJRGARCH(instrument.log_return_history)
+    # garch_model.fit_model()
+
+
+    # print(type(garch_model).__name__)
+
+    # plt.plot(returns)
+    # plt.plot(range(len(returns), len(returns) + 2000), garch_model.run_simulation(2000))
+    # plt.show()
+
+    # print(garch_model.transform_to_uniform())
+    # plt.plot(garch_model.transform_to_true(garch_model.transform_to_uniform()))
+    # plt.show()
+
+    # historical_prices = (np.exp(np.cumsum(instrument.log_return_history))*instrument.price_history[0])
+    # plt.plot(np.array(historical_prices))
+    # plt.plot(range(len(historical_prices), len(historical_prices)+200), np.exp(np.cumsum(garch_model.run_simulation(200)))*historical_prices[-1])
+    # plt.show()
 
     # ma_model = MA(np.array(instrument.log_return_history), 2)
     # ar_model = AR(np.array(instrument.log_return_history), 20)

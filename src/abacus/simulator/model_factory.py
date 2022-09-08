@@ -23,11 +23,11 @@ class ModelFactory:
 
     def build_model(self, data, model_name: str) -> Model:
         if model_name == "AR":
-            return AR(data)
+            return AR(data, p=1)
         elif model_name == "MA":
-            return MA(data)
+            return MA(data, q=1)
         elif model_name == "NNAR":
-            return NNAR(data)
+            return NNAR(data, p=1)
         elif model_name == "GARCH":
             return GARCH(data)
         elif model_name == "GJRGARCH":
@@ -41,7 +41,7 @@ class ModelFactory:
 
         if type(instrument) is Equity:
             for model_name in ADMISSABLE_EQUTIY_MODELS:
-                potential_model = self.build_model(instrument.log_return_history, model_name)
+                potential_model = self.build_model(np.array(instrument.log_return_history), model_name)
                 potential_model.fit_model()
                 if potential_model.mse < current_MSE:
                     current_MSE = potential_model.mse
@@ -49,7 +49,7 @@ class ModelFactory:
 
         elif type(instrument) is FX:
             for model_name in ADMISSABLE_FX_MODELS:
-                potential_model = self.build_model(instrument.log_return_history, model_name)
+                potential_model = self.build_model(np.array(instrument.log_return_history), model_name)
                 potential_model.fit_model()
                 if potential_model.mse < current_MSE:
                     current_MSE  = potential_model.mse

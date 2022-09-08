@@ -31,14 +31,18 @@ def main():
     forc = Forecaster(instruments=instruments, number_of_steps=5)
     forecast = forc.forecast_returns()
 
+    # Display models...
+    for instrument in instruments:
+        print(type(instrument.model))
+
     # Optimizing portfolio...
     inital_portfolio = np.insert(np.zeros(len(instruments)), 0, 1)
     mpc = MPCDummy(forecast=forecast, inital_portfolio=inital_portfolio)
-    mpc.optimize()
     mpc_util = MPCLogUtility(forecast=forecast, inital_portfolio=inital_portfolio)
+    mpc.optimize()
     mpc_util.optimize()
-    print(mpc.solution)
     print("==========")
+    print(mpc.solution)
     print(mpc_util.solution)
     print("==========")
 

@@ -16,35 +16,20 @@ class Simulator:
         try:
             self.number_of_instruments = len(instruments)
         except ValueError:
-            # log that no instruments are inserted. Critical.
             self.number_of_instruments = -1
 
         try:
             last_prices = self._last_prices()
         except ValueError:
-            # log that no prices are available. Critical.
             self.value = -1
 
         self.find_models()
         self.fit_portfolio()
 
-    def find_models(self):
+    def find_models(self) -> None:
         self.model_factory.build_all()
 
-        # for instrument in self.instruments:
-        #    self.model_factory.equity_model_factory(instrument)
-
-    def fit_models(self):
-        # Check if all instruments has a model.
-        if not self._has_models():
-            raise ValueError(f"One instrument has no model.")
-
-        # Call all fit models.
-        for instrument in self.instruments:
-            instrument.model.fit_model()
-
-    def fit_portfolio(self):
-
+    def fit_portfolio(self) -> None:
         # Check if more than 1 asset exists.
         if self.number_of_instruments == 1:
             raise ValueError("To few instruments to run dependency.")
@@ -78,7 +63,6 @@ class Simulator:
     def run_simultion_assets(
         self, number_of_steps: int = DEFALUT_STEPS, dependency: bool = True
     ) -> np.array:
-
         # Check if portfolio has instruments.
         if not self._has_instruments():
             raise ValueError("Portfolio has no instruments.")
@@ -106,16 +90,13 @@ class Simulator:
     ) -> list[np.array]:
 
         init_prices = self._last_prices()
-
         for simulation in range(number_of_simulations):
             # Portfolio constituance simulation.
             simultion_matrix = self.run_simultion_assets(
                 number_of_steps=number_of_steps, dependency=dependency
             )
-
             # Portfolio prices.
             temp_prices = init_prices * np.prod(np.exp(simultion_matrix), axis=1)
-
             print(simultion_matrix)
             print(simulation)
 
@@ -124,16 +105,13 @@ class Simulator:
     def _generate_univariate_simulation(self, number_of_steps: int) -> np.array:
         # TODO: Remove list to make this faster!
         result = []
-
         for instrument in self.instruments:
             result.append(
                 instrument.model.run_simulation(number_of_steps=number_of_steps)
             )
-
         return np.vstack(result)
 
     def _generate_multivariate_simulation(self, number_of_steps: int) -> np.array:
-
         # Check if copula has been fitted.
         if not self._has_copula():
             raise ValueError("Portfolio has no multivarite model/copula.")
@@ -154,7 +132,6 @@ class Simulator:
                     current_uniform_sample
                 )
             )
-
         return result
 
     def _last_prices(self) -> np.array:
@@ -188,12 +165,3 @@ class Simulator:
             if instrument.model.solution is None:
                 return False
         return True
-
-    def __len__(self):
-        return self.number_of_instruments
-
-    def __str__(self):
-        raise NotImplemented
-
-    def __repr__(self):
-        raise NotImplemented
