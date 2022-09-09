@@ -21,7 +21,10 @@ class AR(Model):
     @property
     def mse(self) -> float:
         number_of_observations = len(self.data) - self.p
-        return np.sum(self._generate_residuals(self.solution) ** 2) / number_of_observations
+        return (
+            np.sum(self._generate_residuals(self.solution) ** 2)
+            / number_of_observations
+        )
 
     def fit_model(self) -> np.array:
         """
@@ -133,7 +136,7 @@ class AR(Model):
                 uniform_sample[i] = norm.cdf((self.data[i] - mu) / sigma)
             else:
                 uniform_sample[i] = norm.cdf(
-                    (self.data[i] - residuals[i-self.p]) / sigma
+                    (self.data[i] - residuals[i - self.p]) / sigma
                 )
 
         return uniform_sample
@@ -149,14 +152,16 @@ class AR(Model):
             np.array: residuals calculated based of the guessed parameters.
         """
         number_of_observations = len(self.data)
-        residuals = np.zeros(number_of_observations-self.p)
-        current_regression_values = self.data[:self.p]
+        residuals = np.zeros(number_of_observations - self.p)
+        current_regression_values = self.data[: self.p]
         mu = params[0]
         phi = params[2:]
 
-        for i in range(number_of_observations-self.p):
+        for i in range(number_of_observations - self.p):
             residuals[i] = self.data[i] - mu - phi.T @ current_regression_values
-            current_regression_values = np.insert(current_regression_values[:-1],0,self.data[i])
+            current_regression_values = np.insert(
+                current_regression_values[:-1], 0, self.data[i]
+            )
 
         return residuals
 

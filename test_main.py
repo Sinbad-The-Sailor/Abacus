@@ -19,7 +19,7 @@ def test_main():
         "XOM": {"Currency": "USD", "Type": "Equity"},
         "CVX": {"Currency": "USD", "Type": "Equity"},
         "MSFT": {"Currency": "USD", "Type": "Equity"},
-        "WFC": {"Currency": "USD", "Type": "Equity"}
+        "WFC": {"Currency": "USD", "Type": "Equity"},
     }
     print("Downloading data...")
     dataloader = DataLoader(start=start, end=end, interval=interval)
@@ -29,8 +29,6 @@ def test_main():
 
     # Testing AR/MA model
 
-
-
     instrument = instruments[0]
     model_factory = ModelFactory(instruments)
     # model_factory.build_all()
@@ -39,14 +37,9 @@ def test_main():
     print(ar_model.mse)
     print(ar_model.solution)
 
-
-
-
-
     # returns = np.array(instrument.log_return_history)
     # garch_model = GJRGARCH(instrument.log_return_history)
     # garch_model.fit_model()
-
 
     # print(type(garch_model).__name__)
 
@@ -73,11 +66,6 @@ def test_main():
     # plt.plot(np.array(historical_prices))
     # plt.plot(range(len(historical_prices), len(historical_prices)+200), np.exp(np.cumsum(ar_model.run_simulation(200)))*historical_prices[-1])
     # plt.show()
-
-
-
-
-
 
     # nnar_model = NNAR(returns, 9)
     # nnar_model.fit_model()

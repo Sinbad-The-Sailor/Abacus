@@ -18,6 +18,7 @@ class ModelFactory:
 
     Currently using MSE (Mean Squared Error).
     """
+
     def __init__(self, instruments: list[Instrument]) -> None:
         self.instruments = instruments
 
@@ -42,7 +43,11 @@ class ModelFactory:
 
         if type(instrument) is Equity:
             for model_name, hyperparameters in ADMISSIBLE_EQUTIY_MODELS.items():
-                potential_models = self.build_model(np.array(instrument.log_return_history), model_name, *hyperparameters)
+                potential_models = self.build_model(
+                    np.array(instrument.log_return_history),
+                    model_name,
+                    *hyperparameters,
+                )
                 for potential_model in potential_models:
                     potential_model.fit_model()
                     if potential_model.mse < current_MSE:
@@ -51,11 +56,15 @@ class ModelFactory:
 
         elif type(instrument) is FX:
             for model_name, hyperparameters in ADMISSIBLE_EQUTIY_MODELS:
-                potential_models = self.build_model(np.array(instrument.log_return_history), model_name, *hyperparameter)
+                potential_models = self.build_model(
+                    np.array(instrument.log_return_history),
+                    model_name,
+                    *hyperparameters,
+                )
                 for potential_model in potential_models:
                     potential_model.fit_model()
                     if potential_model.mse < current_MSE:
-                        current_MSE  = potential_model.mse
+                        current_MSE = potential_model.mse
                         current_model = potential_model
 
         instrument.set_model(current_model)

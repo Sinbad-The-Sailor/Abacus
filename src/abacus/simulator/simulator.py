@@ -128,9 +128,7 @@ class Simulator:
             current_instrument = self.instruments[i]
             current_uniform_sample = simulated_uniforms[:, i]
             result.append(
-                current_instrument.model.transform_to_true(
-                    current_uniform_sample
-                )
+                current_instrument.model.transform_to_true(current_uniform_sample)
             )
         return result
 

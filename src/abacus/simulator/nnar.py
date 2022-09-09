@@ -38,7 +38,7 @@ class NNAR(Model):
 
         input_data = []
         for i in range(lag):
-            input_data.append(self.data[lag-i-1:number_of_observations-i-1])
+            input_data.append(self.data[lag - i - 1 : number_of_observations - i - 1])
         input_data = np.stack(input_data).T
         output_data = self.data[lag:]
 
@@ -47,8 +47,8 @@ class NNAR(Model):
 
         optimizer = optim.Adam(self.net.parameters(), lr=1e-3)
 
-        for i in range(number_of_observations-lag):
-            X = input_data[i,:lag]
+        for i in range(number_of_observations - lag):
+            X = input_data[i, :lag]
             y = output_data[i].view(1)
             self.net.zero_grad()
             output = self.net.forward(X)
@@ -133,10 +133,12 @@ class NNAR(Model):
 
         for i in range(number_of_observations):
             if i <= self.p - 1:
-                uniform_sample[i] = norm.cdf((self.data[i] - np.mean(self.data)) / sigma)
+                uniform_sample[i] = norm.cdf(
+                    (self.data[i] - np.mean(self.data)) / sigma
+                )
             else:
                 uniform_sample[i] = norm.cdf(
-                    (self.data[i] - residuals[i-self.p]) / sigma
+                    (self.data[i] - residuals[i - self.p]) / sigma
                 )
 
         return uniform_sample
@@ -152,28 +154,34 @@ class NNAR(Model):
             np.array: residuals calculated based of the guessed parameters.
         """
         number_of_observations = len(self.data)
-        residuals = np.zeros(number_of_observations-self.p)
-        current_regression_values = self.data[:self.p]
+        residuals = np.zeros(number_of_observations - self.p)
+        current_regression_values = self.data[: self.p]
 
-        for i in range(number_of_observations-self.p):
-            residuals[i] = self.data[i] - self.net(torch.Tensor(current_regression_values))
-            current_regression_values = np.insert(current_regression_values[:-1],0,self.data[i])
+        for i in range(number_of_observations - self.p):
+            residuals[i] = self.data[i] - self.net(
+                torch.Tensor(current_regression_values)
+            )
+            current_regression_values = np.insert(
+                current_regression_values[:-1], 0, self.data[i]
+            )
 
         return residuals
 
 
 class _Net(nn.Module):
-        """
-        Private class representing the feed-forward neural network.
-        """
-        def __init__(self, p):
-            super().__init__()
-            self.p = p
-            self.loss = nn.MSELoss()
-            self.relu = nn.ReLU()
-            self.fc1 = nn.Linear(p, 20, bias = False)
-            self.fc4 = nn.Linear(20, 1, bias = False)
-        def forward(self, x):
-            x = self.relu(self.fc1(x))
-            x = self.fc4(x)
-            return x
+    """
+    Private class representing the feed-forward neural network.
+    """
+
+    def __init__(self, p):
+        super().__init__()
+        self.p = p
+        self.loss = nn.MSELoss()
+        self.relu = nn.ReLU()
+        self.fc1 = nn.Linear(p, 20, bias=False)
+        self.fc4 = nn.Linear(20, 1, bias=False)
+
+    def forward(self, x):
+        x = self.relu(self.fc1(x))
+        x = self.fc4(x)
+        return x

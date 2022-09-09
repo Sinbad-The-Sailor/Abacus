@@ -47,11 +47,14 @@ class GARCH(Model):
             np.array: optimal parameters.
         """
         initial_parameters = self._precondition_parameters(self.initial_solution)
-        solution = minimize(self._cost_function, initial_parameters, args=self.data, method="trust-constr")
+        solution = minimize(
+            self._cost_function,
+            initial_parameters,
+            args=self.data,
+            method="trust-constr",
+        )
         self.solution = solution.x
-        self.last_volatility_estimate = self._generate_volatility(
-            self.solution
-        )[-1]
+        self.last_volatility_estimate = self._generate_volatility(self.solution)[-1]
         self.log_likelihood_value = solution.fun
         if not solution.success:
             logger.warning("minimizer not succesful.")
@@ -140,9 +143,7 @@ class GARCH(Model):
 
         return result
 
-    def run_volatility_simulation(
-        self, number_of_steps: int
-    ) -> np.array:
+    def run_volatility_simulation(self, number_of_steps: int) -> np.array:
         """
         Helper method to recursivley run volatility simulation.
 
