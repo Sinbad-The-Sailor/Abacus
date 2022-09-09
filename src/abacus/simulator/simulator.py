@@ -46,6 +46,8 @@ class Simulator:
         for instrument in self.instruments:
             uniforms.append(instrument.model.transform_to_uniform())
 
+        smallest_sample_size = len(min(uniforms, key=len))
+        uniforms = [uniform[:smallest_sample_size] for uniform in uniforms]
         uniforms = np.stack(uniforms).T
 
         if self.number_of_instruments == 2:

@@ -18,9 +18,9 @@ def main():
         "^GSPC": {"Currency": "USD", "Type": "Equity"},
         "WFC": {"Currency": "USD", "Type": "Equity"},
         "MSFT": {"Currency": "USD", "Type": "Equity"},
-        "CAT": {"Currency": "USD", "Type": "Equity"},
-        "NOC": {"Currency": "USD", "Type": "Equity"},
-        "KO": {"Currency": "USD", "Type": "Equity"},
+        "SEK=X": {"Currency": "USD", "Type": "FX"},
+        "BTC-USD": {"Currency": "USD", "Type": "FX"},
+        "EUR=X": {"Currency": "USD", "Type": "FX"},
     }
 
     # Loading data...

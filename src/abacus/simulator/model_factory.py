@@ -55,7 +55,7 @@ class ModelFactory:
                         current_model = potential_model
 
         elif type(instrument) is FX:
-            for model_name, hyperparameters in ADMISSIBLE_EQUTIY_MODELS:
+            for model_name, hyperparameters in ADMISSIBLE_EQUTIY_MODELS.items():
                 potential_models = self.build_model(
                     np.array(instrument.log_return_history),
                     model_name,

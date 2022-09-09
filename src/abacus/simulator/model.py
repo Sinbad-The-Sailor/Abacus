@@ -49,6 +49,5 @@ class Model(ABC):
 class StationarityError(ValueError):
     pass
 
-
 class NoParametersError(ValueError):
     pass
