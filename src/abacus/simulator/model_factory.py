@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from abacus.config import ADMISSABLE_EQUTIY_MODELS, ADMISSABLE_FX_MODELS
+from abacus.config import ADMISSIBLE_EQUTIY_MODELS, ADMISSIBLE_FX_MODELS
 
 from abacus.instruments import FX, Equity, Instrument
 from abacus.simulator.ar import AR
@@ -21,17 +21,18 @@ class ModelFactory:
     def __init__(self, instruments: list[Instrument]) -> None:
         self.instruments = instruments
 
-    def build_model(self, data, model_name: str) -> Model:
+    @staticmethod
+    def build_model(data, model_name, *args) -> Model:
         if model_name == "AR":
-            return AR(data, p=1)
+            return [AR(data, p=arg) for arg in args]
         elif model_name == "MA":
-            return MA(data, q=1)
+            return [MA(data, q=arg) for arg in args]
         elif model_name == "NNAR":
-            return NNAR(data, p=1)
+            return [NNAR(data, p=arg) for arg in args]
         elif model_name == "GARCH":
-            return GARCH(data)
+            return [GARCH(data)]
         elif model_name == "GJRGARCH":
-            return GJRGARCH(data)
+            return [GJRGARCH(data)]
         else:
             raise ValueError(f"Model {model_name} not available.")
 
@@ -40,20 +41,22 @@ class ModelFactory:
         current_model = None
 
         if type(instrument) is Equity:
-            for model_name in ADMISSABLE_EQUTIY_MODELS:
-                potential_model = self.build_model(np.array(instrument.log_return_history), model_name)
-                potential_model.fit_model()
-                if potential_model.mse < current_MSE:
-                    current_MSE = potential_model.mse
-                    current_model = potential_model
+            for model_name, hyperparameters in ADMISSIBLE_EQUTIY_MODELS.items():
+                potential_models = self.build_model(np.array(instrument.log_return_history), model_name, *hyperparameters)
+                for potential_model in potential_models:
+                    potential_model.fit_model()
+                    if potential_model.mse < current_MSE:
+                        current_MSE = potential_model.mse
+                        current_model = potential_model
 
         elif type(instrument) is FX:
-            for model_name in ADMISSABLE_FX_MODELS:
-                potential_model = self.build_model(np.array(instrument.log_return_history), model_name)
-                potential_model.fit_model()
-                if potential_model.mse < current_MSE:
-                    current_MSE  = potential_model.mse
-                    current_model = potential_model
+            for model_name, hyperparameters in ADMISSIBLE_EQUTIY_MODELS:
+                potential_models = self.build_model(np.array(instrument.log_return_history), model_name, *hyperparameter)
+                for potential_model in potential_models:
+                    potential_model.fit_model()
+                    if potential_model.mse < current_MSE:
+                        current_MSE  = potential_model.mse
+                        current_model = potential_model
 
         instrument.set_model(current_model)
 

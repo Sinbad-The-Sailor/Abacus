@@ -20,5 +20,11 @@ INITIAL_GARCH_PARAMETERS = np.array([0.05, 0.80])
 INITIAL_GJRGARCH_PARAMETERS = np.array([0.05, 0.80, 0.001])
 INITIAL_NPM_PARAMETERS = np.array([0.0, 1.0, 0.0, 0.0, 0.0])
 
-ADMISSABLE_EQUTIY_MODELS = ["AR", "MA", "NNAR", "GARCH", "GJRGARCH"]
-ADMISSABLE_FX_MODELS = ["AR", "MA", "NNAR", "GARCH"]
+ADMISSIBLE_EQUTIY_MODELS = {"AR": [1, 2],
+                            "MA": [1, 2],
+                            "NNAR": [1, 2],
+                            "GARCH": [],
+                            "GJRGARCH": []}
+ADMISSIBLE_FX_MODELS  = {"AR": [1, 2],
+                         "NNAR": [1, 2],
+                         "GARCH": []}
