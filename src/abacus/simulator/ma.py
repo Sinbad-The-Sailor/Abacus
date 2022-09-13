@@ -52,7 +52,7 @@ class MA(Model):
         """
         inital_solution = self.inital_solution
         solution = minimize(
-            fun=self._cost_function, x0=inital_solution, method="trust-constr"
+            fun=self._cost_function, x0=inital_solution, method="Nelder-Mead"
         )
         if not solution.success:
             logger.error(f"optimizer success {solution.success}")

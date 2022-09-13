@@ -51,7 +51,7 @@ class GARCH(Model):
             self._cost_function,
             initial_parameters,
             args=self.data,
-            method="trust-constr",
+            method="Nelder-Mead",
         )
         self.solution = solution.x
         self.last_volatility_estimate = self._generate_volatility(self.solution)[-1]

@@ -5,6 +5,7 @@ import logging
 from scipy.stats import norm
 from scipy.optimize import minimize
 from matplotlib import pyplot as plt
+from abacus.config import EPSILON
 from abacus.simulator.model import Model, NoParametersError
 
 
@@ -51,7 +52,7 @@ class GJRGARCH(Model):
             self._cost_function,
             initial_parameters,
             args=self.data,
-            method="trust-constr",
+            method="Nelder-Mead",
         )
         self.solution = solution.x
         self.last_volatility_estimate = self._generate_volatility(self.solution)[-1]
@@ -71,7 +72,7 @@ class GJRGARCH(Model):
             float: log loss value.
         """
         vol_est = self._generate_volatility_squared(params)
-        log_loss = np.sum(np.log(vol_est) + (data ** 2) / vol_est)
+        log_loss = np.sum(np.log(vol_est + EPSILON) + (data ** 2) / vol_est)
         return log_loss
 
     def run_simulation(self, number_of_steps: int) -> np.array:
