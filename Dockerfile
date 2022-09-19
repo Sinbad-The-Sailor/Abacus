@@ -2,10 +2,12 @@ FROM python:3.9
 
 WORKDIR /abacus
 
-COPY requirements.txt requirements.txt
+COPY requirements_test.txt requirements_test.txt
 
-RUN pip install -r requirements.txt
+RUN pip install -r requirements_test.txt
 
 COPY . .
 
-CMD ["python3" "main.py"]
+RUN pip install -e .
+
+CMD ["pytest"]
