@@ -41,7 +41,7 @@ class MA(Model):
         """
         residuals = self._generate_residuals(self.solution)
         number_of_observations = len(residuals)
-        return np.sum(residuals ** 2) / number_of_observations
+        return np.sum(residuals**2) / number_of_observations
 
     def fit_model(self) -> np.array:
         """
@@ -52,7 +52,7 @@ class MA(Model):
         """
         inital_solution = self.inital_solution
         solution = minimize(
-            fun=self._cost_function, x0=inital_solution, method="Nelder-Mead"
+            fun=self._cost_function, x0=inital_solution, method="trust-constr"
         )
         if not solution.success:
             logger.error(f"optimizer success {solution.success}")
@@ -73,7 +73,7 @@ class MA(Model):
         residuals = self._generate_residuals(params)
         sigma = params[1]
         return np.sum(((residuals) / sigma) ** 2) + number_of_observations * np.log(
-            sigma ** 2 + EPSILON
+            sigma**2 + EPSILON
         )
 
     def run_simulation(self, number_of_steps: int) -> np.array:

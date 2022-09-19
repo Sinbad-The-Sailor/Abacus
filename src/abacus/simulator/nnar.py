@@ -26,7 +26,7 @@ class NNAR(Model):
     def mse(self) -> float:
         number_of_observations = len(self.data) - self.p
         residuals = self._generate_residuals()
-        return np.sum(residuals ** 2) / number_of_observations
+        return np.sum(residuals**2) / number_of_observations
 
     def fit_model(self):
         """

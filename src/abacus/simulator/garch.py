@@ -37,7 +37,7 @@ class GARCH(Model):
         Returns:
             float: sum of mean squared errors.
         """
-        return np.sum(self.data ** 2)
+        return np.sum(self.data**2)
 
     def fit_model(self) -> bool:
         """
@@ -71,7 +71,7 @@ class GARCH(Model):
             float: log loss value.
         """
         vol_est = self._generate_volatility_squared(params)
-        log_loss = np.sum(np.log(vol_est) + (data ** 2) / vol_est)
+        log_loss = np.sum(np.log(vol_est) + (data**2) / vol_est)
         return log_loss
 
     def run_simulation(self, number_of_steps: int) -> np.array:
@@ -198,15 +198,15 @@ class GARCH(Model):
         result = np.zeros(number_of_observations)
         for i in range(0, number_of_observations):
             if i == 0:
-                result[i] = self.inital_volatility_esimate ** 2
+                result[i] = self.inital_volatility_esimate**2
             else:
                 mu_corr = np.exp(-np.exp(-params[0]))
                 mu_ewma = np.exp(-np.exp(-params[1]))
 
-                result[i] = self.long_run_volatility_estimate ** 2 + mu_corr * (
+                result[i] = self.long_run_volatility_estimate**2 + mu_corr * (
                     mu_ewma * result[i - 1]
                     + (1 - mu_ewma) * self.data[i - 1] ** 2
-                    - self.long_run_volatility_estimate ** 2
+                    - self.long_run_volatility_estimate**2
                 )
         return result
 
@@ -240,13 +240,13 @@ class GARCH(Model):
         parameters = self._uncondition_parameters(self.solution)
         alpha = parameters[0]
         beta = parameters[1]
-        omega = self.long_run_volatility_estimate ** 2 * (1 - alpha - beta)
+        omega = self.long_run_volatility_estimate**2 * (1 - alpha - beta)
 
         # Generation of return estimates.
         for i in range(number_of_steps):
             sample = norm.rvs(size=1, loc=0, scale=1)
             volatility_estimate = np.sqrt(
-                omega + beta * volatility_estimate ** 2 + alpha * return_estimate ** 2
+                omega + beta * volatility_estimate**2 + alpha * return_estimate**2
             )
             return_estimate = sample * volatility_estimate
 
