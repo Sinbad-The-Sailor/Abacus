@@ -40,23 +40,43 @@
 ### **Forecasting**
 
 ##### **Equity Model**
-Stocks and other equities are model using a modified version of a discretized Merton-Jump-Diffusion SDE. Volatility is updated using a GJR-GARCH(1,1) model, and innovations within the model have a generalized Student's t distribution.
+Stocks and other equities are model using a modified version of a discretized Merton-Jump-Diffusion SDE. Volatility is updated using a GJR-GARCH(1,1) model, and innovations within the model have a generalized Student's t distribution
 
-<p align="center">
-  <img width="399" alt="model" src="https://user-images.githubusercontent.com/62723280/164225698-01cfa241-a2d1-4570-bb11-f771db8e966a.png">
-</p>
+$$
+r_t = \mu + \sigma_t \xi_t + \kappa \sigma_t \sqrt{\zeta_t} \varepsilon_t
+$$
 
-The generalized Student's t distribution is given as the following.
+$$
+\sigma_t^2 = \beta_0 + \beta_1 r_{t-1}^2 + \beta_3 1_{ \{r_{t-1}<0 \} }r_{t-1}^2  + \beta_2 \sigma_{t-1}^2
+$$
 
-<p align="center">
-<img width="399" alt="image" src="https://user-images.githubusercontent.com/62723280/164237572-0abf1f4b-aadc-43ba-b1d2-b8f7219acfe5.png">
-</p>
+$$
+\beta_0, \beta_1, \beta_2 \geq 0, \quad \beta_1 + \beta_2 + \frac{1}{2}\beta_3 \leq 1, \quad \beta_2 + \beta_3 \geq 0
+$$
 
-The conditional return distribution follow a so-called Student-Poisson-Mixture which is implemented. The distribution is showcased below.
+$$
+\kappa \in \mathbb{R},\quad \mu \in \mathbb{R}, \quad \lambda_J > 0 
+$$
 
-<p align="center">
-<img width="559" alt="image" src="https://user-images.githubusercontent.com/62723280/164237856-57a466a2-0a65-4e48-bfb3-5c6181605706.png">
-</p>
+$$
+\xi_t \overset{\textrm{iid}}{\sim} \textrm{\textbf{t}}_{\nu}(0,1),\quad \zeta_t \overset{\textrm{iid}}{\sim} \textrm{\textbf{Po}}(\lambda_J),\quad \varepsilon_t \overset{\textrm{iid}}{\sim} \textrm{\textbf{N}}(0,1).
+$$
+
+The generalized Student's t distribution is given as the following
+
+$$
+f_{\Xi}(\xi) = \frac{\Gamma(\frac{\nu + 1}{2})}{\sqrt{(\nu-2) \pi}\Gamma(\frac{\nu}{2})}\Big(1 + \frac{\xi^2}{\nu - 2} \Big)^{-\frac{\nu + 1}{2}}.
+$$
+
+The conditional return distribution follow a so-called Student-Poisson-Mixture which is implemented. The distribution is showcased below
+
+$$
+ f_{r_t|\mathcal{F}_{t-1}}(r) =  \frac{\Gamma(\frac{\nu+1}{2})}{\sigma_t\sqrt{\pi(\nu-2)}\Gamma(\frac{\nu}{2})}\Bigg[e^{-\lambda}\Big(1 + \frac{(r - \mu)^2}{\sigma_t^2(\nu-2)} \Big)^{-\frac{\nu+1}{2}}
+$$
+
+$$
++\sum_{k=1}^{\infty}\frac{\lambda^k}{k!}e^{-\lambda}\frac{1}{\kappa \sigma_t \sqrt{2\pi k}} \int_{\mathbb{R}} \Big(1 + \frac{(s - \mu)^2}{\sigma_t^2(\nu-2)} \Big)^{-\frac{\nu+1}{2}}e^{-\frac{1}{2}(\frac{r-s}{\sigma_t \kappa \sqrt{k}})^2}ds \Bigg].
+$$
 
 ##### **Vine Copula Dependency Strucutre**
 Vine copulas are derived from the so-called pair-copula-construction (PCC). This is done by decomposing a multivariate distribution (pdf), and repetedly applying Sklar's theorem. One can describe the pair construction using the graph theoreical concept of Vines.
