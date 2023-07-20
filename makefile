@@ -1,4 +1,4 @@
-all: lint run
+all: run
 
 install:
 	@pip install --upgrade pip
