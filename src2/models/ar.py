@@ -3,74 +3,48 @@ import torch
 import numpy as np
 import pandas as pd
 
-from abc import ABC, abstractmethod
 from torch.distributions import Normal
 
-from price_history import PriceHistory
-from config import MAXIMUM_AR_ORDER
-
-
-class StationarityError(ValueError):
-    ...
-
-class ParameterError(ValueError):
-    ...
-
-
-class Model(ABC):
-    time_series: pd.Series
-    _calibrated: bool
-    _data: torch.Tensor
-
-
-    @abstractmethod
-    def calibrate(self):
-        ...
-
-    @abstractmethod
-    def mse(self):
-        ...
-
-    @abstractmethod
-    def transform_to_uniform(self):
-        ...
-
-    @abstractmethod
-    def transform_to_true(self, uniform_sample: torch.Tensor) -> torch.Tensor:
-        ...
-
+from models.model import Model
+from utils.config import MAXIMUM_AR_ORDER
+from utils.exceptions import ParameterError, StationarityError
 
 
 class AR(Model):
-    """The Auto Regressive AR(p) model.
+    """Auto Regressive AR(p) model.
 
-    Parameter estimation with statistical estimators for mean and standard devations.
+    Order choosen by PACF using a 95 % confidence interval.
 
-    Least Squares Solution of prediction for the /phi parameters w. QR decomposition.
+    Standard deviation estamted by statistical estimators of mean and
+    population standard deviation.
 
-    Lazy MSE calculation.
+    Parameter estimation by Least Squares with QR decomposition. Unit roots of
+    the parameters are checeked.
 
-    Lag is determined by PACF and the
+    Mean squared error is computed lazy with QR decomposition.
 
-    Unit roots are checked.
+    PERMITTED INSTRUMENTS:
+        * STOCK
+        * FX
 
-    Stationarity is not checked.
+    NOTE:
+        * Order can be ascertained through regression like t-tests (Liuns Table).
+        * Model signifiance can be ascertained through regression like F-test.
 
+    REFERENCES:
+        *
     """
 
     def __init__(self, time_series: pd.Series):
-        self.time_series = time_series
-        self._data = torch.tensor(time_series.values)
-        self._calibrated = False
-        self._number_of_observations = len(time_series)
+        super().__init__(time_series)
 
     @property
     def mse(self):
         self._check_calibration()
 
         predictions = self._predictions
-        data = self._data[:-self._order]
-        difference = predictions - data
+        predicable_data = self._data[self._order:]
+        difference = predictions - predicable_data
 
         return (1 / self._number_of_observations) * torch.dot(difference, difference)
 
@@ -82,15 +56,14 @@ class AR(Model):
 
     @property
     def _predictions(self):
-        return self._Q @ (self._R @ self._phi)
+        return self._Q @ (self._R @ self._solution)
 
 
     def calibrate(self):
         self._build_lag_order()
         self._build_data_matricies()
         self._solve_least_squares()
-        self._estimate_mean_and_standard_deviation()
-        self._estimate_drift()
+        self._estimate_standard_deviation()
         self._check_unit_roots()
 
         self._calibrated = True
@@ -101,23 +74,17 @@ class AR(Model):
 
         order = self._order
         number_of_samples = len(uniform_sample)
-
         normals = Normal(0,1).icdf(uniform_sample)
-
-        simulated_values = torch.zeros(number_of_samples + order)
+        simulated_values = torch.zeros(order + number_of_samples)
         simulated_values[:order] = self._data[:order]
-
-
         phi = self._phi
-        drift = self._drift
+        drift = self._mu
         sigma = self._sigma
 
-
-
-
         for i in range(number_of_samples):
-            past_values = simulated_values[:]
-
+            previous_values = simulated_values[i:order+i]
+            simulated_value = torch.dot(phi, previous_values) + drift + sigma * normals[i]
+            simulated_values[order+i] = simulated_value
 
         return simulated_values[self._order:]
 
@@ -127,17 +94,6 @@ class AR(Model):
         residuals = self._build_residuals()
 
         return Normal(0, 1).cdf(residuals)
-
-
-    def _check_calibration(self):
-        """
-        Checks if successful calibration has been made.
-
-        Raises:
-            ParameterError: if succesful calibration was not made.
-        """
-        if not self._calibrated:
-            raise ParameterError("Model has not been calibrated succesfully.")
 
 
     def _check_unit_roots(self):
@@ -156,30 +112,28 @@ class AR(Model):
                 raise StationarityError(f"Root {root} outside of complex unit circle.")
 
 
-    def _estimate_mean_and_standard_deviation(self):
-        self._mu = torch.mean(self._data)
+    def _estimate_standard_deviation(self):
         self._sigma = torch.std(self._data)
 
 
-    def _estimate_drift(self):
-        self._drift = self._mu * (1 - torch.sum(self._phi))
-
-
     def _solve_least_squares(self):
-        self._phi = torch.linalg.solve(self._R, self._Q.T @ self._b)
+        solution = torch.linalg.solve(self._R, self._Q.T @ self._b)
+        self._solution = solution
+        self._mu = solution[0]
+        self._phi = solution[1:]
 
 
     def _build_data_matricies(self):
-        self._b = self._data[:-self._order]
+        """
+        The data matrix is build column-wise to represent regression matrix for least
+        squares solver. The data matrix is QR decomposed.
+        """
 
-        cols = []
-        for i in range(1, self._order + 1):
+        self._b = self._data[self._order:]
 
-            if i - self._order == 0:
-                col = self._data[i:]
-            else:
-                col = self._data[i: i - self._order]
-
+        cols = [torch.ones(self._number_of_observations - self._order)]
+        for i in range(self._order):
+            col = self._data[(self._order - 1) - i: self._number_of_observations - i - 1]
             cols.append(col)
 
         A = torch.column_stack(cols)
@@ -215,42 +169,3 @@ class AR(Model):
 
         residuals = torch.cat([predictable_residuals, non_predicable_residuals])
         return residuals
-
-
-
-
-
-
-class RiskFactor:
-    def __init__(self, identifier: str, price_history: PriceHistory):
-        self.identifier = identifier
-        self.price_history = price_history
-
-    def __str__(self) -> str:
-        return f"{self.identifier}"
-
-    def __repr__(self) -> str:
-        return f"{self.identifier}"
-
-
-class Asset(ABC):
-    identifier: str
-    risk_factors: list[RiskFactor]
-
-    @property
-    @abstractmethod
-    def price(self):
-        ...
-
-    def __str__(self) -> str:
-        return f"Asset: {self.identifier} ({type(self).__name__}) \nRisk Factors: {self.risk_factors}"
-
-
-class Stock(Asset):
-    def __init__(self, identifier, risk_factors):
-        self.identifier = identifier
-        self.risk_factors = risk_factors
-
-    @property
-    def price(self):
-        ...
