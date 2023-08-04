@@ -12,14 +12,14 @@ class GARCH(Model):
 
     def __init__(self, time_series: pd.Series):
         super().__init__(time_series)
-        self._data = np.array(self._data)
 
     def calibrate(self):
         self._initiate_parameters()
-        self._inital_solution = self._precondition_parameters(parameters=INITIAL_GARCH_PARAMETERS)
+        self._inital_solution = np.array(self._precondition_parameters(parameters=torch.tensor(INITIAL_GARCH_PARAMETERS)))
         solution = minimize(self._cost_function,
                             self._inital_solution,
-                            method="L-BFGS-B")
+                            method="BFGS",
+                            jac=True)
         self._solution = solution
         self._calibrated = True
 
@@ -32,8 +32,8 @@ class GARCH(Model):
     def _compute_variance(self, parameters: torch.Tensor) -> torch.Tensor:
         initial_variance = self._initial_variance
         variance = np.zeros(self._number_of_observations)
-        mu_corr = np.exp(-np.exp(-parameters[0]))
-        mu_ewma = np.exp(-np.exp(-parameters[1]))
+        mu_corr = torch.exp(-torch.exp(-parameters[0]))
+        mu_ewma = torch.exp(-torch.exp(-parameters[1]))
 
         for i in range(self._number_of_observations):
             if i == 0:
@@ -44,79 +44,35 @@ class GARCH(Model):
                                                                    - self._long_run_variance
                                                                    )
 
-        from matplotlib import pyplot as plt
-        plt.plot(np.sqrt(variance))
-        plt.show()
-        return variance
+        return torch.tensor(variance)
 
-    def _cost_function(self, parameters: torch.Tensor) -> float:
+    def _cost_function(self, parameters: np.array) -> tuple[float, 2]:
         """
         Defines the conditional log loss for the GARCH model. Calculates the loss recursively.
 
         Args:
-            parameters (torch.Tensor): parameters formatted as [alpha, beta].
+            parameters (np.array): parameters formatted as [z_corr, z_ewma].
 
         Returns:
-            float: log loss value.
+            tuple(float, float): log loss value and the corresponding gradient.
         """
-
+        parameters = torch.tensor(parameters, requires_grad=True)
         variance = self._compute_variance(parameters=parameters)
-        log_loss = np.sum(np.log(variance) + self._squared_returns / variance)
-        print(log_loss)
-        return log_loss
+        log_loss = torch.sum(torch.log(variance) + self._squared_returns / variance)
+        log_loss.backward()
+        print(log_loss, parameters.grad)
 
-    def _gradient(self, parameters: torch.Tensor) -> torch.Tensor:
-
-        mu_corr = np.exp(-np.exp(-parameters[0]))
-        mu_ewma = np.exp(-np.exp(-parameters[1]))
-        variance = self._compute_variance(parameters=parameters)
-        squared_returns = self._squared_returns
-
-        partial_mu_corr = self._partial_mu_corr(mu_corr, mu_ewma, variance, squared_returns)
-        partial_z_corr = mu_corr * np.exp(-parameters[0]) * np.sum((1 / variance - squared_returns / variance ** 2 * partial_mu_corr))
-
-        partial_mu_ewma = self._partial_mu_ewma(mu_ewma, variance, squared_returns)
-        partial_z_ewma = mu_corr * mu_ewma * np.exp(-parameters[1]) * np.sum((1 / variance - squared_returns / variance ** 2 * partial_mu_ewma))
-        print("gradient:", [partial_z_corr, partial_z_ewma])
-        return partial_z_corr, partial_z_ewma
-
-    def _partial_mu_corr(self, mu_corr: torch.Tensor, mu_ewma: torch.Tensor, variance: torch.Tensor, squared_returns: torch.Tensor) -> torch.Tensor:
-        inital_partial = 0
-        long_run_variance = self._long_run_variance
-        partials = np.zeros(self._number_of_observations)
-
-        for i in range(self._number_of_observations):
-            if i == 0:
-                partials[i] = inital_partial
-            else:
-                partials[i] = mu_ewma * variance[i-1] + (1 - mu_ewma) * squared_returns[i-1] - long_run_variance + mu_corr * mu_ewma * partials[i - 1]
-
-        return partials
-
-    def _partial_mu_ewma(self, mu_ewma: torch.Tensor, variance: torch.Tensor, squared_returns: torch.Tensor) -> torch.Tensor:
-        initial_partial = 0
-        partials = np.zeros(self._number_of_observations)
-
-        for i in range(self._number_of_observations):
-            if i == 0:
-                partials[i] = initial_partial
-            else:
-                partials[i] = variance[i-1] + mu_ewma * partials[i-1] - squared_returns[i-1]
-
-        return partials
+        return log_loss.data.cpu().numpy(), parameters.grad.data.cpu().numpy()
 
     def _initiate_parameters(self):
         self._squared_returns = self._data ** 2
         self._initial_squared_returns = self._squared_returns[0]
         self._initial_variance = self._compute_inital_variance()
-        self._long_run_variance = np.std(self._data) ** 2
+        self._long_run_variance = torch.square(torch.std(self._data))
 
-        print("inital vol", np.sqrt(self._initial_variance))
-        print("long vol:", np.sqrt(self._long_run_variance))
-
-    def _compute_inital_variance(self):
+    def _compute_inital_variance(self) -> torch.Tensor:
         if self._number_of_observations > INITIAL_VARIANCE_GARCH_OBSERVATIONS:
-            return np.std(self._data[:INITIAL_VARIANCE_GARCH_OBSERVATIONS]) ** 2
+            return torch.square(torch.std(self._data[:INITIAL_VARIANCE_GARCH_OBSERVATIONS]))
         return self._initial_squared_returns
 
     @property
@@ -128,7 +84,7 @@ class GARCH(Model):
         return super()._log_likelihood
 
     @staticmethod
-    def _precondition_parameters(parameters: np.array) -> np.array:
+    def _precondition_parameters(parameters: torch.Tensor) -> torch.Tensor:
         """
         Preconditioning to obtain more stable optimzation problem.
 
@@ -141,13 +97,13 @@ class GARCH(Model):
         mu_corr = parameters[0] + parameters[1]
         mu_ewma = parameters[1] / (parameters[0] + parameters[1])
 
-        z_corr = np.log(-1 / np.log(mu_corr))
-        z_ewma = np.log(-1 / np.log(mu_ewma))
+        z_corr = torch.log(-1 / torch.log(mu_corr))
+        z_ewma = torch.log(-1 / torch.log(mu_ewma))
 
-        return np.array([z_corr, z_ewma])
+        return torch.tensor([z_corr, z_ewma])
 
     @staticmethod
-    def _uncondition_parameters(params: np.array) -> np.array:
+    def _uncondition_parameters(params: torch.Tensor) -> torch.Tensor:
         """
         Unconditioning to obtain more original parameters from transformed parameters.
 
@@ -157,10 +113,10 @@ class GARCH(Model):
         Returns:
             torch.Tensor: GARCH parameters.
         """
-        mu_corr = np.exp(-np.exp(-params[0]))
-        mu_ewma = np.exp(-np.exp(-params[1]))
+        mu_corr = torch.exp(-torch.exp(-params[0]))
+        mu_ewma = torch.exp(-torch.exp(-params[1]))
 
         alpha = mu_corr * (1 - mu_ewma)
         beta = mu_corr * mu_ewma
 
-        return np.array([alpha, beta])
+        return torch.tensor([alpha, beta])
