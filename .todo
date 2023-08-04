@@ -1,0 +1,6 @@
+# 1. For AR(p) models the number of observations, n, is assumed to be sufficiently
+#    large to use the conditional log-likelihood instead of full likelihood.
+
+# 2. For more advanced processes, especially dependent on graident based maximum
+#    likelihood an integration with pytorch has to be made to utilize automatic
+#    differentiation.

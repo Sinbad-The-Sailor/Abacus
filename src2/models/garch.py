@@ -13,9 +13,6 @@ class GARCH(Model):
     def __init__(self, time_series: pd.Series):
         super().__init__(time_series)
         self._data = np.array(self._data)
-    @property
-    def mse(self):
-        ...
 
     def calibrate(self):
         self._initiate_parameters()
@@ -51,7 +48,6 @@ class GARCH(Model):
         plt.plot(np.sqrt(variance))
         plt.show()
         return variance
-
 
     def _cost_function(self, parameters: torch.Tensor) -> float:
         """
@@ -118,11 +114,18 @@ class GARCH(Model):
         print("inital vol", np.sqrt(self._initial_variance))
         print("long vol:", np.sqrt(self._long_run_variance))
 
-
     def _compute_inital_variance(self):
         if self._number_of_observations > INITIAL_VARIANCE_GARCH_OBSERVATIONS:
             return np.std(self._data[:INITIAL_VARIANCE_GARCH_OBSERVATIONS]) ** 2
         return self._initial_squared_returns
+
+    @property
+    def _number_of_parameters(self):
+        return super()._number_of_parameters
+
+    @property
+    def _log_likelihood(self):
+        return super()._log_likelihood
 
     @staticmethod
     def _precondition_parameters(parameters: np.array) -> np.array:
@@ -133,7 +136,7 @@ class GARCH(Model):
             parameters (torch.Tensor): GARCH parameters.
 
         Returns:
-            torch.Tesnor: transformed GARCH parameters.
+            torch.Tensor: transformed GARCH parameters.
         """
         mu_corr = parameters[0] + parameters[1]
         mu_ewma = parameters[1] / (parameters[0] + parameters[1])
@@ -144,7 +147,7 @@ class GARCH(Model):
         return np.array([z_corr, z_ewma])
 
     @staticmethod
-    def _uncondition_parameters(params: torch.Tensor) -> torch.Tensor:
+    def _uncondition_parameters(params: np.array) -> np.array:
         """
         Unconditioning to obtain more original parameters from transformed parameters.
 

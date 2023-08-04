@@ -38,25 +38,38 @@ class AR(Model):
     def __init__(self, time_series: pd.Series):
         super().__init__(time_series)
 
-    @property
-    def mse(self):
-        self._check_calibration()
 
+    @property
+    def parameters(self) -> list[float]:
+        self._check_calibration()
+        parameters = [value.item() for value in self._phi]
+        parameters.append(self._mu.item())
+        parameters.append(self._sigma.item())
+        return parameters
+
+    @property
+    def _predictions(self) -> torch.Tensor:
+        return self._Q @ (self._R @ self._solution)
+
+    @property
+    def _number_of_parameters(self) -> int:
+        return len(self.parameters)
+
+    @property
+    def _log_likelihood(self) -> torch.Tensor:
+        """
+        Estimates the conditional log-likelihood of the process.
+
+        The log likelihood assumes Gaussian innovations as outlined in [soruce].
+        """
         predictions = self._predictions
         predicable_data = self._data[self._order:]
         difference = predictions - predicable_data
+        squared_difference = torch.dot(difference, difference)
+        variance = torch.square(self._sigma)
+        pi = torch.tensor(torch.pi)
 
-        return (1 / self._number_of_observations) * torch.dot(difference, difference)
-
-    @property
-    def parameters(self):
-        self._check_calibration()
-
-        return [self._phi, self._mu, self._sigma]
-
-    @property
-    def _predictions(self):
-        return self._Q @ (self._R @ self._solution)
+        return - (self._number_of_observations - self._order) * (torch.log(pi) + torch.log(variance)) - 1 / (2 * variance) * torch.sum(squared_difference)
 
 
     def calibrate(self):
@@ -113,7 +126,11 @@ class AR(Model):
 
 
     def _estimate_standard_deviation(self):
-        self._sigma = torch.std(self._data)
+        """
+        Estimates unconditional standard deviation taking into account the order of the process.
+        """
+        variance = 1 / (self._number_of_observations - self._order) * torch.sum(torch.square(self._data - torch.mean(self._data)))
+        self._sigma = torch.sqrt(variance)
 
 
     def _solve_least_squares(self):

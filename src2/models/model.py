@@ -20,14 +20,7 @@ class Model(ABC):
     @abstractmethod
     def calibrate(self):
         """Calibrates the parameters of the model. A non-calibrated model does not
-        have a MSE and simulations are not possible.
-        """
-        ...
-
-    @abstractmethod
-    def mse(self):
-        """Mean squared error with respect to model time-series. Based on returns of
-        the process.
+        have an AIC/BIC and simulations are not possible.
         """
         ...
 
@@ -52,6 +45,44 @@ class Model(ABC):
             torch.Tensor: Sample of simulated process in chronological order.
         """
         ...
+
+    @property
+    @abstractmethod
+    def _log_likelihood(self):
+        """
+        """
+        ...
+
+    @property
+    @abstractmethod
+    def _number_of_parameters(self):
+        """
+        """
+        ...
+
+    @property
+    def aic(self) -> torch.Tensor:
+        """
+        """
+        self._check_calibration()
+
+        log_likelihood = self._log_likelihood
+        number_of_parameters = torch.tensor(self._number_of_parameters)
+
+        return 2 * (number_of_parameters - log_likelihood)
+
+    @property
+    def bic(self) -> torch.Tensor:
+        """
+        """
+        self._check_calibration()
+
+        log_likelihood = self._log_likelihood
+        number_of_parameters = torch.tensor(self._number_of_parameters)
+        number_of_observations = torch.tensor(self._number_of_observations)
+        pi = torch.tensor(torch.pi)
+
+        return number_of_parameters * torch.log(number_of_observations) - 2 * log_likelihood
 
     def _check_calibration(self):
         """
