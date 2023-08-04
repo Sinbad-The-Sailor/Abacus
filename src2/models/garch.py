@@ -54,6 +54,25 @@ class GARCH(Model):
     def transform_to_true(self, uniform_sample: torch.Tensor) -> torch.Tensor:
         self._check_calibration()
 
+        number_of_samples = len(uniform_sample)
+        normals = Normal(0,1).icdf(uniform_sample)
+        simulated_values = torch.zeros(number_of_samples)
+        parameters = torch.tensor(self._solution.x)
+        mu_corr, mu_ewma = self._intermediary_parameters(parameters=parameters)
+
+
+        variance = self._compute_variance(parameters=torch.tensor(self._solution.x))[-1]
+        squared_return = self._squared_returns[-1]
+
+        for i in range(number_of_samples):
+            variance = self._update_variance(variance, squared_return, mu_corr, mu_ewma)
+            return_ = torch.sqrt(variance) * normals[i]
+            squared_return = torch.square(return_)
+            simulated_values[i] = return_
+
+        return simulated_values
+
+
     def transform_to_uniform(self):
         self._check_calibration()
 
@@ -64,9 +83,6 @@ class GARCH(Model):
         residuals = returns / volatility
 
         return Normal(0, 1).cdf(residuals)
-
-
-
 
     def _cost_function(self, parameters: np.array) -> tuple[float, 2]:
         """
@@ -79,19 +95,15 @@ class GARCH(Model):
             tuple(float, float): log loss value and the corresponding gradient.
         """
         parameters = torch.tensor(parameters, requires_grad=True)
-        mu = torch.exp(-torch.exp(-parameters))
-        mu_corr = mu[0]
-        mu_ewma = mu[1]
+        mu_corr, mu_ewma = self._intermediary_parameters(parameters=parameters)
 
         log_loss = torch.tensor(0.0)
         for i in range(self._number_of_observations):
             if i == 0:
                 variance = self._initial_variance
             else:
-                variance = self._long_run_variance + mu_corr * (mu_ewma * variance
-                                                                   + (1 - mu_ewma) * self._squared_returns[i - 1].detach()
-                                                                   - self._long_run_variance
-                                                                   )
+                variance = self._update_variance(variance, self._squared_returns[i - 1].detach(), mu_corr, mu_ewma)
+
             log_loss = log_loss + torch.log(variance) + self._squared_returns[i].detach() / variance
 
         log_loss.backward()
@@ -117,19 +129,19 @@ class GARCH(Model):
 
     def _compute_variance(self, parameters: torch.Tensor) -> torch.Tensor:
         initial_variance = self._initial_variance
-        variance = torch.zeros(self._number_of_observations)
-        mu_corr = torch.exp(-torch.exp(-parameters[0]))
-        mu_ewma = torch.exp(-torch.exp(-parameters[1]))
+        variances = torch.zeros(self._number_of_observations)
+        mu_corr, mu_ewma = self._intermediary_parameters(parameters=parameters)
 
         for i in range(self._number_of_observations):
             if i == 0:
-                variance[i] = initial_variance
+                variance = initial_variance
             else:
-                variance[i] = self._long_run_variance + mu_corr * (mu_ewma * variance[i - 1]
-                                                                   + (1 - mu_ewma) * self._squared_returns[i - 1]
-                                                                   - self._long_run_variance
-                                                                   )
-        return variance
+                variance = self._update_variance(variance, self._squared_returns[i-1], mu_corr, mu_ewma)
+            variances[i] = variance
+        return variances
+
+    def _update_variance(self, variance: torch.Tensor, squared_return: torch.Tensor, mu_corr, mu_ewma):
+        return self._long_run_variance + mu_corr * (mu_ewma * variance + (1 - mu_ewma) * squared_return - self._long_run_variance)
 
     def _sanity_check(self):
         parameter_check = self._check_parameters()
@@ -151,6 +163,19 @@ class GARCH(Model):
 
     def _check_solution(self) -> bool:
         return np.sum(self._optimal_parameters) < 1
+
+    @staticmethod
+    def _intermediary_parameters(parameters: torch.Tensor):
+        """Computes mu_corr and mu_ewma from z_corr and z_ewma.
+
+        Args:
+            parameters (torch.Tensor): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        mu = torch.exp(-torch.exp(-parameters))
+        return mu[0], mu[1]
 
     @staticmethod
     def _precondition_parameters(parameters: torch.Tensor) -> torch.Tensor:
