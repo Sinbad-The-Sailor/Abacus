@@ -7,7 +7,7 @@ from torch.distributions import Normal
 
 from models.model import Model
 from utils.config import MAXIMUM_AR_ORDER
-from utils.exceptions import ParameterError, StationarityError
+from utils.exceptions import StationarityError
 
 
 class AR(Model):
@@ -32,7 +32,9 @@ class AR(Model):
         * Model signifiance can be ascertained through regression like F-test.
 
     REFERENCES:
-        *
+        * Time Series Analysis by Hamilton.
+        * PACF Statistical Cutoff:
+          http://sfb649.wiwi.hu-berlin.de/fedc_homepage/xplore/tutorials/xegbohtmlnode39.html
     """
 
     def __init__(self, time_series: pd.Series):
@@ -69,7 +71,7 @@ class AR(Model):
         variance = torch.square(self._sigma)
         pi = torch.tensor(torch.pi)
 
-        return - (self._number_of_observations - self._order) * (torch.log(pi) + torch.log(variance)) - 1 / (2 * variance) * torch.sum(squared_difference)
+        return - (self._number_of_observations - self._order) / 2 * (torch.log(pi) + torch.log(variance)) - 1 / (2 * variance) * torch.sum(squared_difference)
 
 
     def calibrate(self):

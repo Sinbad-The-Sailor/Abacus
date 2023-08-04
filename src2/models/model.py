@@ -80,9 +80,9 @@ class Model(ABC):
         log_likelihood = self._log_likelihood
         number_of_parameters = torch.tensor(self._number_of_parameters)
         number_of_observations = torch.tensor(self._number_of_observations)
-        pi = torch.tensor(torch.pi)
 
         return number_of_parameters * torch.log(number_of_observations) - 2 * log_likelihood
+
 
     def _check_calibration(self):
         """
