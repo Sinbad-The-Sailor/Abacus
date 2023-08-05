@@ -22,7 +22,7 @@ class GARCH(Model):
         optimal_parameters = self._optimal_parameters
         alpha = optimal_parameters[0]
         beta = optimal_parameters[1]
-        long_run_variance = self._long_run_variance
+        long_run_variance = self._long_run_variance.item()
 
         return alpha, beta, long_run_variance
 
@@ -71,7 +71,6 @@ class GARCH(Model):
             simulated_values[i] = return_
 
         return simulated_values
-
 
     def transform_to_uniform(self):
         self._check_calibration()

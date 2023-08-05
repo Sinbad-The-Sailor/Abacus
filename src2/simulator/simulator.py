@@ -7,16 +7,16 @@ from utils.instruments import Asset
 
 class Simulator:
 
-    def __init__(self, assets: list[Asset]):
-        self.assets = assets
+    def __init__(self, instruments: list[Asset]):
+        self._instruments = instruments
         self.is_calibrated = False
 
 
 
     def calibrate(self):
-        # Find models for each risk factor. Use a factory design pattern.
+        # Find models for each risk factor.
+        # Use a factory design pattern.
         # If none are succesful throw an error.
-
         ...
 
 
