@@ -1,68 +1,72 @@
 # -*- coding: utf-8 -*-
 import torch
-import pandas as pd
 import numpy as np
 
 from datetime import datetime
 from matplotlib import pyplot as plt
 
 from utils.stock_factory import StockFactory
-from utils.instruments import Stock
-from utils.config import STOCK_ADMISSIBLE_MODELS
-
-from models.ar import AR
-from models.garch import GARCH
+from simulator.simulator import Simulator
 
 
 
-start = datetime.strptime("2005-05-01", r"%Y-%m-%d")
+start = datetime.strptime("2013-05-01", r"%Y-%m-%d")
 end = datetime.strptime("2023-06-01", r"%Y-%m-%d")
-instrument_specification = ["XOM", "GS", "T"]
+instrument_specification = ("XOM",
+                            "GS",
+                            "T",
+                            "AAPL",
+                            "MSFT",
+                            "PG",
+                            "K",
+                            "ADI",
+                            "GE",
+                            "AIG",
+                            "KO",
+                            "NKE",
+                            "BAC",
+                            "MMM",
+                            "AXP",
+                            "AMZN",
+                            )
 instrument_factory = StockFactory(tickers=instrument_specification,
                                   start=start,
                                   end=end)
 stocks = instrument_factory.build_stocks()
 
 
+number_of_simulations = 10
+time_steps = 100
 
-class Simulator:
-
-    def __init__(self, instruments: list):
-        self._instruments = instruments
-        self._calibrated = False
-
-    def calibrate(self):
-        self._calibrate_instruments()
-        self._calibrate_copula()
-        self._calibrated = True
-
-    def _calibrate_instruments(self):
-        for instrument in self._instruments:
-            if isinstance(instrument, Stock):
-                self._calibrate_stock(instrument)
-
-    def _calibrate_copula(self):
-        ...
-
-    def _calibrate_stock(self, stock):
-        current_aic = np.inf
-        risk_factor = stock.risk_factors[0]
-        data = risk_factor.price_history.log_returns
-
-        for model_name in STOCK_ADMISSIBLE_MODELS:
-            if model_name == "AR":
-                model = AR(data)
-                model.calibrate()
-                if model.aic < current_aic:
-                    risk_factor.model = model
-
-            elif model_name == "GARCH":
-                model = GARCH(data)
-                model.calibrate()
-                if model.aic < current_aic:
-                    risk_factor.model = model
+sim = Simulator(stocks)
+sim.calibrate()
+simulation_tensor = sim.run_simulation(time_steps, number_of_simulations)
 
 
-    def run_simulation(time_steps: int) -> torch.Tensor:
-        # Check for succesful calibration, Throw an error otherwise.
-        ...
+
+fig, ax = plt.subplots(4, 4)
+ix, iy = 0, 0
+
+for i, stock in enumerate(stocks):
+    stock_name = stock.identifier
+    past_prices = stock.risk_factors[0].price_history.mid_history[-500:]
+    past_time = range(len(past_prices))
+    ax[ix, iy].plot(past_time, past_prices)
+    ax[ix, iy].set_title(stock_name)
+
+    future_time = range(len(past_time) - 1, len(past_time) + time_steps)
+    inital_price = torch.tensor(past_prices[-1])
+    for k in range(number_of_simulations):
+        all_prices = torch.empty(time_steps+1)
+        prices = torch.exp(torch.cumsum(simulation_tensor[i,:,k], dim=0)) * inital_price
+        all_prices[0] = inital_price
+        all_prices[1:] = prices
+        ax[ix, iy].plot(future_time, all_prices, color="grey")
+
+    if ix != 3:
+        ix += 1
+    else:
+        iy += 1
+        ix = 0
+plt.tight_layout()
+plt.show()
