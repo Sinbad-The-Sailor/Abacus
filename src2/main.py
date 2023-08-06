@@ -68,5 +68,6 @@ for i, stock in enumerate(stocks):
     else:
         iy += 1
         ix = 0
+
 plt.tight_layout()
 plt.show()
