@@ -26,3 +26,6 @@ VINE_COPULA_FAMILIES = (
 
 # Computations
 VINE_COPULA_NUMBER_OF_THREADS = 6
+
+# Optimizer
+DEFAULT_SOLVER = "ipopt"

@@ -7,6 +7,8 @@ from matplotlib import pyplot as plt
 
 from utils.stock_factory import StockFactory
 from simulator.simulator import Simulator
+from optimizer.optimizer import Optimizer
+from optimizer.enums import OptimizationModels
 
 
 
@@ -71,3 +73,10 @@ for i, stock in enumerate(stocks):
 
 plt.tight_layout()
 plt.show()
+
+
+price_tensor = None # Compute this...
+optimizer = Optimizer(optimization_model=OptimizationModels.SP_MAXIMIZE_UTILITY, simulation_tensor=simulation_tensor)
+optimizer._initiate_ampl_engine()
+optimizer._set_ampl_data()
+optimizer._solve_optimzation_problem()
