@@ -42,14 +42,14 @@ class Optimizer:
             set_of_assets.setValues([i for i in range(1, number_of_assets+1)])
 
 
-            inital_holdings = np.ones(number_of_assets) * 10
+            inital_holdings = np.zeros(number_of_assets)
 
-            self._ampl.get_parameter("gamma").set(-5)
+            self._ampl.get_parameter("gamma").set(-12)
             self._ampl.get_parameter("risk_free_rate").set(0.05)
             self._ampl.get_parameter("dt").set(1/365)
             self._ampl.get_parameter("number_of_assets").set(number_of_assets)
             self._ampl.get_parameter("number_of_scenarios").set(number_of_scenarios)
-            self._ampl.get_parameter("inital_cash").set(10_000_000)
+            self._ampl.get_parameter("inital_cash").set(1_000_000)
             self._ampl.get_parameter("inital_holdings").setValues(inital_holdings)
             d = {(j, i): price_tensor[i-1][j-1] for i in range(1, number_of_assets+1) for j in range(1, number_of_scenarios+1)}
             self._ampl.get_parameter("prices").setValues(d)

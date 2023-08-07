@@ -44,7 +44,10 @@ sim = Simulator(stocks)
 sim.calibrate()
 simulation_tensor = sim.run_simulation(time_steps, number_of_simulations)
 
-
+inital_prices = torch.tensor([stock.risk_factors[0].price_history.mid_history[-1] for stock in stocks])[:, None, None]
+price_tensor = inital_prices * torch.exp(torch.cumsum(simulation_tensor, dim=1))
+plt.plot(price_tensor[5,:,1])
+plt.show()
 
 fig, ax = plt.subplots(4, 4)
 ix, iy = 0, 0
@@ -74,9 +77,7 @@ for i, stock in enumerate(stocks):
 plt.tight_layout()
 plt.show()
 
-
-price_tensor = None # Compute this...
-optimizer = Optimizer(optimization_model=OptimizationModels.SP_MAXIMIZE_UTILITY, simulation_tensor=simulation_tensor)
+optimizer = Optimizer(optimization_model=OptimizationModels.SP_MAXIMIZE_UTILITY, simulation_tensor=price_tensor)
 optimizer._initiate_ampl_engine()
 optimizer._set_ampl_data()
 optimizer._solve_optimzation_problem()
