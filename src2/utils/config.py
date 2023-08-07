@@ -29,3 +29,22 @@ VINE_COPULA_NUMBER_OF_THREADS = 6
 
 # Optimizer
 DEFAULT_SOLVER = "ipopt"
+
+# Yahoo Finance Common Stock Universe
+YAHOO_STOCK_UNIVERSE_16 = ("XOM",
+                            "GS",
+                            "T",
+                            "AAPL",
+                            "MSFT",
+                            "PG",
+                            "K",
+                            "ADI",
+                            "GE",
+                            "AIG",
+                            "KO",
+                            "NKE",
+                            "BAC",
+                            "MMM",
+                            "AXP",
+                            "AMZN",
+                            )
