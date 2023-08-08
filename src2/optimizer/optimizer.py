@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+import os
 import torch
 import numpy as np
 import pandas as pd
 
-from amplpy import AMPL
+from amplpy import AMPL, Environment
 
 from .enums import OptimizationModels
 from utils.config import DEFAULT_SOLVER
@@ -32,7 +33,8 @@ class Optimizer:
         ...
 
     def _initiate_ampl_engine(self):
-        self._ampl = AMPL()
+        environment = Environment(os.environ.get("AMPL_PATH"))
+        self._ampl = AMPL(environment)
         self._ampl.option["solver"] = self._solver
         self._ampl.read(f"optimization_models/{self._optimization_model.value}")
 
