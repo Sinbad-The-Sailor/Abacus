@@ -8,13 +8,14 @@ from amplpy import AMPL, Environment
 
 from .enums import OptimizationModels
 from utils.config import DEFAULT_SOLVER
+from utils.portfolio import Portfolio
 
 
 
 class Optimizer:
 
-    def __init__(self, optimization_model: OptimizationModels, simulation_tensor: torch.Tensor, solver: str = DEFAULT_SOLVER):
-        self._optimization_model = optimization_model
+    def __init__(self, portfolio: Portfolio, simulation_tensor: torch.Tensor, solver: str = DEFAULT_SOLVER):
+        self._portfolio = portfolio
         self._simulation_tensor = simulation_tensor
         self._solver = solver
         self._ran = False
@@ -31,6 +32,15 @@ class Optimizer:
     def solution(self):
         self._check_ran()
         ...
+
+    @property
+    def model(self):
+        return self._optimization_model
+
+    @model.setter
+    def model(self, other):
+        self._optimization_model = other
+
 
     def _initiate_ampl_engine(self):
         environment = Environment(os.environ.get("AMPL_PATH"))
@@ -56,8 +66,8 @@ class Optimizer:
             self._ampl.param["dt"] = 1/365
             self._ampl.param["number_of_assets"] = number_of_assets
             self._ampl.param["number_of_scenarios"] = number_of_scenarios
-            self._ampl.param["inital_cash"] = 10_000_000
-            self._ampl.param["inital_holdings"] = np.zeros(number_of_assets)
+            self._ampl.param["inital_cash"] = self._portfolio._cash
+            self._ampl.param["inital_holdings"] = np.array(list(self._portfolio._holdings.values()))
             self._ampl.param["prices"] = price_dict
 
 
