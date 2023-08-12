@@ -56,10 +56,11 @@ class Optimizer:
             number_of_scenarios = tensor_size[1]
 
             # TODO: Understand this. Possibly change to set of assets instead.
-            price_dict = {(j, i): price_tensor[i-1][j-1] for i in range(1, number_of_assets+1) for j in range(1, number_of_scenarios+1)}
+            price_dict = {(j+1, asset): price_tensor[i][j] for i, asset in enumerate(self._portfolio.instrument_identifiers)
+                                                           for j in range(number_of_scenarios)}
 
             # TODO: Remove this. Should be replaced with list[str] of tickers.
-            self._ampl.get_set("assets").set_values([i for i in range(1, number_of_assets+1)])
+            self._ampl.get_set("assets").set_values(self._portfolio.instrument_identifiers)
 
             self._ampl.param["gamma"] = -12
             self._ampl.param["risk_free_rate"] = 0.04

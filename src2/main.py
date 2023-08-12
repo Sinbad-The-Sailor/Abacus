@@ -26,9 +26,12 @@ stock_factory = StockFactory(stock_specifications=stock_specifications)
 stocks = stock_factory.build_stocks()
 
 # Build current portfolio.
-holdings = {stock: 0 for stock in stocks}
+holdings = {stock: 10 for stock in stocks}
+print(holdings)
 cash = 10_000_000
 portfolio = Portfolio(holdings, cash)
+print(portfolio._holdings)
+
 
 # Simulation specifiation.
 number_of_simulations = 100

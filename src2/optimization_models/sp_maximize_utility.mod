@@ -10,7 +10,7 @@ param number_of_scenarios >0 integer;
 param number_of_assets > 0 integer;
 
 param inital_holdings {assets};
-param prices {1..number_of_scenarios, 1..number_of_assets};
+param prices {1..number_of_scenarios, assets};
 
 var x_buy {assets};
 var x_sell {assets};

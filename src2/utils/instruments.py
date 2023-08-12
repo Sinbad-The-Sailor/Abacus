@@ -32,6 +32,9 @@ class Asset(ABC):
     def __str__(self) -> str:
         return f"Asset: {self.identifier} ({type(self).__name__}) \nRisk Factors: {self.risk_factors}"
 
+    def __repr__(self) -> str:
+        return f"{self.identifier}"
+
 
 
 class Stock(Asset):
