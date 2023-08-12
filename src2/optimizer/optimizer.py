@@ -50,25 +50,24 @@ class Optimizer:
 
     def _set_ampl_data(self):
         if self._optimization_model == OptimizationModels.SP_MAXIMIZE_UTILITY:
+            instrument_identifiers = self._portfolio.instrument_identifiers
+            instrument_holdings = np.array(list(self._portfolio._holdings.values()))
             price_tensor = np.array(self._simulation_tensor[:,-1,:])
             tensor_size = price_tensor.shape
             number_of_assets = tensor_size[0]
             number_of_scenarios = tensor_size[1]
 
-            # TODO: Understand this. Possibly change to set of assets instead.
-            price_dict = {(j+1, asset): price_tensor[i][j] for i, asset in enumerate(self._portfolio.instrument_identifiers)
+            price_dict = {(j+1, asset): price_tensor[i][j] for i, asset in enumerate(instrument_identifiers)
                                                            for j in range(number_of_scenarios)}
 
-            # TODO: Remove this. Should be replaced with list[str] of tickers.
-            self._ampl.get_set("assets").set_values(self._portfolio.instrument_identifiers)
-
+            self._ampl.get_set("assets").set_values(instrument_identifiers)
             self._ampl.param["gamma"] = -12
             self._ampl.param["risk_free_rate"] = 0.04
             self._ampl.param["dt"] = 1/365
             self._ampl.param["number_of_assets"] = number_of_assets
             self._ampl.param["number_of_scenarios"] = number_of_scenarios
             self._ampl.param["inital_cash"] = self._portfolio._cash
-            self._ampl.param["inital_holdings"] = np.array(list(self._portfolio._holdings.values()))
+            self._ampl.param["inital_holdings"] = instrument_holdings
             self._ampl.param["prices"] = price_dict
 
 
