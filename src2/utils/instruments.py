@@ -21,6 +21,7 @@ class RiskFactor:
 
 
 class Asset(ABC):
+    id: int
     identifier: str
     risk_factors: list[RiskFactor]
 
@@ -38,7 +39,8 @@ class Asset(ABC):
 
 
 class Stock(Asset):
-    def __init__(self, identifier, risk_factors):
+    def __init__(self, id, identifier, risk_factors):
+        self.id = id
         self.identifier = identifier
         self.risk_factors = risk_factors
 

@@ -9,9 +9,11 @@ class StockFactory:
 
     def build_stocks(self) -> list[Stock]:
         stocks = []
+        id = 0
         for ticker, data in self._stock_specifications.items():
             identifier = f"{ticker}_RF"
             risk_factor = RiskFactor(identifier, data)
-            stock = Stock(identifier=ticker, risk_factors=[risk_factor])
+            stock = Stock(id=id, identifier=ticker, risk_factors=[risk_factor])
+            id += 1
             stocks.append(stock)
         return stocks

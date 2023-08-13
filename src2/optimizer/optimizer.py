@@ -2,7 +2,6 @@
 import os
 import torch
 import numpy as np
-import pandas as pd
 
 from amplpy import AMPL, Environment
 
@@ -50,18 +49,19 @@ class Optimizer:
 
     def _set_ampl_data(self):
         if self._optimization_model == OptimizationModels.SP_MAXIMIZE_UTILITY:
-            instrument_identifiers = self._portfolio.instrument_identifiers
-            instrument_holdings = np.array(list(self._portfolio._holdings.values()))
+            assets = self._portfolio.instruments
+            asset_identifiers = [instrument.identifier for instrument in assets]
+            instrument_holdings = np.array(list(self._portfolio.holdings.values()))
             price_tensor = np.array(self._simulation_tensor[:,-1,:])
             tensor_size = price_tensor.shape
             number_of_assets = tensor_size[0]
             number_of_scenarios = tensor_size[1]
 
-            price_dict = {(j+1, asset): price_tensor[i][j] for i, asset in enumerate(instrument_identifiers)
-                                                           for j in range(number_of_scenarios)}
+            price_dict = {(j+1, asset.identifier): price_tensor[asset.id][j] for asset in assets
+                                                                             for j in range(number_of_scenarios)}
 
-            self._ampl.get_set("assets").set_values(instrument_identifiers)
-            self._ampl.param["gamma"] = -12
+            self._ampl.get_set("assets").set_values(asset_identifiers)
+            self._ampl.param["gamma"] = -24
             self._ampl.param["risk_free_rate"] = 0.04
             self._ampl.param["dt"] = 1/365
             self._ampl.param["number_of_assets"] = number_of_assets

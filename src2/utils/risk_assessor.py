@@ -6,8 +6,8 @@ from portfolio import Portfolio
 
 class RiskAssessor:
 
-    def __init__(self, return_tensor: torch.Tensor, time_period: int , scaling: int):
-        ...
+    def __init__(self, return_tensor: torch.Tensor, time_period: int):
+        self._return_matrix = return_tensor[:,time_period,:]
 
     def _weights(self) -> torch.Tensor:
         ...

@@ -13,7 +13,7 @@ from models.garch import GARCH
 class Simulator:
 
     def __init__(self, instruments: list):
-        self._instruments = instruments
+        self._instruments = [instrument for instrument in sorted(instruments, key=lambda x: x.id)]
         self._calibrated = False
         self._return_tensor = None
         self._price_tensor = None
@@ -66,11 +66,6 @@ class Simulator:
         number_of_risk_factors = self._number_of_risk_factors
         size = (number_of_risk_factors, time_steps, number_of_simulations)
         simulation_tensor = torch.empty(size=size)
-
-        print("number of simulations", number_of_simulations)
-        print("time steps", time_steps)
-        print("number of risk factors", self._number_of_risk_factors)
-        print("number of simulations from cop", len(self._coupla.simulate(time_steps)))
 
         for n in range(number_of_simulations):
             simulations = self._coupla.simulate(time_steps).T

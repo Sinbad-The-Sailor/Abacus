@@ -14,8 +14,12 @@ class Portfolio:
         return {ticker: holding/total_holdings for ticker, holding in self._holdings.items()}
 
     @property
-    def instrument_identifiers(self):
-        return [instrument.identifier for instrument in self._holdings]
+    def holdings(self):
+        return self._holdings
+
+    @property
+    def instruments(self):
+        return [instrument for instrument in self._holdings]
 
     def __str__(self):
         output = "\nPortfolio Holdings\n"
