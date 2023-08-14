@@ -8,6 +8,7 @@ from utils.config import TEST_YAHOO_STOCK_UNIVERSE_16
 from utils.stock_factory import StockFactory
 from utils.data_handler import YahooDataHandler
 from utils.portfolio import Portfolio
+from utils.risk_assessor import RiskAssessor
 from simulator.simulator import Simulator
 from optimizer.optimizer import Optimizer
 from optimizer.enums import OptimizationModels
@@ -30,8 +31,6 @@ holdings = {stock: 10 for stock in stocks}
 print(holdings)
 cash = 10_000_000
 portfolio = Portfolio(holdings, cash)
-print(portfolio._holdings)
-
 
 # Simulation specifiation.
 number_of_simulations = 100
@@ -43,6 +42,13 @@ simulator.calibrate()
 simulator.run_simulation(time_steps=time_steps, number_of_simulations=number_of_simulations)
 return_tensor = simulator.return_tensor
 price_tensor = simulator.price_tensor
+
+
+# Risk Assesor of simulated portfolio.
+risk_assessor = RiskAssessor(portfolio, return_tensor, 2)
+print(risk_assessor._weights())
+
+
 
 # Plotting of price simulations.
 fig, ax = plt.subplots(4, 4)
