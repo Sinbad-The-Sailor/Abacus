@@ -33,8 +33,8 @@ cash = 10_000_000
 portfolio = Portfolio(holdings, cash)
 
 # Simulation specifiation.
-number_of_simulations = 100
-time_steps = 14
+number_of_simulations = 1000
+time_steps = 5
 
 # Simulator for returns and prices.
 simulator = Simulator(instruments=stocks)
@@ -46,8 +46,15 @@ price_tensor = simulator.price_tensor
 
 # Risk Assesor of simulated portfolio.
 risk_assessor = RiskAssessor(portfolio, return_tensor, 2)
-print(risk_assessor._weights())
+print(risk_assessor._weights)
+print(risk_assessor._return_matrix)
+print(risk_assessor._reduced_return_matrix)
+import numpy as np
+plt.hist(np.array(risk_assessor._portfolio_return_scenarios))
+plt.show()
 
+plt.hist(np.array(risk_assessor._portfolio_loss_scenarios))
+plt.show()
 
 
 # Plotting of price simulations.
