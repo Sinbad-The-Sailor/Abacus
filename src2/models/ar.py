@@ -40,7 +40,6 @@ class AR(Model):
     def __init__(self, time_series: pd.Series):
         super().__init__(time_series)
 
-
     @property
     def parameters(self) -> list[float]:
         self._check_calibration()
@@ -73,7 +72,6 @@ class AR(Model):
 
         return - (self._number_of_observations - self._order) / 2 * (torch.log(pi) + torch.log(variance)) - 1 / (2 * variance) * torch.sum(squared_difference)
 
-
     def calibrate(self):
         self._build_lag_order()
         self._build_data_matricies()
@@ -82,7 +80,6 @@ class AR(Model):
         self._check_unit_roots()
 
         self._calibrated = True
-
 
     def transform_to_true(self, uniform_sample: torch.Tensor) -> torch.Tensor:
         self._check_calibration()
@@ -103,13 +100,11 @@ class AR(Model):
 
         return simulated_values[self._order:]
 
-
     def transform_to_uniform(self) -> torch.Tensor:
         self._check_calibration()
         residuals = self._build_residuals()
 
         return Normal(0, 1).cdf(residuals)
-
 
     def _check_unit_roots(self):
         """
@@ -126,7 +121,6 @@ class AR(Model):
             if np.abs(root) >= 1:
                 raise StationarityError(f"Root {root} outside of complex unit circle.")
 
-
     def _estimate_standard_deviation(self):
         """
         Estimates unconditional standard deviation taking into account the order of the process.
@@ -134,13 +128,11 @@ class AR(Model):
         variance = 1 / (self._number_of_observations - self._order) * torch.sum(torch.square(self._data - torch.mean(self._data)))
         self._sigma = torch.sqrt(variance)
 
-
     def _solve_least_squares(self):
         solution = torch.linalg.solve(self._R, self._Q.T @ self._b)
         self._solution = solution
         self._mu = solution[0]
         self._phi = solution[1:]
-
 
     def _build_data_matricies(self):
         """

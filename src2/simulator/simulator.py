@@ -73,7 +73,6 @@ class Simulator:
                 simulation_tensor[i,:,n] = self._risk_factors[i].model.transform_to_true(torch.tensor(simulation))
         self._return_tensor = simulation_tensor
 
-
     def _calibrate_instruments(self):
         for instrument in self._instruments:
             if isinstance(instrument, Stock):

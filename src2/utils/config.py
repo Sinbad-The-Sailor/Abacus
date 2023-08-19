@@ -27,6 +27,10 @@ VINE_COPULA_FAMILIES = (
 # Computations
 VINE_COPULA_NUMBER_OF_THREADS = 6
 
+# Extreme Value Theory POT Threshold
+EVT_THRESHOLD = 0.95
+GEV_INITIAL_SOLUTION = (0.1, 0.01)
+
 # Optimizer
 DEFAULT_SOLVER = "ipopt"
 
@@ -35,16 +39,16 @@ TEST_YAHOO_STOCK_UNIVERSE_16 = ("XOM",
                                 "GS",
                                 "T",
                                 "AAPL",
-                                "MSFT",
-                                "PG",
-                                "K",
-                                "ADI",
-                                "GE",
-                                "AIG",
-                                "KO",
-                                "NKE",
-                                "BAC",
-                                "MMM",
-                                "AXP",
-                                "AMZN",
+                                # "MSFT",
+                                # "PG",
+                                # "K",
+                                # "ADI",
+                                # "GE",
+                                # "AIG",
+                                # "KO",
+                                # "NKE",
+                                # "BAC",
+                                # "MMM",
+                                # "AXP",
+                                # "AMZN",
                                 )

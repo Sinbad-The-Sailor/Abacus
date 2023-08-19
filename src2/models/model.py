@@ -83,7 +83,6 @@ class Model(ABC):
 
         return number_of_parameters * torch.log(number_of_observations) - 2 * log_likelihood
 
-
     def _check_calibration(self):
         """
         Checks if successful calibration has been made.
