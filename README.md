@@ -5,9 +5,9 @@
 </div>
 
 > Automatic sequential investment decisions.
-> Currently only making bad decisions. Work in progress.
+> Utilizing realistic market simulations to solve portfolio optimization and risk management.
 >
->
+> Currently only working for domestic stocks. Work in progress.
 
 
 <div align="center">
@@ -29,7 +29,6 @@
 - [Forecasting](#forecasting)
     - [Equity Models](#equity-model)
     - [Vine Copula Dependency Structure](#vine-copula-dependency-strucutre)
-- [Valuation](#valuation)
 - [Risk Management](#risk-management)
 - [References](#references)
 
@@ -87,8 +86,6 @@ Example of 5-dimensional vine coupla (PCC).
 <p align="center">
 <img width="403" alt="image" src="https://user-images.githubusercontent.com/62723280/169716182-d73f6456-3f21-4074-b24c-bc94de7272f0.png">
 </p>
-
-### **Valuation**
 
 ### **Risk Management**
 
