@@ -74,6 +74,8 @@ class RiskAssessor:
         constraints = []
         observations = self._excess_portfolio_losses
 
+        constraints.append({"type": "ineq", "fun": lambda x: x[1]})
+
         for observation in observations:
             constraints.append({"type": "ineq", "fun": lambda x: 1 + x[0] / x[1] * observation})
 
@@ -134,10 +136,8 @@ class RiskAssessor:
         threshold = self._evt_threshold
         parameters = torch.tensor(self._parameters)
         xi, beta = parameters[0], parameters[1]
-        print(xi, beta)
 
-
-        extreme_var = threshold + beta / xi * ((total_number_of_observations / number_of_excess_observations) * (1 - confidence_level) ** (-xi) - 1)
+        extreme_var = threshold + beta / xi * ((total_number_of_observations / number_of_excess_observations * (1 - confidence_level)) ** (-xi) - 1)
 
         return extreme_var.item()
 

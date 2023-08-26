@@ -45,13 +45,21 @@ price_tensor = simulator.price_tensor
 
 
 # Risk Assesor of simulated portfolio.
+import numpy as np
 risk_assessor = RiskAssessor(portfolio, return_tensor, 2)
-
 print(risk_assessor.value_at_risk(0.99))
 print(risk_assessor.expected_shortfall(0.99))
 print(risk_assessor.extreme_value_at_risk(0.99))
 print(risk_assessor.extreme_expected_shortfall(0.99))
-import numpy as np
+
+print(risk_assessor.value_at_risk(0.999))
+print(risk_assessor.expected_shortfall(0.999))
+print(risk_assessor.extreme_value_at_risk(0.999))
+print(risk_assessor.extreme_expected_shortfall(0.999))
+
+plt.hist(np.array(risk_assessor._excess_portfolio_losses))
+plt.show()
+
 plt.hist(np.array(risk_assessor._portfolio_return_scenarios))
 plt.show()
 
