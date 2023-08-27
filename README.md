@@ -122,6 +122,10 @@ Example of 5-dimensional vine coupla (PCC).
 * Oprisor R, Kwon R. Multi-Period Portfolio Optimization with Investor Views under Regime Switching. Journal of Risk and Financial Management. 2021; 14(1):3. https://doi.org/10.3390/jrfm14010003
 * Fremlin, S. (2019). Online intra-day portfolio optimization using regime based models (Dissertation). Retrieved from http://lup.lub.lu.se/student-papers/record/8972097
 
+#### Stochastic Programming for Portfolio Optimization.
+
+* G. Cornuejols, R. Tütüncü. Optimization Methods in Finance. Optimization Methods in Finance. Mathematics, Finance and Risk. Cambridge University Press. 2007.
+
 #### AR, MA, and ARMA Time Series Models.
 
 * Hamilton, J. D. (1994). Time Series Analysis. Princeton University Press. 
