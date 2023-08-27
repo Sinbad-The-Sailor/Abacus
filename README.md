@@ -38,6 +38,30 @@
 
 ### **Portfolio Optimization**
 
+For portfolio optimzation there are two paragimes which utilizes the simulation tensor. Stochastic Programming (SP) and Model Predictive Control (MPC). The main difference being SP utilizing all scenarios for one time period, while MPC considers the average scenario over multiple time periods. The implemented models yield different results and can be modified with additional constraints and asset classes to suit any investor. 
+
+##### 1. Maximize Expected Utility Domestic Stocks (Stochastic Programming)
+$$
+\mbox{max} \quad \mathbb{E}\Big[ U\Big( x_1^{\text{cash}} +  p_{1}^{\text{mid}} \boldsymbol{x}_{1}^{\text{hold}}  \Big)   \Big]
+$$
+
+$$
+\boldsymbol{x}_1^{\text{hold}} = \boldsymbol{h}_0^{\text{hold}} + \boldsymbol{x}_0^{\text{buy}} - \boldsymbol{x}_0^{\text{sell}}
+$$
+
+$$
+x_1^{\text{cash}} = \big(h_0^{\text{cash}} +  p_0^{\text{mid}}(\boldsymbol{x}_0^{\text{buy}} - \boldsymbol{x}_0^{\text{sell}})   \big) e^{r \Delta t}
+$$
+
+$$
+\boldsymbol{x}_0^{\text{buy}}, \boldsymbol{x}_0^{\text{sell}}, \boldsymbol{x}_1^{\text{hold}} \geq \boldsymbol{0}
+$$
+
+$$
+x_1^{\text{cash}} \geq 0
+$$
+
+
 ### **Forecasting**
 
 ##### **Equity Model**
