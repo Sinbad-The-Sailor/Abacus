@@ -1,18 +1,22 @@
 all: run
 
+run:
+	@python run.py
+
 install:
 	@pip install --upgrade pip
 	@pip install -r requirements.txt
 
-# TODO: run .env file to load environment variables.
-run:
-	. venv/bin/activate
-	python main.py
+venv:
+	. venv/bin/activate && exec zsh
 
-# TODO: should lint src and working directory.
+env:
+	@source .env
+
 lint:
-	@black .
+	@black src/.
 
-# TODO: should remove all .pyc and pycache folders.
 clean:
-	@echo "cleaing project of *.pyc"
+	echo "cleaing project of *.pyc and __pycache__"
+	@find . -type f -name *.pyc -delete
+	@find . -type d -name __pycache__ -delete;
