@@ -16,7 +16,7 @@ class GARCH(Model):
         super().__init__(data)
 
     @property
-    def parameters(self) -> tuple[float, 3]:
+    def parameters(self) -> tuple[float, ...]:
         self._check_calibration()
 
         optimal_parameters = self._optimal_parameters
@@ -31,11 +31,11 @@ class GARCH(Model):
         return len(self.parameters)
 
     @property
-    def _optimal_parameters(self) -> np.array:
+    def _optimal_parameters(self) -> np.ndarray:
         return self._uncondition_parameters(parameters=torch.tensor(self._solution.x)).numpy()
 
     @property
-    def _inital_solution(self) -> np.array:
+    def _inital_solution(self) -> np.ndarray:
         return np.array(self._precondition_parameters(parameters=torch.tensor(INITIAL_GARCH_PARAMETERS)))
 
     @property
@@ -83,7 +83,7 @@ class GARCH(Model):
 
         return Normal(0, 1).cdf(residuals)
 
-    def _cost_function(self, parameters: np.array) -> tuple[float, 2]:
+    def _cost_function(self, parameters: np.array) -> tuple[float, ...]:
         """
         Defines the conditional log loss for the GARCH model. Calculates the loss recursively.
 
