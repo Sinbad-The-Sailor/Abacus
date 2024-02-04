@@ -3,17 +3,16 @@ import torch
 import numpy as np
 import pyvinecopulib as pv
 
-from src.abacus.config import STOCK_ADMISSIBLE_MODELS, VINE_COPULA_FAMILIES, VINE_COPULA_NUMBER_OF_THREADS
-from src.abacus.models.ar import AR
-from src.abacus.models.garch import GARCH
 from src.abacus.utils.instrument import Instrument
 from src.abacus.utils.exceptions import ParameterError
-
+from src.abacus.simulator.model_selector import ModelSelector
+from src.abacus.config import VINE_COPULA_FAMILIES, VINE_COPULA_NUMBER_OF_THREADS
 
 
 class Simulator:
 
     def __init__(self, instruments: list[Instrument]):
+        self._model_selector = ModelSelector()
         self._instruments = sorted(instruments, key=lambda x: x.identifier)
         self._calibrated = False
         self._return_tensor = None
@@ -74,32 +73,14 @@ class Simulator:
 
     def _calibrate_instruments(self):
         for instrument in self._instruments:
-            if instrument.instrument_type == "Stock":
-                self._calibrate_stock(instrument)
+            self._model_selector.instrument = instrument
+            self._model_selector.select_model()
 
     def _calibrate_copula(self):
         uniforms = self._uniform_samples
         controls = pv.FitControlsVinecop(family_set=VINE_COPULA_FAMILIES, num_threads=VINE_COPULA_NUMBER_OF_THREADS)
         copula = pv.Vinecop(uniforms, controls=controls)
         self._coupla = copula
-
-    def _calibrate_stock(self, stock):
-        # TODO: Make more scalable for different models and more instrument types.
-        current_aic = np.inf
-        data = stock.log_returns_tensor
-
-        for model_name in STOCK_ADMISSIBLE_MODELS:
-            if model_name == "AR":
-                model = AR(data)
-                model.calibrate()
-                if model.aic < current_aic:
-                    stock.model = model
-
-            elif model_name == "GARCH":
-                model = GARCH(data)
-                model.calibrate()
-                if model.aic < current_aic:
-                    stock.model = model
 
     def _check_calibration(self):
         if not self._calibrated:

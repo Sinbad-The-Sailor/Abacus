@@ -92,3 +92,6 @@ class Model(ABC):
         """
         if not self._calibrated:
             raise ParameterError("Model has not been calibrated succesfully.")
+
+    def __str__(self) -> str:
+        return type(self).__name__

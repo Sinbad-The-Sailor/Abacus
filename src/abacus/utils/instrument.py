@@ -40,3 +40,6 @@ class Instrument:
     @model.setter
     def model(self, other):
         self._model = other
+
+    def __str__(self) -> str:
+        return f"{self.identifier}"
