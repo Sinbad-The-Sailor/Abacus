@@ -11,7 +11,7 @@ venv:
 	. venv/bin/activate && exec zsh
 
 env:
-	@source .env
+	@source .env;
 
 lint:
 	@black src/.

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+
+
 class Portfolio:
 
     def __init__(self, holdings: dict[str:int], cash: float):
@@ -8,10 +10,14 @@ class Portfolio:
 
     @property
     def weights(self):
-        total_holdings = sum(self._holdings.values())
+        total_holdings = sum(map(abs, self._holdings.values()))
         if total_holdings == 0:
             return {ticker: 0 for ticker in self._holdings.items()}
         return {ticker: holding/total_holdings for ticker, holding in self._holdings.items()}
+
+    @property
+    def indices(self):
+        return [instrument.id for instrument in self._holdings]
 
     @property
     def holdings(self):
@@ -19,7 +25,7 @@ class Portfolio:
 
     @property
     def instruments(self):
-        return [instrument for instrument in self._holdings]
+        return self._holdings.keys()
 
     def __str__(self):
         output = "\nPortfolio Holdings\n"

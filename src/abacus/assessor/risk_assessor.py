@@ -4,8 +4,8 @@ import numpy as np
 
 from scipy.optimize import minimize
 
-from utils.config import EVT_THRESHOLD, GEV_INITIAL_SOLUTION
-from utils.portfolio import Portfolio
+from src.abacus.config import EVT_THRESHOLD, GEV_INITIAL_SOLUTION
+from src.abacus.utils.portfolio import Portfolio
 
 
 
@@ -25,8 +25,15 @@ class RiskAssessor:
         self._return_tensor = return_tensor
         self._time_step = time_step
         self._calibrated = False
-
         self._check_time_step()
+
+    def summary(self):
+        headers = "VaR", "Extreme VaR", "ES", "Extreme ES"
+        confidence_99 = self.value_at_risk(0.99), self.extreme_value_at_risk(0.99), self.expected_shortfall(0.99), self.extreme_expected_shortfall(0.99)
+        confidence_999 = self.value_at_risk(0.999), self.extreme_value_at_risk(0.999), self.expected_shortfall(0.999), self.extreme_expected_shortfall(0.999)
+        print(*headers)
+        print(*confidence_99)
+        print(*confidence_999)
 
     @property
     def _evt_threshold(self) -> torch.Tensor:
@@ -44,8 +51,7 @@ class RiskAssessor:
 
     @property
     def _reduced_return_matrix(self) -> torch.Tensor:
-        instrument_ids = [instrument.id for instrument in self._portfolio.weights]
-        sorted_ids = torch.tensor(sorted(instrument_ids))
+        sorted_ids = torch.tensor(self._portfolio.indices)
         return torch.index_select(self._return_matrix, dim=0, index=sorted_ids)
 
     @property
@@ -55,8 +61,8 @@ class RiskAssessor:
     @property
     def _weights(self) -> torch.Tensor:
         portfolio_weights = self._portfolio.weights
+        sorted_keys = sorted(list(portfolio_weights.keys()), key=lambda x: x.id)
         weights = torch.empty(len(portfolio_weights))
-        sorted_keys = sorted(list(portfolio_weights), key=lambda x: x.id)
         for i, key in enumerate(sorted_keys):
             weights[i] = portfolio_weights[key]
         return weights
@@ -73,7 +79,6 @@ class RiskAssessor:
     def _constraints(self) -> list[dict]:
         constraints = []
         observations = self._excess_portfolio_losses
-
         constraints.append({"type": "ineq", "fun": lambda x: x[1]})
 
         for observation in observations:
@@ -158,9 +163,6 @@ class RiskAssessor:
         threshold = self._evt_threshold
         parameters = torch.tensor(self._parameters)
         xi, beta = parameters[0], parameters[1]
-
-        print(xi, beta)
-
         extreme_es = extreme_var / (1 - xi) + (beta - threshold * xi) /(1 - xi)
 
         return extreme_es.item()

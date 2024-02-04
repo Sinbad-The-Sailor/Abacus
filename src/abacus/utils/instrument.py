@@ -6,7 +6,9 @@ import pandas as pd
 
 
 class Instrument:
-    def __init__(self, identifier: str, instrument_type: str, price_history: pd.DataFrame):
+    # TODO: Ensure uniqueness of identifier in whatever script creates instruments from ids.
+    def __init__(self, id: int, identifier: str, instrument_type: str, price_history: pd.DataFrame):
+        self.id = id
         self.identifier = identifier
         self.instrument_type = instrument_type
         self.price_history = price_history
@@ -18,6 +20,7 @@ class Instrument:
 
     @property
     def log_returns(self) -> pd.DataFrame:
+        # TODO: Consider which way is best to compute log returns with.
         # return np.log(self.mid_history / self.mid_history.shift(1))[1:]
         return np.log(1 + self.price_history.pct_change())[1:]
 
@@ -43,3 +46,6 @@ class Instrument:
 
     def __str__(self) -> str:
         return f"{self.identifier}"
+
+    def __repr__(self) -> str:
+        return self.__str__()

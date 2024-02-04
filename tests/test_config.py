@@ -16,3 +16,19 @@ TEST_YAHOO_STOCK_UNIVERSE_16 = ("XOM",
                                 "AXP",
                                 "AMZN",
                                 )
+
+TEST_YAHOO_STOCK_UNIVERSE_8 =  ("XOM",
+                                "GS",
+                                "T",
+                                "AAPL",
+                                "MSFT",
+                                "PG",
+                                "K",
+                                "ADI",
+                                )
+
+TEST_YAHOO_STOCK_UNIVERSE_4 =  ("XOM",
+                                "GS",
+                                "T",
+                                "ADI",
+                                )

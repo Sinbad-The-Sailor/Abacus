@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import pyvinecopulib as pv
 
+
+
 # Processes
 MAXIMUM_AR_ORDER = 5
 INITIAL_VARIANCE_GARCH_OBSERVATIONS = 20
