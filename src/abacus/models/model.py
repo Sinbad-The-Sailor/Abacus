@@ -3,7 +3,8 @@ import torch
 import pandas as pd
 
 from abc import ABC, abstractmethod
-from utils.exceptions import ParameterError
+from src.abacus.utils.exceptions import ParameterError
+
 
 
 class Model(ABC):
@@ -11,10 +12,9 @@ class Model(ABC):
     a model is made using external uniform samples.
     """
 
-    def __init__(self, time_series: pd.Series):
-        self.time_series = time_series
-        self._data = torch.Tensor(time_series.values)
-        self._number_of_observations = len(time_series)
+    def __init__(self, data: torch.Tensor):
+        self._data = data
+        self._number_of_observations = len(data)
         self._calibrated = False
 
     @abstractmethod

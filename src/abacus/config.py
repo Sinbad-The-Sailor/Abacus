@@ -1,11 +1,18 @@
 # -*- coding: utf-8 -*-
-import numpy as np
 import pyvinecopulib as pv
 
-EPSILON = 1e-8
-DEFALUT_SIMULATIONS = 100
-DEFALUT_STEPS = 10
-VINE_COPULA_FAMILIES = [
+# Processes
+MAXIMUM_AR_ORDER = 5
+INITIAL_VARIANCE_GARCH_OBSERVATIONS = 20
+INITIAL_GARCH_PARAMETERS = (0.05, 0.90)
+STOCK_ADMISSIBLE_MODELS = (
+    "AR",
+    "GARCH"
+)
+
+# Copulas
+VINE_COPULA_NUMBER_OF_THREADS = 6
+VINE_COPULA_FAMILIES = (
     pv.BicopFamily.gaussian,
     pv.BicopFamily.clayton,
     pv.BicopFamily.frank,
@@ -15,16 +22,11 @@ VINE_COPULA_FAMILIES = [
     pv.BicopFamily.bb6,
     pv.BicopFamily.bb7,
     pv.BicopFamily.bb8,
-]
-INITIAL_GARCH_PARAMETERS = np.array([0.05, 0.80])
-INITIAL_GJRGARCH_PARAMETERS = np.array([0.05, 0.80, 0.001])
-INITIAL_NPM_PARAMETERS = np.array([0.0, 1.0, 0.0, 0.0, 0.0])
+)
 
-ADMISSIBLE_EQUTIY_MODELS = {
-    "AR": [1, 2],
-    "MA": [1, 2],
-    "NNAR": [1, 2],
-    "GARCH": [],
-    "GJRGARCH": [],
-}
-ADMISSIBLE_FX_MODELS = {"AR": [1, 2], "NNAR": [1, 2], "GARCH": []}
+# Extreme Value Theory POT Threshold
+EVT_THRESHOLD = 0.95
+GEV_INITIAL_SOLUTION = (0.1, 0.01)
+
+# Optimizer
+DEFAULT_SOLVER = "ipopt"

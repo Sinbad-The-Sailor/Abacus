@@ -1,167 +1,106 @@
 # -*- coding: utf-8 -*-
+import torch
 import numpy as np
-import copulae as cop
 import pyvinecopulib as pv
 
-from abacus.simulator.model_factory import ModelFactory
-from abacus.instruments import Instrument
-from abacus.config import DEFALUT_STEPS, VINE_COPULA_FAMILIES, DEFALUT_SIMULATIONS
+from src.abacus.config import STOCK_ADMISSIBLE_MODELS, VINE_COPULA_FAMILIES, VINE_COPULA_NUMBER_OF_THREADS
+from src.abacus.models.ar import AR
+from src.abacus.models.garch import GARCH
+from src.abacus.utils.instrument import Instrument
+from src.abacus.utils.exceptions import ParameterError
+
 
 
 class Simulator:
+
     def __init__(self, instruments: list[Instrument]):
-        self.instruments = instruments
-        self.model_factory = ModelFactory(instruments=instruments)
+        self._instruments = sorted(instruments, key=lambda x: x.identifier)
+        self._calibrated = False
+        self._return_tensor = None
+        self._price_tensor = None
 
-        try:
-            self.number_of_instruments = len(instruments)
-        except ValueError:
-            self.number_of_instruments = -1
+    @property
+    def return_tensor(self) -> torch.Tensor:
+        self._check_calibration()
+        return self._return_tensor
 
-        try:
-            last_prices = self._last_prices()
-        except ValueError:
-            self.value = -1
+    @property
+    def price_tensor(self) -> torch.Tensor:
+        self._check_calibration()
+        if self._price_tensor is None:
+            return_tensor = self.return_tensor
+            inital_prices = self._inital_prices
+            self._price_tensor = inital_prices * torch.exp(torch.cumsum(return_tensor, dim=1))
+        return self._price_tensor
 
-        self.find_models()
-        self.fit_portfolio()
+    @property
+    def _uniform_samples(self) -> np.array:
+        # TODO: Compute size of array and fill it vectorized. Requires a consistent number of samples accessible.
+        samples = []
+        for instrument in self._instruments:
+            model = instrument.model
+            samples.append(model.transform_to_uniform())
+        return np.stack(samples).T
 
-    def find_models(self) -> None:
-        self.model_factory.build_all()
+    @property
+    def _number_of_instruments(self) -> int:
+        return len(self._instruments)
 
-    def fit_portfolio(self) -> None:
-        # Check if more than 1 asset exists.
-        if self.number_of_instruments == 1:
-            raise ValueError("To few instruments to run dependency.")
+    @property
+    def _inital_prices(self) -> torch.Tensor:
+        size = (self._number_of_instruments, )
+        intial_prices = torch.empty(size=size)
+        for i, instrument in enumerate(self._instruments):
+            intial_prices[i] = instrument.initial_price
+        return intial_prices[:, None, None]
 
-        # Check if more than 1 asset exists.
-        if self.number_of_instruments == 1:
-            raise ValueError("To few instruments to run dependency.")
+    def calibrate(self):
+        self._calibrate_instruments()
+        self._calibrate_copula()
+        self._calibrated = True
 
-        # Creating uniform data.
-        # TODO: Remove list to make this faster!
-        # TODO: Assert lenght -> pick smallest if error.
-        # TODO: Create dict for insturments in portfolio in order to never mix up returns!
-        uniforms = []
-        for instrument in self.instruments:
-            uniforms.append(instrument.model.transform_to_uniform())
+    def run_simulation(self, time_steps: int, number_of_simulations: int) -> torch.Tensor:
+        assert isinstance(time_steps, int) and time_steps > 0, "Time step must be a positive integer."
+        assert isinstance(number_of_simulations, int) and number_of_simulations > 0, "Number of simulations must be a positive integer."
+        number_of_instruments = self._number_of_instruments
+        size = (number_of_instruments, time_steps, number_of_simulations)
+        simulation_tensor = torch.empty(size=size)
 
-        smallest_sample_size = len(min(uniforms, key=len))
-        uniforms = [uniform[:smallest_sample_size] for uniform in uniforms]
-        uniforms = np.stack(uniforms).T
+        for n in range(number_of_simulations):
+            simulations = self._coupla.simulate(time_steps).T
+            for i, simulation in enumerate(simulations):
+                simulation_tensor[i,:,n] = self._instruments[i].model.transform_to_true(torch.tensor(simulation))
+        self._return_tensor = simulation_tensor
 
-        if self.number_of_instruments == 2:
-            # TODO: Function which picks optimal vanilla copula from a family of copulae.
-            copula = cop.StudentCopula()
-            copula.fit(uniforms)
+    def _calibrate_instruments(self):
+        for instrument in self._instruments:
+            if instrument.instrument_type == "Stock":
+                self._calibrate_stock(instrument)
 
-        if self.number_of_instruments > 2:
-            # Function which picks optimal vine copula.
-            controls = pv.FitControlsVinecop(family_set=VINE_COPULA_FAMILIES)
-            copula = pv.Vinecop(uniforms, controls=controls)
+    def _calibrate_copula(self):
+        uniforms = self._uniform_samples
+        controls = pv.FitControlsVinecop(family_set=VINE_COPULA_FAMILIES, num_threads=VINE_COPULA_NUMBER_OF_THREADS)
+        copula = pv.Vinecop(uniforms, controls=controls)
+        self._coupla = copula
 
-        self.copula = copula
+    def _calibrate_stock(self, stock):
+        # TODO: Make more scalable for different models and more instrument types.
+        current_aic = np.inf
+        data = stock.log_returns_tensor
 
-    def run_simultion_assets(
-        self, number_of_steps: int = DEFALUT_STEPS, dependency: bool = True
-    ) -> np.array:
-        # Check if portfolio has instruments.
-        if not self._has_instruments():
-            raise ValueError("Portfolio has no instruments.")
+        for model_name in STOCK_ADMISSIBLE_MODELS:
+            if model_name == "AR":
+                model = AR(data)
+                model.calibrate()
+                if model.aic < current_aic:
+                    stock.model = model
 
-        # Check if all instruments has a model.
-        if not self._has_models():
-            raise ValueError("One instrument has no model.")
+            elif model_name == "GARCH":
+                model = GARCH(data)
+                model.calibrate()
+                if model.aic < current_aic:
+                    stock.model = model
 
-        # Check if all models are fitted.
-        if not self._has_solution():
-            raise ValueError("One model has no solution.")
-
-        if dependency:
-            return self._generate_multivariate_simulation(
-                number_of_steps=number_of_steps
-            )
-        else:
-            return self._generate_univariate_simulation(number_of_steps=number_of_steps)
-
-    def run_simulation_portfolio(
-        self,
-        number_of_steps: int = DEFALUT_STEPS,
-        number_of_simulations: int = DEFALUT_SIMULATIONS,
-        dependency: bool = True,
-    ) -> list[np.array]:
-
-        init_prices = self._last_prices()
-        for simulation in range(number_of_simulations):
-            # Portfolio constituance simulation.
-            simultion_matrix = self.run_simultion_assets(
-                number_of_steps=number_of_steps, dependency=dependency
-            )
-            # Portfolio prices.
-            temp_prices = init_prices * np.prod(np.exp(simultion_matrix), axis=1)
-            print(simultion_matrix)
-            print(simulation)
-
-        return temp_prices
-
-    def _generate_univariate_simulation(self, number_of_steps: int) -> np.array:
-        # TODO: Remove list to make this faster!
-        result = []
-        for instrument in self.instruments:
-            result.append(
-                instrument.model.run_simulation(number_of_steps=number_of_steps)
-            )
-        return np.vstack(result)
-
-    def _generate_multivariate_simulation(self, number_of_steps: int) -> np.array:
-        # Check if copula has been fitted.
-        if not self._has_copula():
-            raise ValueError("Portfolio has no multivarite model/copula.")
-
-        if self.number_of_instruments == 2:
-            simulated_uniforms = self.copula.random(number_of_steps)
-
-        if self.number_of_instruments > 2:
-            simulated_uniforms = self.copula.simulate(number_of_steps)
-
-        # TODO: Remove list to make this faster if need be.
-        result = []
-        for i in range(self.number_of_instruments):
-            current_instrument = self.instruments[i]
-            current_uniform_sample = simulated_uniforms[:, i]
-            result.append(
-                current_instrument.model.transform_to_true(current_uniform_sample)
-            )
-        return result
-
-    def _last_prices(self) -> np.array:
-        try:
-            # TODO: Assert that all dates are the same!
-            last_prices = np.zeros(self.number_of_instruments)
-            for i in range(self.number_of_instruments):
-                last_prices[i] = self.instruments[i].price_history[-1]
-            return last_prices
-        except ValueError:
-            self._last_prices = np.zeros(self.number_of_instruments)
-
-    def _has_models(self) -> bool:
-        for instrument in self.instruments:
-            if instrument.has_model == False:
-                return False
-        return True
-
-    def _has_instruments(self) -> bool:
-        if self.number_of_instruments == 0:
-            return False
-        return True
-
-    def _has_copula(self) -> bool:
-        if self.copula is None:
-            return False
-        return True
-
-    def _has_solution(self) -> bool:
-        for instrument in self.instruments:
-            if instrument.model.solution is None:
-                return False
-        return True
+    def _check_calibration(self):
+        if not self._calibrated:
+            raise ParameterError("Simulator is not calibrated.")

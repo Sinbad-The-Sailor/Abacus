@@ -6,14 +6,14 @@ import pandas as pd
 from scipy.optimize import minimize
 from torch.distributions import Normal
 
-from models.model import Model
-from utils.config import INITIAL_VARIANCE_GARCH_OBSERVATIONS, INITIAL_GARCH_PARAMETERS
-from utils.exceptions import ParameterError
+from src.abacus.models.model import Model
+from src.abacus.config import INITIAL_VARIANCE_GARCH_OBSERVATIONS, INITIAL_GARCH_PARAMETERS
+from src.abacus.utils.exceptions import ParameterError
 
 class GARCH(Model):
 
-    def __init__(self, time_series: pd.Series):
-        super().__init__(time_series)
+    def __init__(self, data: torch.Tensor):
+        super().__init__(data)
 
     @property
     def parameters(self) -> tuple[float, 3]:

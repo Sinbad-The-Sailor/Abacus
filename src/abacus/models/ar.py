@@ -5,9 +5,10 @@ import pandas as pd
 
 from torch.distributions import Normal
 
-from models.model import Model
-from utils.config import MAXIMUM_AR_ORDER
-from utils.exceptions import StationarityError
+from src.abacus.models.model import Model
+from src.abacus.config import MAXIMUM_AR_ORDER
+from src.abacus.utils.exceptions import StationarityError
+
 
 
 class AR(Model):
@@ -37,8 +38,8 @@ class AR(Model):
           http://sfb649.wiwi.hu-berlin.de/fedc_homepage/xplore/tutorials/xegbohtmlnode39.html
     """
 
-    def __init__(self, time_series: pd.Series):
-        super().__init__(time_series)
+    def __init__(self, data: torch.Tensor):
+        super().__init__(data)
 
     @property
     def parameters(self) -> list[float]:
