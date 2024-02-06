@@ -24,7 +24,6 @@
 
 ### **Table of Contents**
 - [Getting Started](#getting-started)
-- [Architecture](#architecture)
 - [Portfolio Optimization](#portfolio-optimization)
 - [Forecasting](#forecasting)
     - [Equity Models](#equity-model)
@@ -34,11 +33,9 @@
 
 ### **Getting Started**
 
-### **Architecture**
-
 ### **Portfolio Optimization**
 
-For portfolio optimzation there are two paragimes which utilizes the simulation tensor. Stochastic Programming (SP) and Model Predictive Control (MPC). The main difference being SP utilizing all scenarios for one time period, while MPC considers the average scenario over multiple time periods. The implemented models yield different results and can be modified with additional constraints and asset classes to suit any investor. 
+For portfolio optimzation there are two paragimes which utilizes the simulation tensor. Stochastic Programming (SP) and Model Predictive Control (MPC). The main difference being SP utilizing all scenarios for one time period, while MPC considers the average scenario over multiple time periods. The implemented models yield different results and can be modified with additional constraints and asset classes to suit any investor.
 
 ##### 1. Maximize Expected Utility Domestic Stocks (Stochastic Programming)
 $$
@@ -80,7 +77,7 @@ $$
 $$
 
 $$
-\kappa \in \mathbb{R},\quad \mu \in \mathbb{R}, \quad \lambda_J > 0 
+\kappa \in \mathbb{R},\quad \mu \in \mathbb{R}, \quad \lambda_J > 0
 $$
 
 $$
@@ -113,7 +110,7 @@ Example of 5-dimensional vine coupla (PCC).
 
 ### **Risk Management**
 
-### **References** 
+### **References**
 ---------------------------------------
 
 #### Model Predictive Control for Multi-Period Portfolio Optimization.
@@ -128,7 +125,7 @@ Example of 5-dimensional vine coupla (PCC).
 
 #### AR, MA, and ARMA Time Series Models.
 
-* Hamilton, J. D. (1994). Time Series Analysis. Princeton University Press. 
+* Hamilton, J. D. (1994). Time Series Analysis. Princeton University Press.
 
 #### Nonlinear Autoregressive model with Neural Networks.
 
@@ -148,5 +145,5 @@ Example of 5-dimensional vine coupla (PCC).
 #### Extreme Value Theory and Financial Risk Management.
 
 * Avdulaj, K. (2011). The Extreme Value Theory as a Tool to Measure Market Risk, IES Working Paper, No. 26/2011, Charles University in Prague, Institute of Economic Studies (IES), Prague. http://hdl.handle.net/10419/83384
-* McNeil A, Frey R, Embrechts, P. (2005). Quantitative Risk Management: Concepts, Techniques, and Tools. 
+* McNeil A, Frey R, Embrechts, P. (2005). Quantitative Risk Management: Concepts, Techniques, and Tools.
 * Hull, J. (2018). Risk management and financial institutions. Wiley Finance Series. Wiley.
