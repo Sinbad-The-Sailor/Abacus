@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import torch
 import pandas as pd
 
 from matplotlib import pyplot
@@ -22,28 +23,32 @@ for id, ticker in enumerate(sorted(TEST_YAHOO_STOCK_UNIVERSE_4)):
 # Simulation ...
 simulator = Simulator(instruments)
 simulator.calibrate()
-simulator.run_simulation(time_steps=10, number_of_simulations=1000)
+simulator.run_simulation(time_steps=10, number_of_simulations=1)
 
 # Portfolio creation...
-holdings = 500, 200, 100, 125
+holdings = 1, 1, 1, 1
 holdings = dict(zip(instruments[0:4], holdings))
-print(holdings)
-cash = 100_000
+cash = 100
 portfolio = Portfolio(holdings, cash)
 
 # Risk assessor creation...
-assessor = RiskAssessor(portfolio=portfolio, return_tensor=simulator.return_tensor, time_step=5)
-assessor.summary()
+# assessor = RiskAssessor(portfolio=portfolio, return_tensor=simulator.return_tensor, time_step=5)
+# assessor.summary()
 
 # Display reasonableness of simulations...
-for i in range(25):
-    y = simulator.price_tensor[0,:,i]
-    x = [i for i in range(len(y))]
-    pyplot.plot(x, y)
-pyplot.show()
+# for i in range(25):
+#     y = simulator.price_tensor[0,:,i]
+#     x = [i for i in range(len(y))]
+#     pyplot.plot(x, y)
+# pyplot.show()
+
+
+# Mock prices...
+# price_tensor = torch.tensor([ [[1000]], [[0]], [[0]], [[0]]])
+# inital_prices = torch.tensor([ [[10]], [[10]], [[10]], [[10]]])
 
 # Create optimizer with different optimization models...
-optimizer = SPMaximumUtility(portfolio, simulator.price_tensor)
+optimizer = SPMaximumUtility(portfolio, simulator._price_tensor, simulator._inital_prices)
 optimizer.solve()
 
 
