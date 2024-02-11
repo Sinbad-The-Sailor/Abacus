@@ -8,7 +8,7 @@ from src.abacus.utils.instrument import Instrument
 from src.abacus.utils.portfolio import Portfolio
 from src.abacus.simulator.simulator import Simulator
 from src.abacus.assessor.risk_assessor import RiskAssessor
-from src.abacus.optimizer.optimizer import SPMaximumUtility
+from src.abacus.optimizer.optimizer import SPMaximumUtility, MPCMaximumUtility
 
 
 
@@ -32,8 +32,8 @@ cash = 100
 portfolio = Portfolio(holdings, cash)
 
 # Risk assessor creation...
-# assessor = RiskAssessor(portfolio=portfolio, return_tensor=simulator.return_tensor, time_step=5)
-# assessor.summary()
+assessor = RiskAssessor(portfolio=portfolio, return_tensor=simulator.return_tensor, time_step=5)
+assessor.summary()
 
 # Display reasonableness of simulations...
 for i in range(25):
@@ -41,7 +41,6 @@ for i in range(25):
     x = [i for i in range(len(y))]
     pyplot.plot(x, y)
 pyplot.show()
-
 
 # Mock prices...
 price_tensor = torch.tensor([ [[1000]], [[0]], [[0]], [[0]]])
@@ -54,6 +53,9 @@ optimizer.solve()
 print()
 optimizer = SPMaximumUtility(portfolio, simulator.price_tensor, simulator._inital_prices, gamma=-2)
 optimizer.solve()
+
+print()
+optimzier = MPCMaximumUtility(portfolio, simulator.return_tensor)
 
 
 print("OK!")

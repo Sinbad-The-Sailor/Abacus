@@ -1,0 +1,3 @@
+problem mpcMaximizeUtility;
+
+set assets;

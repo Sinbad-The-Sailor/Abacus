@@ -58,6 +58,20 @@ $$
 x_1^{\text{cash}} \geq 0
 $$
 
+##### 2. Maximize Expected Utility Domestic Stocks (Model Predictive Control)
+$$
+\mbox{max} \quad \mathbb{E}\Big[ U\Big( x_1^{\text{cash}} +  \sum_{a \in A} p_{1,a}^{\text{mid}} x_{1,a}^{\text{hold}}  \Big)   \Big]
+$$
+
+$$
+x_{1,a}^{\text{hold}} = h_{0,a}^{\text{hold}} + x_{0, a}^{\text{buy}} - x_{0,a}^{\text{sell}} \quad \forall a \in A
+$$
+
+$$
+x_1^{\text{cash}} \geq 0
+$$
+
+
 
 ### **Forecasting**
 
@@ -113,36 +127,36 @@ Example of 5-dimensional vine coupla (PCC).
 ### **References**
 ---------------------------------------
 
-#### Model Predictive Control for Multi-Period Portfolio Optimization.
+#### Model Predictive Control for Multi-Period Portfolio Optimization
 
 * S. Boyd, E. Busseti, S. Diamond, R. N. Kahn, K. Koh, P. Nystrup, J. Speth. Multi-Period Trading via Convex Optimization. Foundations and Trends in Optimization, vol. 3, no. 1, pp. 1–76, 2016.
 * Oprisor R, Kwon R. Multi-Period Portfolio Optimization with Investor Views under Regime Switching. Journal of Risk and Financial Management. 2021; 14(1):3. https://doi.org/10.3390/jrfm14010003
 * Fremlin, S. (2019). Online intra-day portfolio optimization using regime based models (Dissertation). Retrieved from http://lup.lub.lu.se/student-papers/record/8972097
 
-#### Stochastic Programming for Portfolio Optimization.
+#### Stochastic Programming for Portfolio Optimization
 
 * G. Cornuejols, R. Tütüncü. Optimization Methods in Finance. Optimization Methods in Finance. Mathematics, Finance and Risk. Cambridge University Press. 2007.
 
-#### AR, MA, and ARMA Time Series Models.
+#### AR, MA, and ARMA Time Series Models
 
 * Hamilton, J. D. (1994). Time Series Analysis. Princeton University Press.
 
-#### Nonlinear Autoregressive model with Neural Networks.
+#### Nonlinear Autoregressive model with Neural Networks
 
 * Benrhmach G, Namir K, Namir A, Bouyaghroumni J. (2020). "Nonlinear Autoregressive Neural Network and Extended Kalman Filters for Prediction of Financial Time Series". Journal of Applied Mathematics. vol 2020. Article ID 5057801. https://doi.org/10.1155/2020/5057801
 
-#### Variance Stabalizing and Preconditioning for GARCH/GJR-GARCH models.
+#### Variance Stabalizing and Preconditioning for GARCH/GJR-GARCH Models
 
 * Zumbach, G. (2000). The Pitfalls in Fitting Garch(1,1) Processes. In: Dunis, C.L. (eds) Advances in Quantitative Asset Management. Studies in Computational Finance, vol 1. Springer, Boston, MA. https://doi.org/10.1007/978-1-4615-4389-3_8
 * Sundström, D. (2017). Automatized GARCH parameter estimation (Dissertation). Retrieved from http://urn.kb.se/resolve?urn=urn:nbn:se:kth:diva-213725
 
-#### Copulas, Copula based Forecasting and Vine Copulas.
+#### Copulas, Copula based Forecasting and Vine Copulas
 
 * Roger, N. (2006). An Introduction to Copulas (Springer Series in Statistics). Springer-Verlag, Berlin, Heidelberg.
 * Simard, C. & Rémillard, B. (2015). Forecasting time series with multivariate copulas. Dependence Modeling, 3(1). https://doi.org/10.1515/demo-2015-0005
 * Czado, C. (2019). Analyzing Dependent Data with Vine Copulas: A Practical Guide With R. Lecture Notes in Statistics. Springer International Publishing.
 
-#### Extreme Value Theory and Financial Risk Management.
+#### Extreme Value Theory and Financial Risk Management
 
 * Avdulaj, K. (2011). The Extreme Value Theory as a Tool to Measure Market Risk, IES Working Paper, No. 26/2011, Charles University in Prague, Institute of Economic Studies (IES), Prague. http://hdl.handle.net/10419/83384
 * McNeil A, Frey R, Embrechts, P. (2005). Quantitative Risk Management: Concepts, Techniques, and Tools.
