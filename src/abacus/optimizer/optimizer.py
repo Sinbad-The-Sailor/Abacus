@@ -54,50 +54,14 @@ class OptimizationModel(ABC):
 
 
 
-class SPMaximumGain(OptimizationModel):
-
-    _model_specification = OptimizationSpecifications.SP_MAXIMIZE_GAIN
-
-    def __init__(self, portfolio: Portfolio, price_tensor: torch.Tensor, inital_prices: torch.Tensor):
-        super().__init__(portfolio, price_tensor)
-        self._inital_prices = inital_prices
-
-    def solve(self):
-        super().solve()
-        print(self._ampl.get_variable("x_buy").get_values())
-        print(self._ampl.get_variable("x_sell").get_values())
-        print(self._ampl.eval("display Objective;"))
-
-    def _set_ampl_data(self):
-        assets = self._portfolio.instruments
-        asset_identifiers = [instrument.identifier for instrument in assets]
-        instrument_holdings = np.array(list(self._portfolio.holdings.values()))
-        price_tensor = np.array(self._simulation_tensor[:,-1,:])
-        inital_prices =  dict(zip(asset_identifiers, np.array(self._inital_prices.reshape(4))))
-        tensor_size = price_tensor.shape
-        number_of_assets = tensor_size[0]
-        number_of_scenarios = tensor_size[1]
-        price_dict = {(j+1, asset.identifier): price_tensor[asset.id][j] for asset in assets for j in range(number_of_scenarios)}
-
-        self._ampl.get_set("assets").set_values(asset_identifiers)
-        self._ampl.param["risk_free_rate"] = 0.05
-        self._ampl.param["dt"] = 10/365
-        self._ampl.param["number_of_assets"] = number_of_assets
-        self._ampl.param["number_of_scenarios"] = number_of_scenarios
-        self._ampl.param["inital_cash"] = self._portfolio._cash
-        self._ampl.param["inital_holdings"] = instrument_holdings
-        self._ampl.param["inital_prices"] = inital_prices
-        self._ampl.param["prices"] = price_dict
-
-
-
 class SPMaximumUtility(OptimizationModel):
 
     _model_specification = OptimizationSpecifications.SP_MAXIMIZE_UTILITY
 
-    def __init__(self, portfolio: Portfolio, price_tensor: torch.Tensor, inital_prices: torch.Tensor):
+    def __init__(self, portfolio: Portfolio, price_tensor: torch.Tensor, inital_prices: torch.Tensor, gamma: float):
         super().__init__(portfolio, price_tensor)
         self._inital_prices = inital_prices
+        self._gamma = gamma
 
     def solve(self):
         super().solve()
@@ -110,7 +74,7 @@ class SPMaximumUtility(OptimizationModel):
         asset_identifiers = [instrument.identifier for instrument in assets]
         instrument_holdings = np.array(list(self._portfolio.holdings.values()))
         price_tensor = np.array(self._simulation_tensor[:,-1,:])
-        inital_prices =  dict(zip(asset_identifiers, np.array(self._inital_prices.reshape(4))))
+        inital_prices =  dict(zip(asset_identifiers, np.array(self._inital_prices.reshape(8))))
         tensor_size = price_tensor.shape
         number_of_assets = tensor_size[0]
         number_of_scenarios = tensor_size[1]
@@ -119,7 +83,7 @@ class SPMaximumUtility(OptimizationModel):
         self._ampl.get_set("assets").set_values(asset_identifiers)
         self._ampl.param["risk_free_rate"] = 0.05
         self._ampl.param["dt"] = 10/365
-        self._ampl.param["gamma"] = -2
+        self._ampl.param["gamma"] = self._gamma
         self._ampl.param["number_of_assets"] = number_of_assets
         self._ampl.param["number_of_scenarios"] = number_of_scenarios
         self._ampl.param["inital_cash"] = self._portfolio._cash

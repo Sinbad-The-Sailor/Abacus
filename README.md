@@ -35,23 +35,23 @@
 
 ### **Portfolio Optimization**
 
-For portfolio optimzation there are two paragimes which utilizes the simulation tensor. Stochastic Programming (SP) and Model Predictive Control (MPC). The main difference being SP utilizing all scenarios for one time period, while MPC considers the average scenario over multiple time periods. The implemented models yield different results and can be modified with additional constraints and asset classes to suit any investor.
+For portfolio optimzation there are two paradigmes which utilizes the simulation tensor. Stochastic Programming (SP) and Model Predictive Control (MPC). The main difference being SP utilizing all scenarios for one time period, while MPC considers the average scenario over multiple time periods. The implemented models yield different results and can be modified with additional constraints and asset classes to suit any investor.
 
 ##### 1. Maximize Expected Utility Domestic Stocks (Stochastic Programming)
 $$
-\mbox{max} \quad \mathbb{E}\Big[ U\Big( x_1^{\text{cash}} +  p_{1}^{\text{mid}} \boldsymbol{x}_{1}^{\text{hold}}  \Big)   \Big]
+\mbox{max} \quad \mathbb{E}\Big[ U\Big( x_1^{\text{cash}} +  \sum_{a \in A} p_{1,a}^{\text{mid}} x_{1,a}^{\text{hold}}  \Big)   \Big]
 $$
 
 $$
-\boldsymbol{x}_1^{\text{hold}} = \boldsymbol{h}_0^{\text{hold}} + \boldsymbol{x}_0^{\text{buy}} - \boldsymbol{x}_0^{\text{sell}}
+x_{1,a}^{\text{hold}} = h_{0,a}^{\text{hold}} + x_{0, a}^{\text{buy}} - x_{0,a}^{\text{sell}} \quad \forall a \in A
 $$
 
 $$
-x_1^{\text{cash}} = \big(h_0^{\text{cash}} +  p_0^{\text{mid}}(\boldsymbol{x}_0^{\text{buy}} - \boldsymbol{x}_0^{\text{sell}})   \big) e^{r \Delta t}
+x_1^{\text{cash}} = \big(h_0^{\text{cash}} +  \sum_{a \in A} (p_{0,a}^{\text{ask}}x_{0,a}^{\text{buy}} - p_{0,a}^{\text{bid}}x_{0,a}^{\text{sell}})   \big) e^{r \Delta t}
 $$
 
 $$
-\boldsymbol{x}_0^{\text{buy}}, \boldsymbol{x}_0^{\text{sell}}, \boldsymbol{x}_1^{\text{hold}} \geq \boldsymbol{0}
+x_{0, a}^{\text{buy}}, ~x_{0,a}^{\text{sell}}, ~x_{1, a}^{\text{hold}} \geq 0 \quad \forall a \in A
 $$
 
 $$
