@@ -1,10 +1,9 @@
-problem spMaximizeUtility;
+problem spMaximizeGain;
 
 set assets;
 
 param dt > 0;
 param risk_free_rate;
-param gamma;
 param inital_cash > 0;
 param number_of_scenarios > 0 integer;
 param number_of_assets > 0 integer;
@@ -16,7 +15,7 @@ var x_buy {assets};
 var x_sell {assets};
 
 maximize Objective:
-    sum{i in 1..number_of_scenarios} 1/number_of_scenarios * ((inital_cash + sum{j in assets} (inital_prices[j] * (x_sell[j] - x_buy[j]))) * exp(risk_free_rate * dt) +  sum{j in assets} (prices[i, j] * (inital_holdings[j] + x_buy[j] - x_sell[j]))) ** gamma / gamma;
+    sum{i in 1..number_of_scenarios} 1/number_of_scenarios * ((inital_cash + sum{j in assets} (inital_prices[j] * (x_sell[j] - x_buy[j]))) * exp(risk_free_rate * dt) +  sum{j in assets} (prices[i, j] * (inital_holdings[j] + x_buy[j] - x_sell[j])));
 
 
 subject to SHORTING_CONSTRAINT {j in assets}:

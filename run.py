@@ -8,7 +8,7 @@ from src.abacus.utils.instrument import Instrument
 from src.abacus.utils.portfolio import Portfolio
 from src.abacus.simulator.simulator import Simulator
 from src.abacus.assessor.risk_assessor import RiskAssessor
-from src.abacus.optimizer.optimizer import SPMaximumUtility
+from src.abacus.optimizer.optimizer import SPMaximumUtility, SPMaximumGain
 
 
 
@@ -44,13 +44,16 @@ portfolio = Portfolio(holdings, cash)
 
 
 # Mock prices...
-# price_tensor = torch.tensor([ [[1000]], [[0]], [[0]], [[0]]])
-# inital_prices = torch.tensor([ [[10]], [[10]], [[10]], [[10]]])
+price_tensor = torch.tensor([ [[1000]], [[0]], [[0]], [[0]]])
+inital_prices = torch.tensor([ [[10]], [[10]], [[10]], [[10]]])
 
 # Create optimizer with different optimization models...
-optimizer = SPMaximumUtility(portfolio, simulator._price_tensor, simulator._inital_prices)
+optimizer = SPMaximumGain(portfolio, price_tensor, inital_prices)
 optimizer.solve()
 
+print()
+optimizer = SPMaximumUtility(portfolio, price_tensor, inital_prices)
+optimizer.solve()
 
 
 print("OK!")
