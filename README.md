@@ -60,15 +60,15 @@ $$
 
 ##### 2. Maximize Expected Utility Domestic Stocks (Model Predictive Control)
 $$
-\mbox{max} \quad \mathbb{E}\Big[ U\Big( x_1^{\text{cash}} +  \sum_{a \in A} p_{1,a}^{\text{mid}} x_{1,a}^{\text{hold}}  \Big)   \Big]
+\mbox{max} \quad \sum_{t=0}^{T-1} U\Big(\sum_{a \ in A} \mathbb{E}[r_{ta}](w_{ta} + z_{ta})   \Big)
 $$
 
 $$
-x_{1,a}^{\text{hold}} = h_{0,a}^{\text{hold}} + x_{0, a}^{\text{buy}} - x_{0,a}^{\text{sell}} \quad \forall a \in A
+w_{t+1,a} = w_{ta} + z_{ta} \quad \forall t \in \{0,\ldots,T-1\} ~ \forall a \in A
 $$
 
 $$
-x_1^{\text{cash}} \geq 0
+\sum_{a \in A} z_{ta} = 0 \quad \forall t \in \{0,\ldots,T-1\}
 $$
 
 
