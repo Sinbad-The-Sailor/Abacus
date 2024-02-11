@@ -60,16 +60,13 @@ $$
 
 ##### 2. Maximize Expected Utility Domestic Stocks (Model Predictive Control)
 $$
-\mbox{max} \quad \sum_{t=0}^{T-1} U\Big(\sum_{a \ in A} \mathbb{E}[r_{ta}](w_{ta} + z_{ta})   \Big)
+\begin{align*}
+& \mbox{max} \quad \sum_{t=0}^{T-1} U\Big(\sum_{a \in A} \mathbb{E}[r_{ta}](w_{ta} + z_{ta})   \Big) \\
+& w_{t+1,a} = w_{ta} + z_{ta} \quad \forall t \in \{0,\ldots,T-1\} ~ \forall a \in A \\
+& \sum_{a \in A} z_{ta} = 0 \quad \forall t \in \{0,\ldots,T-1\} \\
+\end{align*}
 $$
 
-$$
-w_{t+1,a} = w_{ta} + z_{ta} \quad \forall t \in \{0,\ldots,T-1\} ~ \forall a \in A
-$$
-
-$$
-\sum_{a \in A} z_{ta} = 0 \quad \forall t \in \{0,\ldots,T-1\}
-$$
 
 
 
