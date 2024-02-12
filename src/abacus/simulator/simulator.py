@@ -10,6 +10,10 @@ from src.abacus.config import VINE_COPULA_FAMILIES, VINE_COPULA_NUMBER_OF_THREAD
 
 
 class Simulator:
+    """
+    TODO: Add description of resulting tensor.
+
+    """
 
     def __init__(self, instruments: list[Instrument]):
         self._model_selector = ModelSelector()

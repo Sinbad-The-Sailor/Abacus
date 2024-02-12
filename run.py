@@ -23,11 +23,12 @@ for id, ticker in enumerate(sorted(TEST_YAHOO_STOCK_UNIVERSE_8)):
 # Simulation ...
 simulator = Simulator(instruments)
 simulator.calibrate()
-simulator.run_simulation(time_steps=25, number_of_simulations=500)
+simulator.run_simulation(time_steps=25, number_of_simulations=25)
 
 # Portfolio creation...
-holdings = 1, 1, 1, 1
-holdings = dict(zip(instruments[0:4], holdings))
+holdings = 2, 1, 1, 1, 1, 1, 1, 1
+# TODO: Check why 0 holdings does not work well for any model.
+holdings = dict(zip(instruments, holdings))
 cash = 100
 portfolio = Portfolio(holdings, cash)
 
@@ -36,11 +37,11 @@ assessor = RiskAssessor(portfolio=portfolio, return_tensor=simulator.return_tens
 assessor.summary()
 
 # Display reasonableness of simulations...
-for i in range(25):
-    y = simulator.price_tensor[0,:,i]
-    x = [i for i in range(len(y))]
-    pyplot.plot(x, y)
-pyplot.show()
+# for i in range(25):
+#     y = simulator.price_tensor[0,:,i]
+#     x = [i for i in range(len(y))]
+#     pyplot.plot(x, y)
+# pyplot.show()
 
 # Mock prices...
 price_tensor = torch.tensor([ [[1000]], [[0]], [[0]], [[0]]])
@@ -48,14 +49,15 @@ inital_prices = torch.tensor([ [[10]], [[10]], [[10]], [[10]]])
 
 # Create optimizer with different optimization models...
 optimizer = SPMaximumUtility(portfolio, simulator.price_tensor, simulator._inital_prices, gamma=1)
-optimizer.solve()
+# optimizer.solve()
 
 print()
 optimizer = SPMaximumUtility(portfolio, simulator.price_tensor, simulator._inital_prices, gamma=-2)
-optimizer.solve()
+# optimizer.solve()
 
 print()
-optimzier = MPCMaximumUtility(portfolio, simulator.return_tensor)
+optimizer = MPCMaximumUtility(portfolio, simulator.return_tensor, gamma=1)
+optimizer.solve()
 
 
 print("OK!")

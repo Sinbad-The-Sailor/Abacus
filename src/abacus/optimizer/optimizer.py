@@ -67,7 +67,7 @@ class SPMaximumUtility(OptimizationModel):
         super().solve()
         print(self._ampl.get_variable("x_buy").get_values())
         print(self._ampl.get_variable("x_sell").get_values())
-        print(self._ampl.eval("display Objective;"))
+        print(self._ampl.eval("display OBJECTIVE;"))
 
     def _set_ampl_data(self):
         assets = self._portfolio.instruments
@@ -97,9 +97,36 @@ class MPCMaximumUtility(OptimizationModel):
 
     _model_specification = OptimizationSpecifications.MPC_MAXIMIZE_UTILITY
 
-    def __init__(self, portfolio: Portfolio, return_tensor: torch.Tensor):
+    def __init__(self, portfolio: Portfolio, return_tensor: torch.Tensor, gamma: float):
         super().__init__(portfolio, return_tensor)
-        raise NotImplementedError
+        self._gamma = gamma
+
+    @property
+    def _return_expectation_tensor(self):
+        return torch.mean(self._simulation_tensor, dim=2)
+
+    def solve(self):
+        super().solve()
+        print(self._ampl.get_variable("weights").get_values())
+        print(self._ampl.eval("display OBJECTIVE;"))
 
     def _set_ampl_data(self):
-        return super()._set_ampl_data()
+        # TODO: Add these as properties in superclass.
+        assets = self._portfolio.instruments
+        inital_weights = self._portfolio.weights
+        asset_identifiers = [instrument.identifier for instrument in assets]
+        inital_weights = dict(zip(asset_identifiers, inital_weights.values()))
+        expected_return_tensor = np.array(self._return_expectation_tensor)
+        tensor_size = expected_return_tensor.shape
+        number_of_time_steps = tensor_size[1]
+        return_dict = {(j+1, asset.identifier): expected_return_tensor[asset.id][j] for asset in assets for j in range(number_of_time_steps)}
+
+        print(return_dict)
+        print(asset_identifiers)
+        print(inital_weights)
+
+        self._ampl.get_set("assets").set_values(asset_identifiers)
+        self._ampl.param["gamma"] = self._gamma
+        self._ampl.param["number_of_time_steps"] = number_of_time_steps
+        self._ampl.param["inital_weights"] = inital_weights
+        self._ampl.param["returns"] = return_dict

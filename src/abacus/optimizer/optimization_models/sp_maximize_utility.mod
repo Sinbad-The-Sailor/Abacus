@@ -15,9 +15,9 @@ param prices {1..number_of_scenarios, assets};
 var x_buy {assets};
 var x_sell {assets};
 
-maximize Objective:
-    sum{i in 1..number_of_scenarios} 1/number_of_scenarios * ((inital_cash + sum{j in assets} (inital_prices[j] * (x_sell[j] - x_buy[j]))) * exp(risk_free_rate * dt) +  sum{j in assets} (prices[i, j] * (inital_holdings[j] + x_buy[j] - x_sell[j]))) ** gamma / gamma;
-
+maximize OBJECTIVE:
+    sum{i in 1..number_of_scenarios} 1/number_of_scenarios * ((inital_cash + sum{j in assets} (inital_prices[j] * (x_sell[j] - x_buy[j]))) * exp(risk_free_rate * dt) +  sum{j in assets} (prices[i, j] * (inital_holdings[j] + x_buy[j] - x_sell[j]))) ** gamma / gamma
+;
 
 subject to SHORTING_CONSTRAINT {j in assets}:
     inital_holdings[j] + x_buy[j] - x_sell[j] >= 0
