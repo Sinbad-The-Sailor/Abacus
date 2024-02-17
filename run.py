@@ -57,7 +57,7 @@ optimizer = SPMaximumUtility(portfolio, simulator.price_tensor, simulator._inita
 
 print()
 optimizer = MPCMaximumUtility(portfolio, simulator.return_tensor, gamma=1)
-optimizer.solve()
+# optimizer.solve()
 
 
 print("OK!")

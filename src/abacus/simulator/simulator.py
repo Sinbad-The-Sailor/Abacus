@@ -5,6 +5,7 @@ import pyvinecopulib as pv
 
 from src.abacus.utils.instrument import Instrument
 from src.abacus.utils.exceptions import ParameterError
+from src.abacus.utils.enumerations import DataTypes
 from src.abacus.simulator.model_selector import ModelSelector
 from src.abacus.config import VINE_COPULA_FAMILIES, VINE_COPULA_NUMBER_OF_THREADS
 
@@ -21,6 +22,21 @@ class Simulator:
         self._calibrated = False
         self._return_tensor = None
         self._price_tensor = None
+
+    @property
+    def covariance_matrix(self, data_type: DataTypes=DataTypes.LOG_RETURNS) -> torch.Tensor:
+        # TODO: Add explanation of stacking here.
+        # TODO: Ensure working under odd data length inputs.
+        # TODO: Add input for price through enum.
+        # TODO: Consider making static.
+        # TODO: Consider check for symmetric and positive semi definiteness.
+        if data_type == DataTypes.LOG_RETURNS:
+            instrument_data = [instrument.log_returns_tensor for instrument in self._instruments]
+        elif data_type == DataTypes.ART_RETURNS:
+            instrument_data = [instrument.art_returns_tensor for instrument in self._instruments]
+        else:
+            raise NotImplementedError(f"Data type {data_type} not supported to build covariance matrix.")
+        return torch.cov(torch.stack(instrument_data))
 
     @property
     def return_tensor(self) -> torch.Tensor:

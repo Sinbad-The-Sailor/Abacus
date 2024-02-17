@@ -95,6 +95,8 @@ class SPMaximumUtility(OptimizationModel):
 
 class MPCMaximumUtility(OptimizationModel):
 
+    # TODO: Follow Boyd et al (https://doi.org/10.1007/s10479-018-2947-3) for transaction costs and risk aversion.
+
     _model_specification = OptimizationSpecifications.MPC_MAXIMIZE_UTILITY
 
     def __init__(self, portfolio: Portfolio, return_tensor: torch.Tensor, gamma: float):
