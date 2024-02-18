@@ -59,7 +59,6 @@ print()
 optimizer = MPCMaximumUtility(portfolio, simulator.return_tensor, gamma=1)
 # optimizer.solve()
 
-
 print()
 optimizer = MPCMaximumReturn(portfolio, simulator.return_tensor, gamma=10, l1_penalty=0, l2_penalty=1, covariance_matrix=simulator.covariance_matrix)
 optimizer.solve()
