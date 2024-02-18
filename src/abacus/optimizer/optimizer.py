@@ -123,12 +123,53 @@ class MPCMaximumUtility(OptimizationModel):
         number_of_time_steps = tensor_size[1]
         return_dict = {(j+1, asset.identifier): expected_return_tensor[asset.id][j] for asset in assets for j in range(number_of_time_steps)}
 
-        print(return_dict)
-        print(asset_identifiers)
-        print(inital_weights)
+        self._ampl.get_set("assets").set_values(asset_identifiers)
+        self._ampl.param["gamma"] = self._gamma
+        self._ampl.param["number_of_time_steps"] = number_of_time_steps
+        self._ampl.param["inital_weights"] = inital_weights
+        self._ampl.param["returns"] = return_dict
+
+
+class MPCMaximumReturn(OptimizationModel):
+
+    _model_specification = OptimizationSpecifications.MPC_MAXIMIZE_RETURN
+
+    def __init__(self, portfolio: Portfolio, simulation_tensor: torch.Tensor, gamma: float, l1_penalty: float, l2_penalty: float,
+                 covariance_matrix: torch.Tensor):
+        super().__init__(portfolio, simulation_tensor)
+        self._gamma = gamma
+        self._l1_penalty = l1_penalty
+        self._l2_penalty = l2_penalty
+        self._covariance_matrix = covariance_matrix
+
+    @property
+    def _return_expectation_tensor(self):
+        return torch.mean(self._simulation_tensor, dim=2)
+
+    def solve(self):
+        super().solve()
+        print(self._ampl.get_variable("weights").get_values())
+        print(self._ampl.eval("display OBJECTIVE;"))
+
+    def _set_ampl_data(self):
+        assets = self._portfolio.instruments
+        inital_weights = self._portfolio.weights
+        asset_identifiers = [instrument.identifier for instrument in assets]
+        inital_weights = dict(zip(asset_identifiers, inital_weights.values()))
+        expected_return_tensor = np.array(self._return_expectation_tensor)
+        tensor_size = expected_return_tensor.shape
+        number_of_time_steps = tensor_size[1]
+        return_dict = {(j+1, asset.identifier): expected_return_tensor[asset.id][j] for asset in assets for j in range(number_of_time_steps)}
+        covariance_matrix = np.array(self._covariance_matrix)
+
+        l1_penalty_vector = self._l1_penalty * np.ones(len(assets))
+        l2_penalty_vector = self._l2_penalty * np.ones(len(assets))
 
         self._ampl.get_set("assets").set_values(asset_identifiers)
         self._ampl.param["gamma"] = self._gamma
         self._ampl.param["number_of_time_steps"] = number_of_time_steps
         self._ampl.param["inital_weights"] = inital_weights
         self._ampl.param["returns"] = return_dict
+        self._ampl.param["covariance"] = covariance_matrix
+        self._ampl.param["l1_penalty"] = l1_penalty_vector
+        self._ampl.param["l2_penalty"] = l2_penalty_vector

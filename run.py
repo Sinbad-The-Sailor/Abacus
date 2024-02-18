@@ -8,7 +8,7 @@ from src.abacus.utils.instrument import Instrument
 from src.abacus.utils.portfolio import Portfolio
 from src.abacus.simulator.simulator import Simulator
 from src.abacus.assessor.risk_assessor import RiskAssessor
-from src.abacus.optimizer.optimizer import SPMaximumUtility, MPCMaximumUtility
+from src.abacus.optimizer.optimizer import SPMaximumUtility, MPCMaximumUtility, MPCMaximumReturn
 
 
 
@@ -58,6 +58,11 @@ optimizer = SPMaximumUtility(portfolio, simulator.price_tensor, simulator._inita
 print()
 optimizer = MPCMaximumUtility(portfolio, simulator.return_tensor, gamma=1)
 # optimizer.solve()
+
+
+print()
+optimizer = MPCMaximumReturn(portfolio, simulator.return_tensor, gamma=10, l1_penalty=0, l2_penalty=1, covariance_matrix=simulator.covariance_matrix)
+optimizer.solve()
 
 
 print("OK!")
