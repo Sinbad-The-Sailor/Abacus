@@ -15,7 +15,7 @@ from src.abacus.utils.enumerations import OptimizationSpecifications
 
 class OptimizationModel(ABC):
 
-    _model_specification: ClassVar[int]
+    _model_specification: ClassVar[str]
 
     def __init__(self, portfolio: Portfolio, simulation_tensor: torch.Tensor, solver: str=DEFAULT_SOLVER):
         self._portfolio = portfolio
@@ -144,9 +144,14 @@ class MPCMaximumReturn(OptimizationModel):
     def _return_expectation_tensor(self):
         return torch.mean(self._simulation_tensor, dim=2)
 
+    def solution(self):
+        self._check_solved()
+        print(self._ampl.get_variable("weights").get_values())
+        print(type(self._ampl.get_variable("weights").get_values()))
+
     def solve(self):
         super().solve()
-        print(self._ampl.get_variable("weights").get_values())
+        print(self._ampl.get_variable("weights").to_pandas().loc[1])
         print(self._ampl.eval("display OBJECTIVE;"))
 
     def _set_ampl_data(self):

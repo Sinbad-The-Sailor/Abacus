@@ -38,7 +38,7 @@ for id, ticker in enumerate(sorted(TEST_YAHOO_STOCK_UNIVERSE_8)):
 ts = time_series_data["XOM"]
 start_date = "2020-01-02"
 end_date = "2023-05-31"
-end_date = "2022-01-05"
+end_date = "2020-01-05"
 pr = pd.period_range(start=start_date, end=end_date, freq='B')
 
 portfolio1 = Portfolio(weights=initial_weights)
@@ -56,11 +56,13 @@ for i, date in enumerate(pr):
     # Build simulator.
     simulator = Simulator(instruments)
     simulator.calibrate()
-    simulator.run_simulation(time_steps=25, number_of_simulations=25)
+    simulator.run_simulation(time_steps=5, number_of_simulations=25)
 
     # Run optimizer on portfolio.
     optimizer = MPCMaximumReturn(portfolio1, simulator.return_tensor, gamma=10, l1_penalty=0, l2_penalty=1, covariance_matrix=simulator.covariance_matrix)
     optimizer.solve()
+    optimizer.solution()
+    exit()
 
 
 
