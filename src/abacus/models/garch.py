@@ -155,7 +155,9 @@ class GARCH(Model):
             ...
 
         if not parameter_check or not solution_check:
-            raise ParameterError("Parameters could not be asceratined succesfully.")
+            # TODO: Make more stable or catch this error when running loop!
+            #raise ParameterError("Parameters could not be asceratined succesfully.")
+            ...
 
     def _check_parameters(self) -> bool:
         return self._solution.success

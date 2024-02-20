@@ -44,6 +44,14 @@ class Instrument:
     def model(self, other):
         self._model = other
 
+    @property
+    def price_history(self):
+        return self._price_history
+
+    @price_history.setter
+    def price_history(self, new):
+        self._price_history = new
+
     def __str__(self) -> str:
         return f"{self.identifier}"
 
