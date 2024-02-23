@@ -26,6 +26,8 @@ initial_weights = {}
 inital_holdings = {}
 inital_cash = 10_000
 
+# TODO: Should be in a universe class maybe...
+instrument_mapping = {}
 for id, ticker in enumerate(sorted(TEST_YAHOO_STOCK_UNIVERSE_8)):
     file = f"tests/data/{ticker}.csv"
     time_series = pd.read_csv(file, index_col='Date')
@@ -34,12 +36,13 @@ for id, ticker in enumerate(sorted(TEST_YAHOO_STOCK_UNIVERSE_8)):
     instruments.append(ins)
     initial_weights[ins] = 1 / len(TEST_YAHOO_STOCK_UNIVERSE_8)
     inital_holdings[ins] = 10
+    instrument_mapping[ticker] = ins
 
 ts = time_series_data["XOM"]
 start_date = "2020-01-02"
-end_date = "2023-05-31"
-end_date = "2020-01-05"
-pr = pd.period_range(start=start_date, end=end_date, freq='B')
+end_date = "2020-01-03" # "2023-05-31"
+us_bd = CustomBusinessDay(calendar=USFederalHolidayCalendar())
+pr = pd.date_range(start=start_date, end=end_date, freq='B')
 
 portfolio1 = Portfolio(weights=initial_weights)
 portfolio2 = Portfolio(weights=initial_weights)
@@ -48,6 +51,7 @@ portfolio3 = Portfolio(holdings=inital_holdings, cash=inital_cash)
 
 wealth = np.zeros(len(pr))
 for i, date in enumerate(pr):
+
 
     # Build universe.
     for ins in instruments:
@@ -61,16 +65,19 @@ for i, date in enumerate(pr):
     # Run optimizer on portfolio.
     optimizer = MPCMaximumReturn(portfolio1, simulator.return_tensor, gamma=10, l1_penalty=0, l2_penalty=1, covariance_matrix=simulator.covariance_matrix)
     optimizer.solve()
-    optimizer.solution()
+    solution = optimizer.solution
+    solution = {instrument_mapping[ticker]: weight for ticker, weight in solution.items()}
+    print(solution)
+    # optimizer = MPCMaximumUtility(portfolio2, simulator.return_tensor, gamma=1)
+    # optimizer.solve()
+
+    # optimizer = SPMaximumUtility(portfolio3, simulator.price_tensor, simulator._inital_prices, gamma=-3)
+    # optimizer.solve()
+
     exit()
 
 
-
-
-
     # Update portfolio weights.
-
-
 
     # Record portfolio wealth.
     wealth[i] = 0

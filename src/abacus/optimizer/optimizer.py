@@ -25,6 +25,7 @@ class OptimizationModel(ABC):
         self._ampl = None
 
     def solve(self):
+        # TODO: Consider a verbose mode to display command line output.
         self._initiate_ampl_engine()
         self._set_ampl_data()
         self._solve_optimzation_problem()
@@ -70,6 +71,7 @@ class SPMaximumUtility(OptimizationModel):
         print(self._ampl.eval("display OBJECTIVE;"))
 
     def _set_ampl_data(self):
+        # TODO: Make consistent parameters.
         assets = self._portfolio.instruments
         asset_identifiers = [instrument.identifier for instrument in assets]
         instrument_holdings = np.array(list(self._portfolio.holdings.values()))
@@ -144,19 +146,22 @@ class MPCMaximumReturn(OptimizationModel):
     def _return_expectation_tensor(self):
         return torch.mean(self._simulation_tensor, dim=2)
 
+    @property
     def solution(self):
         self._check_solved()
-        print(self._ampl.get_variable("weights").get_values())
-        print(type(self._ampl.get_variable("weights").get_values()))
+        # TODO: Should be general?
+        ampl_output = self._ampl.get_variable("weights").to_pandas().loc[1].to_dict()["weights.val"]
+        return ampl_output
 
     def solve(self):
+        # TODO: Should weights be a configuration variable?
         super().solve()
-        print(self._ampl.get_variable("weights").to_pandas().loc[1])
-        print(self._ampl.eval("display OBJECTIVE;"))
+        #print(self._ampl.eval("display OBJECTIVE;"))
+
 
     def _set_ampl_data(self):
-        assets = self._portfolio.instruments
         inital_weights = self._portfolio.weights
+        assets = self._portfolio.instruments
         asset_identifiers = [instrument.identifier for instrument in assets]
         inital_weights = dict(zip(asset_identifiers, inital_weights.values()))
         expected_return_tensor = np.array(self._return_expectation_tensor)
