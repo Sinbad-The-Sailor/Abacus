@@ -39,7 +39,7 @@ for date in date_range:
     universe.date_today = date
     simulator = Simulator(universe)
     simulator.calibrate()
-    simulator.run_simulation(time_steps=5, number_of_simulations=1000)
+    simulator.run_simulation(time_steps=10, number_of_simulations=1000)
     optimizer = MPCMaximumReturn(universe, portfolio, simulator.return_tensor, gamma=2, l1_penalty=0, l2_penalty=0.02,
                                  covariance_matrix=simulator.covariance_matrix)
     optimizer.solve()

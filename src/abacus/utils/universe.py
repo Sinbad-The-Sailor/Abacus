@@ -16,7 +16,7 @@ class Universe:
         self._instrument_build_date = None
 
     @property
-    def date_today(self):
+    def date_today(self) -> str:
         return self._date_today
 
     @date_today.setter
@@ -24,7 +24,7 @@ class Universe:
         self._date_today = new
 
     @property
-    def instrument_identifiers(self):
+    def instrument_identifiers(self) -> list[str]:
         return sorted(self._instrument_specifications.keys())
 
     @property
@@ -40,7 +40,7 @@ class Universe:
         return built_instruments
 
     @property
-    def todays_returns(self):
+    def todays_returns(self) -> np.ndarray:
         return np.array([instrument.art_returns[-1] for instrument in self.instruments]).flatten()
 
     def has_updated_cache(self) -> bool:

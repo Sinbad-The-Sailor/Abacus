@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from typing import NoReturn
 
 
 
@@ -10,7 +11,7 @@ class Portfolio:
         self._cash = cash
 
     @property
-    def weights(self):
+    def weights(self) -> dict[str:float] | NoReturn:
         if not self._weights:
             raise ValueError("No weights are available.")
         return self._weights
@@ -20,7 +21,7 @@ class Portfolio:
         self._weights = new
 
     @property
-    def holdings(self):
+    def holdings(self) -> dict[str:int] | NoReturn:
         if not self._weights:
             raise ValueError("No holdings are available.")
         return self._holdings
@@ -30,7 +31,7 @@ class Portfolio:
         self._holdings = new
 
     @property
-    def cash(self):
+    def cash(self) -> float | NoReturn:
         if not self._cash:
             raise ValueError("No cash is available.")
         return self._cash
@@ -40,14 +41,14 @@ class Portfolio:
         self._cash = new
 
     @property
-    def weights_from_holdings(self):
+    def weights_from_holdings(self) -> dict[str:float]:
         total_holdings = sum(map(abs, self._holdings.values()))
         if total_holdings == 0:
             return {ticker: 0 for ticker in self._holdings.items()}
         return {ticker: holding/total_holdings for ticker, holding in self._holdings.items()}
 
     @property
-    def indices(self):
+    def indices(self) -> list[int] | NoReturn:
         if self._holdings:
             return [instrument.id for instrument in self._holdings]
         elif self._weights:
@@ -55,7 +56,7 @@ class Portfolio:
         raise ValueError("Portfolio has no instruments.")
 
     @property
-    def instruments(self):
+    def instruments(self) -> list[str] | NoReturn:
         if self._holdings:
             return self._holdings.keys()
         elif self._weights:

@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
+from abc import ABC, abstractmethod
+from typing import ClassVar
 
 import torch
 import numpy as np
 import amplpy as ap
-from abc import ABC, abstractmethod
-from typing import ClassVar
 
 from src.abacus.utils.portfolio import Portfolio
 from src.abacus.utils.universe import Universe
@@ -145,15 +145,10 @@ class MPCMaximumReturn(OptimizationModel):
         self._l2_penalty = l2_penalty
         self._covariance_matrix = covariance_matrix
 
-    def solve(self):
-        super().solve()
-
     @property
     def solution(self):
         self._check_solved()
-        # TODO: Should be general?
         ampl_output = self._ampl.get_variable("weights").to_pandas().loc[1].to_dict()["weights.val"]
-        # print(self._ampl.eval("display OBJECTIVE;"))
         return ampl_output
 
     @property

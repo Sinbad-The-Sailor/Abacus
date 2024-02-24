@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
-import time
-
-from cytoolz import memoize
+import logging
 
 import torch
 import numpy as np
-
+from cytoolz import memoize
 from scipy.optimize import minimize
 from torch.distributions import Normal
 
 from src.abacus.models.model import Model
 from src.abacus.config import INITIAL_VARIANCE_GARCH_OBSERVATIONS, INITIAL_GARCH_PARAMETERS
-from src.abacus.utils.exceptions import ParameterError
+
+
+logger = logging.getLogger(__name__)
+
+
 
 class GARCH(Model):
 
@@ -128,6 +130,25 @@ class GARCH(Model):
             return torch.square(torch.std(self._data[:INITIAL_VARIANCE_GARCH_OBSERVATIONS]))
         return self._initial_squared_returns
 
+    def _update_variance(self, variance: torch.Tensor, squared_return: torch.Tensor, mu_corr, mu_ewma):
+        return self._long_run_variance + mu_corr * (mu_ewma * variance + (1 - mu_ewma) * squared_return - self._long_run_variance)
+
+    def _sanity_check(self):
+        parameter_check = self._check_parameters()
+        solution_check = self._check_solution()
+
+        if not parameter_check:
+            logger.debug(f"Garch model did not pass parameter check.")
+
+        if not solution_check:
+            logger.debug(f"Garch model did not pass solution check.")
+
+    def _check_parameters(self) -> bool:
+        return self._solution.success
+
+    def _check_solution(self) -> bool:
+        return np.sum(self._optimal_parameters) < 1
+
     @memoize
     def _compute_variance(self, parameters: torch.Tensor) -> torch.Tensor:
         initial_variance = self._initial_variance
@@ -141,32 +162,6 @@ class GARCH(Model):
                 variance = self._update_variance(variance, self._squared_returns[i-1], mu_corr, mu_ewma)
             variances[i] = variance
         return variances
-
-    def _update_variance(self, variance: torch.Tensor, squared_return: torch.Tensor, mu_corr, mu_ewma):
-        return self._long_run_variance + mu_corr * (mu_ewma * variance + (1 - mu_ewma) * squared_return - self._long_run_variance)
-
-    def _sanity_check(self):
-        parameter_check = self._check_parameters()
-        solution_check = self._check_solution()
-
-        if not parameter_check:
-            # log.
-            ...
-
-        if not solution_check:
-            # log.
-            ...
-
-        if not parameter_check or not solution_check:
-            # TODO: Make more stable or catch this error when running loop!
-            # raise ParameterError("Parameters could not be asceratined succesfully.")
-            ...
-
-    def _check_parameters(self) -> bool:
-        return self._solution.success
-
-    def _check_solution(self) -> bool:
-        return np.sum(self._optimal_parameters) < 1
 
     @staticmethod
     def _intermediary_parameters(parameters: torch.Tensor):

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import torch
 import numpy as np
-
 from scipy.optimize import minimize
 
 from src.abacus.config import EVT_THRESHOLD, GEV_INITIAL_SOLUTION
@@ -122,7 +121,6 @@ class RiskAssessor:
         log_loss.backward()
         return log_loss.data.cpu().numpy(), parameters.grad.data.cpu().numpy()
 
-
     def extreme_value_at_risk(self, confidence_level: float) -> float:
         """
         Calculates the Value at Risk of portfolio returns (either in percentage terms or in absolute value) as specified
@@ -146,7 +144,6 @@ class RiskAssessor:
 
         return extreme_var.item()
 
-
     def extreme_expected_shortfall(self, confidence_level: float) -> float:
         """
         Calculates the Expected Shortfall of portfolio returns (either in percentage terms or in absolute value) as
@@ -166,7 +163,6 @@ class RiskAssessor:
         extreme_es = extreme_var / (1 - xi) + (beta - threshold * xi) /(1 - xi)
 
         return extreme_es.item()
-
 
     def value_at_risk(self, confidence_level: float) -> float:
         """

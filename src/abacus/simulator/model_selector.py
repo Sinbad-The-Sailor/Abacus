@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 
 class ModelSelector:
-    # TODO: Add more models here.
 
     STOCK_ADMISSIBLE_MODELS = AR, GARCH
 
@@ -29,8 +28,6 @@ class ModelSelector:
         self._instrument = other
 
     def select_model(self):
-        # TODO: Add more supported instrument types here.
-        # TODO: Add sanity check of if instrument is None and instrument model is None.
         instrument_type = self.instrument.instrument_type
         if instrument_type == "Stock":
             self._select_stock_model()

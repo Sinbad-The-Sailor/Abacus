@@ -3,6 +3,7 @@ import torch
 import numpy as np
 import pandas as pd
 
+from src.abacus.models.model import Model
 
 
 class Instrument:
@@ -37,7 +38,7 @@ class Instrument:
         return torch.Tensor(self.art_returns.values.flatten())
 
     @property
-    def model(self):
+    def model(self) -> Model:
         return self._model
 
     @model.setter
@@ -45,7 +46,7 @@ class Instrument:
         self._model = other
 
     @property
-    def price_history(self):
+    def price_history(self) -> pd.DataFrame:
         return self._price_history
 
     @price_history.setter
