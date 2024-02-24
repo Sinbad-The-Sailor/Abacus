@@ -26,7 +26,7 @@ portfolio = Portfolio(weights=inital_weights)
 start_date = "2020-01-02"
 end_date = "2020-01-05" # "2023-05-31"
 date_range = pd.date_range(start=start_date, end=end_date, freq='B')
-solutions = {}
+solutions = {"2020-01-01": inital_weights}
 times = {}
 
 for date in date_range:
@@ -34,19 +34,19 @@ for date in date_range:
     universe.date_today = date
     simulator = Simulator(universe)
     simulator.calibrate()
-    simulator.run_simulation(time_steps=10, number_of_simulations=1000)
-    optimizer = MPCMaximumReturn(universe, portfolio, simulator.return_tensor, gamma=1, l1_penalty=0, l2_penalty=0.05,
+    simulator.run_simulation(time_steps=10, number_of_simulations=1_000)
+    optimizer = MPCMaximumReturn(universe, portfolio, simulator.return_tensor, gamma=2, l1_penalty=0, l2_penalty=0.15,
                                  covariance_matrix=simulator.covariance_matrix)
     optimizer.solve()
-
     solution = optimizer.solution
     times[date] = time.time() - t1
     portfolio.weights = solution
     solutions[date] = solution
 
+
 print('\n' * 10)
 for date, solution in solutions.items():
-    print(f"Took {times[date]} seconds.")
+    print(f"Took {times.get(date, -1)} seconds.")
     for a, w in solution.items():
         print(a, w)
     print()

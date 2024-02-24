@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+import time
+
+from cytoolz import memoize
+
 import torch
 import numpy as np
 
@@ -58,7 +62,6 @@ class GARCH(Model):
         simulated_values = torch.zeros(number_of_samples)
         parameters = torch.tensor(self._solution.x)
         mu_corr, mu_ewma = self._intermediary_parameters(parameters=parameters)
-
 
         variance = self._compute_variance(parameters=torch.tensor(self._solution.x))[-1]
         squared_return = self._squared_returns[-1]
@@ -125,6 +128,7 @@ class GARCH(Model):
             return torch.square(torch.std(self._data[:INITIAL_VARIANCE_GARCH_OBSERVATIONS]))
         return self._initial_squared_returns
 
+    @memoize
     def _compute_variance(self, parameters: torch.Tensor) -> torch.Tensor:
         initial_variance = self._initial_variance
         variances = torch.zeros(self._number_of_observations)
