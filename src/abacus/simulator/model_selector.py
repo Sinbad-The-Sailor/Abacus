@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 
 class ModelSelector:
-    # TODO: Add a selection strategy LOOCV, other information criterion, etc.
     # TODO: Add more models here.
 
     STOCK_ADMISSIBLE_MODELS = AR, GARCH

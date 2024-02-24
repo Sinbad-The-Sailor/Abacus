@@ -22,7 +22,7 @@ class Model(ABC):
         """Calibrates the parameters of the model. A non-calibrated model does not
         have an AIC/BIC and simulations are not possible.
         """
-        ...
+        pass
 
     @abstractmethod
     def transform_to_uniform(self):
@@ -31,7 +31,7 @@ class Model(ABC):
 
         Required for copula calibration.
         """
-        ...
+        pass
 
     @abstractmethod
     def transform_to_true(self, uniform_sample: torch.Tensor) -> torch.Tensor:
@@ -44,21 +44,21 @@ class Model(ABC):
         Returns:
             torch.Tensor: Sample of simulated process in chronological order.
         """
-        ...
+        pass
 
     @property
     @abstractmethod
     def _log_likelihood(self):
         """
         """
-        ...
+        pass
 
     @property
     @abstractmethod
     def _number_of_parameters(self):
         """
         """
-        ...
+        pass
 
     @property
     def aic(self) -> torch.Tensor:

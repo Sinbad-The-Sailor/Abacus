@@ -31,6 +31,7 @@ class Simulator:
         # TODO: Add input for price through enum.
         # TODO: Consider making static.
         # TODO: Consider check for symmetric and positive semi definiteness.
+        # TODO: Consider having in universe? Does not actually pertain to simulations itself.
         if data_type == DataTypes.LOG_RETURNS:
             instrument_data = [instrument.log_returns_tensor for instrument in self._instruments]
         elif data_type == DataTypes.ART_RETURNS:

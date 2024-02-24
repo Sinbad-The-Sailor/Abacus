@@ -18,7 +18,7 @@ class OptimizationModel(ABC):
 
     _model_specification: ClassVar[str]
 
-    def __init__(self, universe: Universe, portfolio: Portfolio, simulation_tensor: torch.Tensor, solver: str=DEFAULT_SOLVER):
+    def __init__(self, universe: Universe, portfolio: Portfolio, simulation_tensor: torch.Tensor, solver: str=DEFAULT_SOLVER, verbose: bool=True):
         self._portfolio = portfolio
         self._simulation_tensor = simulation_tensor
         self._universe = universe
@@ -26,6 +26,7 @@ class OptimizationModel(ABC):
         self._solver = solver
         self._solved = False
         self._ampl = None
+        self._verbose = verbose
 
     def solve(self):
         # TODO: Consider a verbose mode to display command line output.
@@ -46,7 +47,7 @@ class OptimizationModel(ABC):
 
     def _solve_optimzation_problem(self):
         self._check_initialization()
-        self._ampl.solve()
+        self._ampl.solve(verbose=self._verbose)
 
     def _check_solved(self):
         if not self._solved:

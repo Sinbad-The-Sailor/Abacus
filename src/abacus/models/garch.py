@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import torch
 import numpy as np
-import pandas as pd
 
 from scipy.optimize import minimize
 from torch.distributions import Normal
