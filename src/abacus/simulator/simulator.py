@@ -3,11 +3,12 @@ import torch
 import numpy as np
 import pyvinecopulib as pv
 
-from src.abacus.utils.instrument import Instrument
 from src.abacus.utils.exceptions import ParameterError
 from src.abacus.utils.enumerations import DataTypes
+from src.abacus.utils.universe import Universe
 from src.abacus.simulator.model_selector import ModelSelector
 from src.abacus.config import VINE_COPULA_FAMILIES, VINE_COPULA_NUMBER_OF_THREADS
+
 
 
 class Simulator:
@@ -16,9 +17,9 @@ class Simulator:
 
     """
 
-    def __init__(self, instruments: list[Instrument]):
+    def __init__(self, universe: Universe):
         self._model_selector = ModelSelector()
-        self._instruments = sorted(instruments, key=lambda x: x.identifier)
+        self._instruments = universe.instruments
         self._calibrated = False
         self._return_tensor = None
         self._price_tensor = None
