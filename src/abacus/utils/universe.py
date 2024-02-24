@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import numpy as np
 
 from pandas import DataFrame
 from datetime import date
@@ -37,6 +38,10 @@ class Universe:
             ins = Instrument(id, identifier, "Stock", time_series)
             built_instruments.append(ins)
         return built_instruments
+
+    @property
+    def todays_returns(self):
+        return np.array([instrument.art_returns[-1] for instrument in self.instruments]).flatten()
 
     def has_updated_cache(self) -> bool:
         has_cache = self._instruments is not None

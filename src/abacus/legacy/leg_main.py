@@ -8,9 +8,9 @@ from utils.config import TEST_YAHOO_STOCK_UNIVERSE_16
 from utils.stock_factory import StockFactory
 from utils.data_handler import YahooDataHandler
 from utils.portfolio import Portfolio
-from utils.risk_assessor import RiskAssessor
+from abacus.assessor.risk_assessor import RiskAssessor
 from simulator.simulator import Simulator
-from optimizer.optimizer import Optimizer
+from abacus.optimizer.leg_optimizer import Optimizer
 from optimizer.enums import OptimizationModels
 
 

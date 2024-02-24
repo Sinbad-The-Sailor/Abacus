@@ -56,10 +56,7 @@ class Optimizer:
             tensor_size = price_tensor.shape
             number_of_assets = tensor_size[0]
             number_of_scenarios = tensor_size[1]
-
-            price_dict = {(j+1, asset.identifier): price_tensor[asset.id][j] for asset in assets
-                                                                             for j in range(number_of_scenarios)}
-
+            price_dict = {(j+1, asset.identifier): price_tensor[asset.id][j] for asset in assets for j in range(number_of_scenarios)}
             self._ampl.get_set("assets").set_values(asset_identifiers)
             self._ampl.param["gamma"] = -24
             self._ampl.param["risk_free_rate"] = 0.04

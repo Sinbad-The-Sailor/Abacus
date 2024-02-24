@@ -26,7 +26,7 @@ class Instrument:
 
     @property
     def art_returns(self) -> pd.DataFrame:
-        return self.price_history.pct_change()[1:]
+        return np.array(self.price_history.pct_change())[1:]
 
     @property
     def log_returns_tensor(self) -> torch.Tensor:
