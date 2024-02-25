@@ -123,7 +123,7 @@ class GARCH(Model):
     def _solve_maximum_likelihood(self):
         solution = minimize(self._cost_function,
                                     self._inital_solution,
-                                    method="L-BFGS-B",
+                                    method="Newton-CG",
                                     jac=True)
         self._solution = solution
 
