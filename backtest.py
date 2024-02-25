@@ -29,22 +29,24 @@ portfolio = Portfolio(weights=inital_weights)
 
 # Date range for backtesting.
 start_date = "2020-01-02"
-end_date = "2020-05-02" # "2023-05-31"
+end_date = "2020-10-02" # "2023-05-31"
 date_range = pd.date_range(start=start_date, end=end_date, freq='B')
 solutions = {"2020-01-01": inital_weights}
 times = {}
 
 for date in date_range:
-    t1 = time.time()
     universe.date_today = date
     simulator = Simulator(universe)
+    t0 = time.time()
     simulator.calibrate()
+    print("Calibration", time.time() - t0)
+    t1 = time.time()
     simulator.run_simulation(time_steps=10, number_of_simulations=1000)
+    print("Simulation", time.time() - t1)
     optimizer = MPCMaximumReturn(universe, portfolio, simulator.return_tensor, gamma=2, l1_penalty=0, l2_penalty=0.02,
                                  covariance_matrix=simulator.covariance_matrix)
     optimizer.solve()
     solution = optimizer.solution
-    times[date] = time.time() - t1
     portfolio.weights = solution
     solutions[date] = solution
 

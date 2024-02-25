@@ -153,7 +153,7 @@ class MPCMaximumReturn(OptimizationModel):
 
     @property
     def _return_expectation_tensor(self):
-        return torch.mean(self._simulation_tensor, dim=2)
+        return np.mean(self._simulation_tensor, axis=2)
 
     @property
     def _assets(self):

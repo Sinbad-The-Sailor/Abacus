@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 import logging
+import time
 
 import torch
 import numpy as np
+
+from scipy import stats
 from cytoolz import memoize
 from scipy.optimize import minimize
 from torch.distributions import Normal
@@ -58,20 +61,19 @@ class GARCH(Model):
 
     def transform_to_true(self, uniform_sample: torch.Tensor) -> torch.Tensor:
         self._check_calibration()
-
         number_of_samples = len(uniform_sample)
-        normals = Normal(0,1).icdf(uniform_sample)
-        simulated_values = torch.zeros(number_of_samples)
-        parameters = torch.tensor(self._solution.x)
+        normals = stats.norm.ppf(uniform_sample)
+        simulated_values = np.empty(shape=number_of_samples)
+        parameters = self._solution.x
         mu_corr, mu_ewma = self._intermediary_parameters(parameters=parameters)
 
-        variance = self._compute_variance(parameters=torch.tensor(self._solution.x))[-1]
+        variance = self._compute_variance(parameters=self._solution.x)[-1]
         squared_return = self._squared_returns[-1]
 
         for i in range(number_of_samples):
             variance = self._update_variance(variance, squared_return, mu_corr, mu_ewma)
-            return_ = torch.sqrt(variance) * normals[i]
-            squared_return = torch.square(return_)
+            return_ = np.sqrt(variance) * normals[i]
+            squared_return = np.square(return_)
             simulated_values[i] = return_
 
         return simulated_values
@@ -130,7 +132,8 @@ class GARCH(Model):
             return torch.square(torch.std(self._data[:INITIAL_VARIANCE_GARCH_OBSERVATIONS]))
         return self._initial_squared_returns
 
-    def _update_variance(self, variance: torch.Tensor, squared_return: torch.Tensor, mu_corr, mu_ewma):
+    def _update_variance(self, variance: torch.Tensor | float, squared_return: torch.Tensor | float,
+                         mu_corr: torch.Tensor | float , mu_ewma: torch.Tensor | float):
         return self._long_run_variance + mu_corr * (mu_ewma * variance + (1 - mu_ewma) * squared_return - self._long_run_variance)
 
     def _sanity_check(self):
@@ -164,7 +167,7 @@ class GARCH(Model):
         return variances
 
     @staticmethod
-    def _intermediary_parameters(parameters: torch.Tensor):
+    def _intermediary_parameters(parameters: torch.Tensor | np.ndarray):
         """Computes mu_corr and mu_ewma from z_corr and z_ewma.
 
         Args:
@@ -173,7 +176,12 @@ class GARCH(Model):
         Returns:
             _type_: _description_
         """
-        mu = torch.exp(-torch.exp(-parameters))
+        if isinstance(parameters, torch.Tensor):
+            mu = torch.exp(-torch.exp(-parameters))
+
+        if isinstance(parameters, np.ndarray):
+            mu = np.exp(-np.exp(-parameters))
+
         return mu[0], mu[1]
 
     @staticmethod
