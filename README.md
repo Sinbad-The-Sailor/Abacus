@@ -53,13 +53,12 @@ $$
 
 $$
 \begin{align*}
-\text{max} \quad & \sum_{t=0}^{T-1} \Big (\sum_{a \in A} \big ( \mathbb{E}[R_{ta} | \cal{F}_t]w_{ta} - \gamma \sum_{b \in A}w_{ta}w_{tb}\Sigma_{ab} + \kappa_a (w_{ta} - w_{t-1,a})^2 \big ) \Big)\\
+\text{max} \quad & \sum_{t=0}^{T-1} \Big (\sum_{a \in A} \big ( \mathbb{E}[R_{ta} | F_t]w_{ta} - \gamma \sum_{b \in A}w_{ta}w_{tb}\Sigma_{ab} + \kappa_a (w_{ta} - w_{t-1,a})^2 \big ) \Big)\\
 \text{s.t} \quad & \sum_{a \in A} w_{ta} = \alpha, \quad \forall t \in \{1,\ldots, T \}\\
 & l_{ta} \leq w_{ta} \leq u_{ta}, \quad \forall t \in \{1,\ldots T\}, ~ \forall a\in A \\
 & w_{0a} = \text{inital weight} \quad \forall a \in A \\
 \end{align*}
 $$
-
 
 ### **Forecasting**
 
