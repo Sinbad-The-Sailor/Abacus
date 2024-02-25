@@ -38,36 +38,27 @@
 For portfolio optimzation there are two paradigmes which utilizes the simulation tensor. Stochastic Programming (SP) and Model Predictive Control (MPC). The main difference being SP utilizing all scenarios for one time period, while MPC considers the average scenario over multiple time periods. The implemented models yield different results and can be modified with additional constraints and asset classes to suit any investor.
 
 ##### 1. Maximize Expected Utility Domestic Stocks (Stochastic Programming)
-$$
-\mbox{max} \quad \mathbb{E}\Big[ U\Big( x_1^{\text{cash}} +  \sum_{a \in A} p_{1,a}^{\text{mid}} x_{1,a}^{\text{hold}}  \Big)   \Big]
-$$
 
-$$
-x_{1,a}^{\text{hold}} = h_{0,a}^{\text{hold}} + x_{0, a}^{\text{buy}} - x_{0,a}^{\text{sell}} \quad \forall a \in A
-$$
-
-$$
-x_1^{\text{cash}} = \big(h_0^{\text{cash}} +  \sum_{a \in A} (p_{0,a}^{\text{ask}}x_{0,a}^{\text{buy}} - p_{0,a}^{\text{bid}}x_{0,a}^{\text{sell}})   \big) e^{r \Delta t}
-$$
-
-$$
-x_{0, a}^{\text{buy}}, ~x_{0,a}^{\text{sell}}, ~x_{1, a}^{\text{hold}} \geq 0 \quad \forall a \in A
-$$
-
-$$
-x_1^{\text{cash}} \geq 0
-$$
-
-##### 2. Maximize Expected Utility Domestic Stocks (Model Predictive Control)
 $$
 \begin{align*}
-& \mbox{max} \quad \sum_{t=0}^{T-1} U\Big(\sum_{a \in A} \mathbb{E}[r_{ta}](w_{ta} + z_{ta})   \Big) \\
-& w_{t+1,a} = w_{ta} + z_{ta} \quad \forall t \in \{0,\ldots,T-1\} ~ \forall a \in A \\
-& \sum_{a \in A} z_{ta} = 0 \quad \forall t \in \{0,\ldots,T-1\} \\
+\text{max} \quad & \mathbb{E}\Big[ U\Big( x_1^{\text{cash}} +  \sum_{a \in A} p_{1,a}^{\text{mid}} x_{1,a}^{\text{hold}}  \Big)   \Big]\\
+\text{s.t} \quad & x_{1,a}^{\text{hold}} = h_{0,a}^{\text{hold}} + x_{0, a}^{\text{buy}} - x_{0,a}^{\text{sell}} \quad \forall a \in A\\
+& x_1^{\text{cash}} = \Big(h_0^{\text{cash}} +  \sum_{a \in A} (p_{0,a}^{\text{ask}}x_{0,a}^{\text{buy}} - p_{0,a}^{\text{bid}}x_{0,a}^{\text{sell}})   \Big) e^{r \Delta t} \\
+& x_{0, a}^{\text{buy}}, ~x_{0,a}^{\text{sell}}, ~x_{1, a}^{\text{hold}} \geq 0 \quad \forall a \in A \\
+& x_1^{\text{cash}} \geq 0 \\
 \end{align*}
 $$
 
+##### 2. Maximize Expected Utility Domestic Stocks (Model Predictive Control)
 
+$$
+\begin{align*}
+\text{max} \quad & \sum_{t=0}^{T-1} \Big (\sum_{a \in A} \big ( \mathbb{E}[R_{ta} | \cal{F}_t]w_{ta} - \gamma \sum_{b \in A}w_{ta}w_{tb}\Sigma_{ab} + \kappa_a (w_{ta} - w_{t-1,a})^2 \big ) \Big)\\
+\text{s.t} \quad & \sum_{a \in A} w_{ta} = \alpha, \quad \forall t \in \{1,\ldots, T \}\\
+& l_{ta} \leq w_{ta} \leq u_{ta}, \quad \forall t \in \{1,\ldots T\}, ~ \forall a\in A \\
+& w_{0a} = \text{inital weight} \quad \forall a \in A \\
+\end{align*}
+$$
 
 
 ### **Forecasting**
@@ -76,23 +67,13 @@ $$
 Stocks and other equities are model using a modified version of a discretized Merton-Jump-Diffusion SDE. Volatility is updated using a GJR-GARCH(1,1) model, and innovations within the model have a generalized Student's t distribution
 
 $$
-r_t = \mu + \sigma_t \xi_t + \kappa \sigma_t \sqrt{\zeta_t} \varepsilon_t
-$$
-
-$$
-\sigma_t^2 = \beta_0 + \beta_1 r_{t-1}^2 + \beta_3 1_{ \{r_{t-1}<0 \} }r_{t-1}^2  + \beta_2 \sigma_{t-1}^2
-$$
-
-$$
-\beta_0, \beta_1, \beta_2 \geq 0, \quad \beta_1 + \beta_2 + \frac{1}{2}\beta_3 \leq 1, \quad \beta_2 + \beta_3 \geq 0
-$$
-
-$$
-\kappa \in \mathbb{R},\quad \mu \in \mathbb{R}, \quad \lambda_J > 0
-$$
-
-$$
-\xi_t \overset{\textrm{iid}}{\sim} \textrm{\textbf{t}}_{\nu}(0,1),\quad \zeta_t \overset{\textrm{iid}}{\sim} \textrm{\textbf{Po}}(\lambda_J),\quad \varepsilon_t \overset{\textrm{iid}}{\sim} \textrm{\textbf{N}}(0,1).
+\begin{align*}
+r_t & = \mu + \sigma_t \xi_t + \kappa \sigma_t \sqrt{\zeta_t} \varepsilon_t\\
+\sigma_t^2 & = \beta_0 + \beta_1 r_{t-1}^2 + \beta_3 1_{ \{r_{t-1}<0 \} }r_{t-1}^2  + \beta_2 \sigma_{t-1}^2\\
+& \beta_0, \beta_1, \beta_2 \geq 0, \quad \beta_1 + \beta_2 + \frac{1}{2}\beta_3 \leq 1, \quad \beta_2 + \beta_3 \geq 0\\
+& \kappa \in \mathbb{R},\quad \mu \in \mathbb{R}, \quad \lambda_J > 0\\
+& \xi_t \overset{\textrm{iid}}{\sim} \textrm{\textbf{t}}_{\nu}(0,1),\quad \zeta_t \overset{\textrm{iid}}{\sim} \textrm{\textbf{Po}}(\lambda_J),\quad \varepsilon_t \overset{\textrm{iid}}{\sim} \textrm{\textbf{N}}(0,1).\\
+\end{align*}
 $$
 
 The generalized Student's t distribution is given as the following
